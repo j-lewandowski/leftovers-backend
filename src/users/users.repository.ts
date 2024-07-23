@@ -5,7 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getEmails() {
+  async getEmails(): Promise<{ email: string }[]> {
     const emails = await this.prisma.user.findMany({
       select: {
         email: true,
