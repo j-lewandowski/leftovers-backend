@@ -10,7 +10,7 @@ export class AppController {
   ) {}
 
   @Get()
-  async getUsers() {
-    return await this.usersService.getEmails();
+  getEmails(): Promise<{ email: string }[]> {
+    return this.usersService.getEmails();
   }
 }

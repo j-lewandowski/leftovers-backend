@@ -5,8 +5,8 @@ import { UsersRepository } from './users.repository';
 export class UsersService {
   constructor(private usersRepository: UsersRepository) {}
 
-  async getEmails() {
-    const users = await this.usersRepository.getEmails();
+  getEmails(): Promise<{ email: string }[]> {
+    const users = this.usersRepository.getEmails();
     return users;
   }
 }
