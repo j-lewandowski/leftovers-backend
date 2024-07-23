@@ -1,7 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { UsersService } from './users/users.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller()
 export class AppController {
   constructor(
@@ -10,6 +12,21 @@ export class AppController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: "Get users' emails" })
+  @ApiResponse({
+    status: 200,
+    example: [
+      {
+        email: 'email1@email.com',
+      },
+      {
+        email: 'email2@email.com',
+      },
+      {
+        email: 'email3@email.com',
+      },
+    ],
+  })
   getEmails(): Promise<{ email: string }[]> {
     return this.usersService.getEmails();
   }
