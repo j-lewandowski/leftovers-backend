@@ -3,10 +3,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
+import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService,
+  ) {}
 
   async getEmails(): Promise<UsersEmailsResponseDto> {
     const emails = await this.prisma.user.findMany({
@@ -18,10 +23,16 @@ export class UsersRepository {
   }
 
   async register(user: CreateUserDto): Promise<UserDto> {
+    console.log(this.configService.get('BCRYPT_ROUNDS'));
+    const hashedPassword = await bcrypt.hash(
+      user.password,
+      +this.configService.get('BCRYPT_ROUNDS'),
+    );
+
     const res = await this.prisma.user.create({
       data: {
         email: user.email,
-        password: user.password,
+        password: hashedPassword,
       },
     });
     delete res.password;
