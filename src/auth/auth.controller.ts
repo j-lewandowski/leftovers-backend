@@ -9,11 +9,11 @@ import {
 } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UserDto } from 'src/users/dto/user.dto';
-import { UsersService } from 'src/users/users.service';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private usersService: UsersService) {}
+  constructor(private authService: AuthService) {}
   @ApiTags('auth')
   @ApiOperation({ summary: 'Allows to register user' })
   @Post('signup')
@@ -39,6 +39,6 @@ export class AuthController {
     },
   })
   async registerUser(@Body() userData: CreateUserDto): Promise<UserDto> {
-    return this.usersService.registerUser(userData);
+    return this.authService.registerUser(userData);
   }
 }
