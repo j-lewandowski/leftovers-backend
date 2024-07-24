@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { UsersService } from './users/users.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UsersEmailsResponseDto } from './users/dto/users-email-reponse.dto';
 
 @ApiTags('Users')
 @Controller()
@@ -13,21 +14,8 @@ export class AppController {
 
   @Get()
   @ApiOperation({ summary: "Get users' emails" })
-  @ApiResponse({
-    status: 200,
-    example: [
-      {
-        email: 'email1@email.com',
-      },
-      {
-        email: 'email2@email.com',
-      },
-      {
-        email: 'email3@email.com',
-      },
-    ],
-  })
-  getEmails(): Promise<{ email: string }[]> {
+  @ApiOkResponse({ type: UsersEmailsResponseDto })
+  getEmails(): Promise<UsersEmailsResponseDto> {
     return this.usersService.getEmails();
   }
 }

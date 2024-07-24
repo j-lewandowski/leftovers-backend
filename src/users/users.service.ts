@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
+import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private usersRepository: UsersRepository) {}
 
-  getEmails(): Promise<{ email: string }[]> {
-    const users = this.usersRepository.getEmails();
-    return users;
+  getEmails(): Promise<UsersEmailsResponseDto> {
+    return this.usersRepository.getEmails();
   }
 }
