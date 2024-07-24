@@ -4,7 +4,7 @@ import { UsersService } from './users/users.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersEmailsResponseDto } from './users/dto/users-email-reponse.dto';
 
-@ApiTags('Users')
+@ApiTags('users')
 @Controller()
 export class AppController {
   constructor(
