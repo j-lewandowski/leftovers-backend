@@ -27,7 +27,7 @@ export class AppController {
       },
     ],
   })
-  async getUsers() {
-    return await this.usersService.getEmails();
+  async getUsers(): Promise<{ email: string }[]> {
+    return this.usersService.getEmails();
   }
 }
