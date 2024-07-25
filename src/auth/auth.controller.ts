@@ -7,13 +7,14 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UserDto } from 'src/users/dto/user.dto';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
   @ApiTags('auth')
   @ApiOperation({ summary: 'Allows to register user' })
   @Post('signup')
