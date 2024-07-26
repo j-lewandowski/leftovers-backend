@@ -62,9 +62,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Allows to log in a user' })
   @ApiOkResponse({
     description: 'User authorized.',
-    example: {
-      access_token: 'access_token',
-    },
+    type: AccessTokenDto,
   })
   @ApiUnauthorizedResponse({
     description: 'User unauthorized.',
