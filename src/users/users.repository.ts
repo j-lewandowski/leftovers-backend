@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersRepository {
@@ -47,5 +48,14 @@ export class UsersRepository {
 
     const { password, ...userWithoutPassword } = res;
     return userWithoutPassword;
+  }
+
+  async findOne(email: string): Promise<User> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+      },
+    });
+    return user;
   }
 }

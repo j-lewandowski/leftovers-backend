@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -10,6 +10,7 @@ import {
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
+import { LocalAuthGuard } from './basic-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -41,5 +42,10 @@ export class AuthController {
   })
   async registerUser(@Body() userData: CreateUserDto): Promise<UserDto> {
     return this.authService.registerUser(userData);
+  }
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  async loginUser(@Request() req) {
+    return this.authService.login(req.user);
   }
 }
