@@ -1,10 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
 import { UsersService } from '../src/users/users.service';
+import { PrismaModule } from '../src/prisma/prisma.module';
+import { UsersController } from '../src/users/users.controller';
+import { ConfigModule } from '@nestjs/config';
 import { UsersRepository } from '../src/users/users.repository';
-import { PrismaService } from '../src/prisma/prisma.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -12,8 +13,9 @@ describe('AppController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-      providers: [UsersService, UsersRepository, PrismaService],
+      imports: [ConfigModule, PrismaModule],
+      providers: [UsersService, UsersRepository],
+      controllers: [UsersController],
     }).compile();
 
     app = moduleFixture.createNestApplication();
