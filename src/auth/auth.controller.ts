@@ -21,6 +21,7 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './basic-auth.guard';
+import { AccessTokenDto } from './dto/access-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -76,7 +77,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
-  async loginUser(@Request() req) {
+  async loginUser(@Request() req): Promise<AccessTokenDto> {
     return this.authService.login(req.user);
   }
 }
