@@ -1,7 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('users')
 @Controller()
@@ -10,6 +11,7 @@ export class UsersController {
   @ApiTags()
   @ApiOperation({ summary: "Get users' emails" })
   @ApiOkResponse({ type: UsersEmailsResponseDto })
+  @UseGuards(JwtAuthGuard)
   @Get()
   getEmails(): Promise<UsersEmailsResponseDto> {
     return this.usersService.getEmails();
