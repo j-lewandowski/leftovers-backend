@@ -11,6 +11,7 @@ describe('UsersRepository', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       create: jest.fn(),
+      findFirst: jest.fn(),
     },
   };
 
@@ -55,28 +56,54 @@ describe('UsersRepository', () => {
         createdAt: expect.any(Date),
       });
     });
+
+    it('should throw an error if user with the same email already exists', async () => {
+      const userDto = {
+        email: 'email@email.com',
+        password: 'password',
+      };
+
+      prismaMockService.user.create.mockResolvedValueOnce({
+        id: 'id',
+        email: 'email@email.com',
+        createdAt: new Date(),
+      });
+
+      await repository.register(userDto);
+
+      prismaMockService.user.create.mockRejectedValueOnce(
+        new Error('User with this email already exists'),
+      );
+
+      await expect(repository.register(userDto)).rejects.toThrow(
+        'User with this email already exists',
+      );
+    });
   });
 
-  it('should throw an error if user with the same email already exists', async () => {
-    const userDto = {
-      email: 'email@email.com',
-      password: 'password',
-    };
+  describe('findOne', () => {
+    it('should return a user if user exists in database', async () => {
+      jest.spyOn(prismaMockService.user, 'findFirst').mockResolvedValue({
+        id: 'id',
+        email: 'email@email.com',
+        password: 'password',
+        createdAt: new Date(),
+      });
 
-    prismaMockService.user.create.mockResolvedValueOnce({
-      id: 'id',
-      email: 'email@email.com',
-      createdAt: new Date(),
+      const res = await repository.findOne('email@email.com');
+      expect(res).toEqual({
+        id: 'id',
+        email: 'email@email.com',
+        password: 'password',
+        createdAt: expect.any(Date),
+      });
     });
 
-    await repository.register(userDto);
+    it('should return null if user does not exist in database', async () => {
+      jest.spyOn(prismaMockService.user, 'findFirst').mockResolvedValue(null);
 
-    prismaMockService.user.create.mockRejectedValueOnce(
-      new Error('User with this email already exists'),
-    );
-
-    await expect(repository.register(userDto)).rejects.toThrow(
-      'User with this email already exists',
-    );
+      const res = await repository.findOne('nonexistingemail@email.com');
+      expect(res).toEqual(null);
+    });
   });
 });

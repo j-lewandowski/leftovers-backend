@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBasicAuth,
@@ -68,6 +75,7 @@ export class AuthController {
   @ApiBasicAuth('basic-auth')
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(200)
   async loginUser(@Request() req) {
     return this.authService.login(req.user);
   }
