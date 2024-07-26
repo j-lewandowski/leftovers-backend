@@ -29,8 +29,9 @@ export class UsersRepository {
       },
     });
 
-    if (usersWithTheSameEmail > 0)
+    if (usersWithTheSameEmail > 0) {
       throw new ConflictException('User already exists');
+    }
 
     const hashedPassword = await bcrypt.hash(
       user.password,
@@ -43,7 +44,8 @@ export class UsersRepository {
         password: hashedPassword,
       },
     });
-    delete res.password;
-    return res;
+
+    const { password, ...userWithoutPassword } = res;
+    return userWithoutPassword;
   }
 }

@@ -11,11 +11,11 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @ApiTags('auth')
   @ApiOperation({ summary: 'Allows to register user' })
   @Post('signup')
   @ApiBody({
