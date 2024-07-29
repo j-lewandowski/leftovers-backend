@@ -26,3 +26,9 @@ model SignUpRequests {
   validationToken String   @map("validation_token")
   createdAt       DateTime @default(now()) @map("created_at")
 }
+
+model SignUpRequests {
+  validation_token String   @id
+  password         String
+  createdAt        DateTime @default(now())
+}
