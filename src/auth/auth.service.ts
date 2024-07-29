@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepository } from '../users/users.repository';
+import { UsersRepository } from '../users/repositories/users.repository';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AccessTokenDto } from './dto/access-token.dto';
-
+import { ConfigService } from '@nestjs/config';
+import { SignUpRequestsRepository } from './auth.repository';
 @Injectable()
 export class AuthService {
   constructor(
     private usersRepository: UsersRepository,
     private jwtService: JwtService,
+    private configService: ConfigService,
+    private signUpRequestsRepository: SignUpRequestsRepository,
   ) {}
 
   registerUser(user: CreateUserDto): Promise<UserDto> {
@@ -38,5 +41,15 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async addSignUpRequest(user: CreateUserDto): Promise<string> {
+    const validation_token = this.jwtService.sign({ email: user.email });
+    const password = await bcrypt.hash(
+      user.password,
+      +this.configService.get('BCRYPT_ROUNDS'),
+    );
+    await this.signUpRequestsRepository.create(validation_token, password);
+    return validation_token;
   }
 }
