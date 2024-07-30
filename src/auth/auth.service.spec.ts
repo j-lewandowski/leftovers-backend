@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { UsersRepository } from '../users/users.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -18,14 +19,14 @@ describe('AuthService', () => {
           provide: UsersRepository,
           useValue: {
             register: jest.fn((dto) => ({
-              id: 'id',
+              id: faker.string.uuid(),
               email: dto.email,
               createdAt: new Date(),
             })),
             findOne: jest.fn((email) => ({
-              id: 'id',
+              id: faker.string.uuid(),
               email,
-              password: 'password',
+              password: faker.internet.password(),
               createdAt: new Date(),
             })),
           },
@@ -41,8 +42,8 @@ describe('AuthService', () => {
   describe('registerUser', () => {
     it('should call register function', async () => {
       const userDto = {
-        email: 'email@email.com',
-        password: 'password',
+        email: faker.internet.email(),
+        password: faker.internet.password(),
       };
 
       await service.registerUser(userDto);
@@ -52,14 +53,14 @@ describe('AuthService', () => {
 
     it('should return user data after registering', async () => {
       const userDto = {
-        email: 'email@email.com',
-        password: 'password',
+        email: faker.internet.email(),
+        password: faker.internet.password(),
       };
 
       const data = await service.registerUser(userDto);
 
       expect(data).toEqual({
-        id: 'id',
+        id: expect.any(String),
         email: userDto.email,
         createdAt: expect.any(Date),
       });
@@ -67,38 +68,35 @@ describe('AuthService', () => {
   });
 
   describe('validate', () => {
+    const userData = {
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      createdAt: faker.date.anytime(),
+    };
+
     it('should validate user', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: new Date(),
-      });
+      jest.spyOn(repository, 'findOne').mockResolvedValue(userData);
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => true);
 
-      const res = await service.validateUser('email@email.com', 'password');
+      const res = await service.validateUser(userData.email, userData.password);
       expect(res).toEqual({
-        id: 'id',
-        email: 'email@email.com',
-        createdAt: expect.any(Date),
+        id: expect.any(String),
+        email: userData.email,
+        createdAt: userData.createdAt,
       });
     });
 
     it('should return null if user was not found in database', async () => {
       jest.spyOn(repository, 'findOne').mockResolvedValue(null);
-      const res = await service.validateUser('email@email.com', 'password');
+      const res = await service.validateUser(userData.email, userData.password);
       expect(res).toBe(null);
     });
 
     it('should return null if passwords do not match', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: new Date(),
-      });
+      jest.spyOn(repository, 'findOne').mockResolvedValue(userData);
       jest.spyOn(bcrypt, 'compare').mockImplementation(() => false);
-      const res = await service.validateUser('email@email.com', 'password');
+      const res = await service.validateUser(userData.email, userData.password);
       expect(res).toBe(null);
     });
   });
@@ -106,9 +104,9 @@ describe('AuthService', () => {
   describe('login', () => {
     it('should return access token', async () => {
       const userDto = {
-        id: 'id',
-        email: 'email@email.com',
-        createdAt: new Date(),
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        createdAt: faker.date.anytime(),
       };
       jest.spyOn(jwt, 'sign').mockReturnValue('jwt-encoded-string');
       const res = await service.login(userDto);

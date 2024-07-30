@@ -20,7 +20,7 @@ import {
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './basic-auth.guard';
+import { BasicAuth } from './basic-auth.guard';
 import { AccessTokenDto } from './dto/access-token.dto';
 
 @ApiTags('auth')
@@ -72,7 +72,7 @@ export class AuthController {
     },
   })
   @ApiBasicAuth('basic-auth')
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(BasicAuth)
   @Post('login')
   @HttpCode(200)
   async loginUser(@Request() req): Promise<AccessTokenDto> {

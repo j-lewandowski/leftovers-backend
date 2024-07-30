@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersRepository } from '../users/users.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { faker } from '@faker-js/faker';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
@@ -36,37 +37,32 @@ describe('UsersRepository', () => {
   });
 
   describe('register', () => {
-    it('should return user data after registering', async () => {
-      const userDto = {
-        email: 'email@email.com',
-        password: 'password',
-      };
+    const userDto = {
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    };
 
+    it('should return user data after registering', async () => {
       prismaMockService.user.create.mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
+        id: faker.string.uuid(),
+        ...userDto,
         createdAt: new Date(),
       });
 
-      const res = await prismaMockService.user.create(userDto);
+      const res = await repository.register(userDto);
 
       expect(res).toEqual({
-        id: 'id',
+        id: expect.any(String),
         email: userDto.email,
         createdAt: expect.any(Date),
       });
     });
 
     it('should throw an error if user with the same email already exists', async () => {
-      const userDto = {
-        email: 'email@email.com',
-        password: 'password',
-      };
-
       prismaMockService.user.create.mockResolvedValueOnce({
-        id: 'id',
-        email: 'email@email.com',
-        createdAt: new Date(),
+        id: faker.string.uuid(),
+        ...userDto,
+        createdAt: faker.date.anytime,
       });
 
       await repository.register(userDto);
@@ -83,20 +79,18 @@ describe('UsersRepository', () => {
 
   describe('findOne', () => {
     it('should return a user if user exists in database', async () => {
-      jest.spyOn(prismaMockService.user, 'findFirst').mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: new Date(),
-      });
+      const mockReuslt = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        createdAt: faker.date.anytime(),
+      };
+      jest
+        .spyOn(prismaMockService.user, 'findFirst')
+        .mockResolvedValue(mockReuslt);
 
       const res = await repository.findOne('email@email.com');
-      expect(res).toEqual({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: expect.any(Date),
-      });
+      expect(res).toEqual(mockReuslt);
     });
 
     it('should return null if user does not exist in database', async () => {
