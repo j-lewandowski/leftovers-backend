@@ -7,7 +7,7 @@ import { AuthController } from '../src/auth/auth.controller';
 import { AuthService } from '../src/auth/auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { BasicStrategy } from '../src/auth/basic.strategy';
+import { BasicStrategy } from '../src/auth/strategies/basic.strategy';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
