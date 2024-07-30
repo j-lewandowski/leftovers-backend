@@ -104,7 +104,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('Should return access token', async () => {
+    it('should return access token', async () => {
       const userDto = {
         id: 'id',
         email: 'email@email.com',

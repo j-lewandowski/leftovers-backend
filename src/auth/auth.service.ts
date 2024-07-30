@@ -18,18 +18,18 @@ export class AuthService {
     return userData;
   }
 
-  async validateUser(email: string, passwd: string): Promise<UserDto> {
+  async validateUser(email: string, password: string): Promise<UserDto> {
     const user = await this.usersRepository.findOne(email);
     if (!user) {
       return null;
     }
 
-    const isCorrectPassword = await bcrypt.compare(passwd, user.password);
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
     if (!isCorrectPassword) {
       return null;
     }
 
-    const { password, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
