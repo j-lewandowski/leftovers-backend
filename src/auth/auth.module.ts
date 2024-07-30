@@ -10,7 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from 'src/email/email.module';
 import { EmailService } from 'src/email/email.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SignUpRequestsRepository } from './auth.repository';
+import { AuthRepository } from './auth.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
@@ -31,7 +31,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
     BasicStrategy,
     JwtStrategy,
     EmailService,
-    SignUpRequestsRepository,
+    AuthRepository,
     ConfigService,
   ],
 })

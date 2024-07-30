@@ -4,15 +4,25 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { SignUpRequestDto } from 'src/auth/dto/sign-up-request.dto';
 
 @Injectable()
-export class SignUpRequestsRepository {
+export class AuthRepository {
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
   ) {}
 
-  async create(token: string, password: string): Promise<SignUpRequestDto> {
+  async find(token: string): Promise<SignUpRequestDto> {
+    return this.prisma.signUpRequests.findFirst({
+      where: { validation_token: token },
+    });
+  }
+
+  async addSignUpRequest(
+    token: string,
+    email: string,
+    password: string,
+  ): Promise<SignUpRequestDto> {
     return await this.prisma.signUpRequests.create({
-      data: { validation_token: token, password },
+      data: { validation_token: token, email, password },
     });
   }
 }
