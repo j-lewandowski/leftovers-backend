@@ -6,6 +6,7 @@ import { PrismaModule } from '../src/prisma/prisma.module';
 import { UsersController } from '../src/users/users.controller';
 import { ConfigModule } from '@nestjs/config';
 import { UsersRepository } from '../src/users/users.repository';
+import { faker } from '@faker-js/faker';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -24,22 +25,17 @@ describe('AppController (e2e)', () => {
   });
 
   it('/ (GET)', async () => {
-    jest.spyOn(usersService, 'getEmails').mockResolvedValue({
+    const mockResult = {
       emails: [
-        { email: 'email1@email.com' },
-        { email: 'email2@email.com' },
-        { email: 'email3@email.com' },
+        { email: faker.internet.email() },
+        { email: faker.internet.email() },
+        { email: faker.internet.email() },
       ],
-    });
+    };
+    jest.spyOn(usersService, 'getEmails').mockResolvedValue(mockResult);
 
     const { body } = await request(app.getHttpServer()).get('/').expect(200);
-    expect(body).toEqual({
-      emails: [
-        { email: 'email1@email.com' },
-        { email: 'email2@email.com' },
-        { email: 'email3@email.com' },
-      ],
-    });
+    expect(body).toEqual(mockResult);
   });
 
   afterAll(async () => {

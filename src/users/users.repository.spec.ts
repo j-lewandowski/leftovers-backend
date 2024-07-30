@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersRepository } from '../users/users.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { faker } from '@faker-js/faker';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
@@ -11,6 +12,7 @@ describe('UsersRepository', () => {
       findMany: jest.fn(),
       count: jest.fn(),
       create: jest.fn(),
+      findFirst: jest.fn(),
     },
   };
 
@@ -35,48 +37,67 @@ describe('UsersRepository', () => {
   });
 
   describe('register', () => {
-    it('should return user data after registering', async () => {
-      const userDto = {
-        email: 'email@email.com',
-        password: 'password',
-      };
+    const userDto = {
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    };
 
+    it('should return user data after registering', async () => {
       prismaMockService.user.create.mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
+        id: faker.string.uuid(),
+        ...userDto,
         createdAt: new Date(),
       });
 
-      const res = await prismaMockService.user.create(userDto);
+      const res = await repository.register(userDto);
 
       expect(res).toEqual({
-        id: 'id',
+        id: expect.any(String),
         email: userDto.email,
         createdAt: expect.any(Date),
       });
     });
+
+    it('should throw an error if user with the same email already exists', async () => {
+      prismaMockService.user.create.mockResolvedValueOnce({
+        id: faker.string.uuid(),
+        ...userDto,
+        createdAt: faker.date.anytime,
+      });
+
+      await repository.register(userDto);
+
+      prismaMockService.user.create.mockRejectedValueOnce(
+        new Error('User with this email already exists'),
+      );
+
+      await expect(repository.register(userDto)).rejects.toThrow(
+        'User with this email already exists',
+      );
+    });
   });
 
-  it('should throw an error if user with the same email already exists', async () => {
-    const userDto = {
-      email: 'email@email.com',
-      password: 'password',
-    };
+  describe('findOne', () => {
+    it('should return a user if user exists in database', async () => {
+      const mockReuslt = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        createdAt: faker.date.anytime(),
+      };
+      jest
+        .spyOn(prismaMockService.user, 'findFirst')
+        .mockResolvedValue(mockReuslt);
 
-    prismaMockService.user.create.mockResolvedValueOnce({
-      id: 'id',
-      email: 'email@email.com',
-      createdAt: new Date(),
+      const res = await repository.findOne('email@email.com');
+      expect(res).toEqual(mockReuslt);
     });
 
-    await repository.register(userDto);
+    it('should return null if user does not exist in database', async () => {
+      jest.spyOn(prismaMockService.user, 'findFirst').mockResolvedValue(null);
 
-    prismaMockService.user.create.mockRejectedValueOnce(
-      new Error('User with this email already exists'),
-    );
-
-    await expect(repository.register(userDto)).rejects.toThrow(
-      'User with this email already exists',
-    );
+      const res = await repository.findOne('nonexistingemail@email.com');
+      expect(res).toEqual(null);
+    });
   });
 });

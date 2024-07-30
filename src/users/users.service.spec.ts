@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersRepository } from '../users/users.repository';
 import { UsersService } from './users.service';
+import { faker } from '@faker-js/faker';
 
 describe('UsersService', () => {
   let repository: UsersRepository;
@@ -15,9 +16,9 @@ describe('UsersService', () => {
           useValue: {
             getEmails: jest.fn(() => ({
               emails: [
-                'email1@email.com',
-                'email2@email.com',
-                'email3@email.com',
+                faker.internet.email(),
+                faker.internet.email(),
+                faker.internet.email(),
               ],
             })),
           },
@@ -40,7 +41,7 @@ describe('UsersService', () => {
       const data = await service.getEmails();
 
       expect(data).toEqual({
-        emails: ['email1@email.com', 'email2@email.com', 'email3@email.com'],
+        emails: [expect.any(String), expect.any(String), expect.any(String)],
       });
     });
   });
