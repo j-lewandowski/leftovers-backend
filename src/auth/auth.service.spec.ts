@@ -7,6 +7,7 @@ import { faker } from '@faker-js/faker';
 import { AuthRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -54,6 +55,11 @@ describe('AuthService', () => {
         email: faker.internet.email(),
         password: faker.internet.password(),
       };
+      jest.spyOn(usersRepository, 'register').mockResolvedValue({
+        id: faker.string.uuid(),
+        email: userDto.email,
+        createdAt: faker.date.anytime(),
+      });
 
       const data = await service.registerUser(userDto);
 
@@ -112,67 +118,69 @@ describe('AuthService', () => {
     });
   });
 
-  describe('addSignUpRequest', () => {
-    it('should call addSignedUpRequest function', async () => {
-      jest.spyOn(jwt, 'sign').mockReturnValue('jwt-encoded-string');
-      jest.spyOn(authRepository, 'addSignUpRequest').mockResolvedValue({
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        validation_token: 'jwt-encoded-string',
-        createdAt: faker.date.anytime(),
-      });
+  describe('createSignUpRequest', () => {
+    it('should call addSignUpRequest function', async () => {
+      jest
+        .spyOn(authRepository, 'createSignUpRequest')
+        .mockResolvedValue('validation-token');
 
       await service.createSignUpRequest({
         email: faker.internet.email(),
         password: faker.internet.password(),
       });
-      expect(authRepository.addSignUpRequest).toHaveBeenCalled();
+      expect(authRepository.createSignUpRequest).toHaveBeenCalled();
     });
   });
 
   describe('confirmUserRegistration', () => {
-    it('should return null if user request does not exist in database', async () => {
+    it('should throw an error if user request does not exist in database', async () => {
       jest.spyOn(authRepository, 'find').mockResolvedValue(null);
 
-      const res = await service.confirmUserRegistration({
-        email: faker.internet.email(),
-        validation_token: 'validation-token',
-      });
-      expect(res).toEqual(null);
+      await expect(
+        service.confirmUserRegistration({
+          validation_token: 'validation_token',
+          email: faker.internet.email(),
+        }),
+      ).rejects.toEqual(new NotFoundException('Request not found.'));
     });
 
-    it('should return null if users token is not verified', async () => {
+    it('should throw an error if users validation token is invalid', async () => {
       const mockUserRequest = {
-        validation_token: 'validation_token',
+        validation_token: 'validation-token',
         email: faker.internet.email(),
         password: 'hashed-password',
         createdAt: faker.date.anytime(),
       };
       jest.spyOn(authRepository, 'find').mockResolvedValue(mockUserRequest);
       jest.spyOn(jwt, 'verify').mockReturnValue(null);
-
-      const res = await service.confirmUserRegistration({
-        email: faker.internet.email(),
-        validation_token: 'validation-token',
-      });
-      expect(res).toEqual(null);
+      await expect(
+        service.confirmUserRegistration({
+          email: faker.internet.email(),
+          validation_token: 'validation-token',
+        }),
+      ).rejects.toThrow(new UnauthorizedException('Invalid token.'));
     });
 
     it('should return user data if users has been registered', async () => {
       const mockUserRequest = {
-        validation_token: 'validation_token',
+        validation_token: 'validation-token',
         email: faker.internet.email(),
         password: 'hashed-password',
         createdAt: faker.date.anytime(),
       };
       jest.spyOn(authRepository, 'find').mockResolvedValue(mockUserRequest);
       jest.spyOn(jwt, 'verify').mockReturnValue({});
+      jest.spyOn(usersRepository, 'confirmedRegister').mockResolvedValue({
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        createdAt: faker.date.anytime(),
+      });
 
-      const res = await service.confirmUserRegistration({
+      await service.confirmUserRegistration({
         email: faker.internet.email(),
         validation_token: 'validation-token',
       });
-      expect(res).toEqual(null);
+      expect(usersRepository.confirmedRegister).toHaveBeenCalled();
     });
   });
 });

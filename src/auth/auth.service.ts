@@ -21,6 +21,7 @@ export class AuthService {
     private authRepository: AuthRepository,
   ) {}
 
+  // Deprecated
   registerUser(user: CreateUserDto): Promise<UserDto> {
     return this.usersRepository.register(user);
   }
@@ -56,12 +57,15 @@ export class AuthService {
     if (!userRequest) {
       throw new NotFoundException('Request not found.');
     }
-
-    if (requestData.validation_token !== userRequest.validation_token) {
-      throw new UnauthorizedException('Invalid token');
+    const isTokenValid = this.jwtService.verify(requestData.validation_token);
+    if (
+      !isTokenValid ||
+      requestData.validation_token !== userRequest.validation_token
+    ) {
+      throw new UnauthorizedException('Invalid token.');
     }
 
-    await this.usersRepository.register({
+    await this.usersRepository.confirmedRegister({
       email: userRequest.email,
       password: userRequest.password,
     });
