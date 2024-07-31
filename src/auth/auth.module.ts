@@ -7,11 +7,11 @@ import { BasicStrategy } from './strategies/basic.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { EmailModule } from 'src/email/email.module';
-import { EmailService } from 'src/email/email.service';
+import { EmailModule } from '../email/email.module';
+import { EmailService } from '../email/email.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthRepository } from './auth.repository';
-import { PrismaModule } from 'src/prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [

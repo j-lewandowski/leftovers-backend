@@ -37,7 +37,7 @@ export class UsersRepository {
 
     const hashedPassword = await bcrypt.hash(
       user.password,
-      this.configService.get('BCRYPT_ROUNDS'),
+      +this.configService.get('BCRYPT_ROUNDS'),
     );
 
     const res = await this.prisma.user.create({
