@@ -34,7 +34,7 @@ export class AuthController {
     private emailService: EmailService,
   ) {}
 
-  @ApiOperation({ summary: 'Allows to register a user' })
+  @ApiOperation({ summary: 'DEPRECATED: Allows to register a user' })
   @Post('signup')
   @ApiBody({
     description: 'Email and password',
@@ -64,6 +64,33 @@ export class AuthController {
     return this.authService.registerUser(userData);
   }
 
+  @ApiOperation({
+    summary:
+      'Allows to register a user and sends confirmation email to provided email address',
+  })
+  @ApiBody({
+    description: 'Email and password',
+    type: CreateUserDto,
+  })
+  @ApiCreatedResponse({
+    description: 'User request has been created.',
+  })
+  @ApiConflictResponse({
+    description: 'Sign up request with this email already exists.',
+    example: {
+      message: 'Request already exists',
+      error: 'Conflict',
+      statusCode: 409,
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid credentials.',
+    example: {
+      message: ['password must be longer than or equal to 5 characters'],
+      error: 'Bad Request',
+      statusCode: 400,
+    },
+  })
   @Post('/register')
   async signUpUser(@Body() userData: CreateUserDto): Promise<void> {
     const token = await this.authService.createSignUpRequest(userData);
@@ -91,6 +118,18 @@ export class AuthController {
   }
 
   @Post('/confirm')
+  @ApiOperation({ summary: 'Allows to confirm users sign up request.' })
+  @ApiCreatedResponse({
+    description: 'Account created.',
+  })
+  @ApiConflictResponse({
+    description:
+      'There is already a sign up request connected to this email in database.',
+    example: {
+      message: 'User already exists',
+      statusCode: 409,
+    },
+  })
   async confirmUserRegistration(
     @Body() confirmSignUpData: ConfirmSignUpDto,
   ): Promise<void> {

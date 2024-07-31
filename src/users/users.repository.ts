@@ -59,7 +59,7 @@ export class UsersRepository {
     });
 
     if (usersWithTheSameEmail > 0) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('Request already exists');
     }
 
     const res = await this.prisma.user.create({
