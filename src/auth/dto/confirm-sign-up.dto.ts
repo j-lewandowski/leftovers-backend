@@ -1,4 +1,10 @@
+import { IsNotEmpty, IsString } from 'class-validator';
+
 export class ConfirmSignUpDto {
-  validation_token: string;
+  @IsString()
+  @IsNotEmpty()
   email: string;
+  @IsString()
+  @IsNotEmpty()
+  validation_token: string;
 }

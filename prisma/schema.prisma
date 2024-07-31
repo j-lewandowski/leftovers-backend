@@ -21,8 +21,8 @@ model User {
 }
 
 model SignUpRequests {
-  validation_token String   @id
-  email            String
+  email            String   @id
   password         String
+  validation_token String
   createdAt        DateTime @default(now())
 }

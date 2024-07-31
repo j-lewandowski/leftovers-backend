@@ -15,10 +15,10 @@ export class EmailService {
     });
   }
 
-  sendAccountConfirmationMail(to: string, token: string, email: string): void {
-    const link = `http://localhost:3000?requestId=${token}&userEmail=${email}`;
+  sendAccountConfirmationMail(userEmail: string, token: string): void {
+    const link = `http://localhost:3000?requestId=${token}&userEmail=${userEmail}`;
     this.mailService.sendMail({
-      to,
+      to: userEmail,
       subject: 'Account confirmation',
       text: token,
       template: 'activation',

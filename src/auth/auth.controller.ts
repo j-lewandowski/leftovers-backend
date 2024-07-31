@@ -66,12 +66,8 @@ export class AuthController {
 
   @Post('/register')
   async signUpUser(@Body() userData: CreateUserDto): Promise<void> {
-    const token = await this.authService.addSignUpRequest(userData);
-    this.emailService.sendAccountConfirmationMail(
-      userData.email,
-      token,
-      userData.email,
-    );
+    const token = await this.authService.createSignUpRequest(userData);
+    this.emailService.sendAccountConfirmationMail(userData.email, token);
   }
 
   @ApiOperation({ summary: 'Allows to log in a user' })
@@ -95,7 +91,9 @@ export class AuthController {
   }
 
   @Post('/confirm')
-  async confirmUserRegistration(@Body() body: ConfirmSignUpDto): Promise<void> {
-    const userData = await this.authService.confirmUserRegistration(body);
+  async confirmUserRegistration(
+    @Body() confirmSignUpData: ConfirmSignUpDto,
+  ): Promise<void> {
+    await this.authService.confirmUserRegistration(confirmSignUpData);
   }
 }

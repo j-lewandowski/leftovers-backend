@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersRepository } from '../users/users.repository';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
@@ -7,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthRepository } from './auth.repository';
-import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,8 +22,7 @@ export class AuthService {
   ) {}
 
   registerUser(user: CreateUserDto): Promise<UserDto> {
-    const userData = this.usersRepository.register(user);
-    return userData;
+    return this.usersRepository.register(user);
   }
 
   async validateUser(email: string, password: string): Promise<UserDto> {
@@ -44,31 +47,18 @@ export class AuthService {
     };
   }
 
-  async addSignUpRequest(user: CreateUserDto): Promise<string> {
-    const validation_token = this.jwtService.sign({ email: user.email });
-    const password = await bcrypt.hash(
-      user.password,
-      +this.configService.get('BCRYPT_ROUNDS'),
-    );
-    await this.authRepository.addSignUpRequest(
-      validation_token,
-      user.email,
-      password,
-    );
-    return validation_token;
+  async createSignUpRequest(user: CreateUserDto): Promise<string> {
+    return await this.authRepository.createSignUpRequest(user);
   }
 
-  async confirmUserRegistration(user: {
-    validation_token: string;
-    email: string;
-  }): Promise<void> {
-    const userRequest = await this.authRepository.find(user.validation_token);
+  async confirmUserRegistration(requestData: ConfirmSignUpDto): Promise<void> {
+    const userRequest = await this.authRepository.find(requestData.email);
     if (!userRequest) {
-      return null;
+      throw new NotFoundException('Request not found.');
     }
 
-    if (!this.jwtService.verify(user.validation_token)) {
-      return null;
+    if (requestData.validation_token !== userRequest.validation_token) {
+      throw new UnauthorizedException('Invalid token');
     }
 
     await this.usersRepository.register({

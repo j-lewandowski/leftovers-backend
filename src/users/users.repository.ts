@@ -34,15 +34,10 @@ export class UsersRepository {
       throw new ConflictException('User already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(
-      user.password,
-      +this.configService.get('BCRYPT_ROUNDS'),
-    );
-
     const res = await this.prisma.user.create({
       data: {
         email: user.email,
-        password: hashedPassword,
+        password: user.password,
       },
     });
 
