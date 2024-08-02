@@ -21,7 +21,7 @@ export class AuthService {
     private authRepository: AuthRepository,
   ) {}
 
-  // Deprecated
+  /** @deprecated Use createSignUpRequest method instead */
   registerUser(user: CreateUserDto): Promise<UserDto> {
     return this.usersRepository.register(user);
   }

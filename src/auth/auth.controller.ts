@@ -34,7 +34,10 @@ export class AuthController {
     private emailService: EmailService,
   ) {}
 
-  @ApiOperation({ summary: 'DEPRECATED: Allows to register a user' })
+  @ApiOperation({
+    summary: 'Allows to register a user',
+    deprecated: true,
+  })
   @Post('signup')
   @ApiBody({
     description: 'Email and password',
