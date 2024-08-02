@@ -18,6 +18,7 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now()) @map("created_at")
+  Recipe    Recipe[]
 }
 
 model SignUpRequests {
@@ -27,8 +28,35 @@ model SignUpRequests {
   createdAt       DateTime @default(now()) @map("created_at")
 }
 
-model SignUpRequests {
-  validation_token String   @id
-  password         String
-  createdAt        DateTime @default(now())
+model Recipe {
+  id                 String          @id @default(uuid())
+  title              String
+  description        String          @default("Description")
+  category           Category[]
+  preparation_time   PreparationTime @default(UP_TO_15_MIN)
+  ingredients        String[]
+  preparation_method String[]
+  visibility         Visibility      @default(PUBLIC)
+  createdAt          DateTime        @default(now())
+  author             User            @relation(fields: [authorId], references: [id])
+  authorId           String
+}
+
+model Category {
+  id       Int     @id @default(autoincrement())
+  name     String
+  Recipe   Recipe? @relation(fields: [recipeId], references: [id])
+  recipeId String?
+}
+
+enum Visibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum PreparationTime {
+  UP_TO_15_MIN
+  UP_TO_30_MIN
+  UP_TO_60_MIN
+  OVER_60_MIN
 }
