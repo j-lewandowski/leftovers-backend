@@ -9,7 +9,7 @@ import { jwtConstants } from './constants';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { EmailModule } from '../email/email.module';
 import { EmailService } from '../email/email.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { AuthRepository } from './auth.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 
@@ -32,7 +32,6 @@ import { PrismaModule } from '../prisma/prisma.module';
     JwtStrategy,
     EmailService,
     AuthRepository,
-    ConfigService,
   ],
 })
 export class AuthModule {}
