@@ -1,18 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignUpRequestDto } from '../auth/dto/sign-up-request.dto';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import { CreateSignUpRequestDto } from './dto/create-sign-up-request.dto';
 
 @Injectable()
 export class AuthRepository {
-  constructor(
-    private prisma: PrismaService,
-    private configService: ConfigService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async find(email: string): Promise<SignUpRequestDto> {
     return this.prisma.signUpRequests.findFirst({
@@ -20,33 +13,17 @@ export class AuthRepository {
     });
   }
 
-  async createSignUpRequest(user: CreateUserDto): Promise<string> {
-    const requestsWithTheSameEmail = await this.prisma.signUpRequests.count({
+  async countRequestsWithTheSameEmail(email: string): Promise<number> {
+    return this.prisma.signUpRequests.count({
       where: {
-        email: user.email,
+        email,
       },
     });
+  }
 
-    if (requestsWithTheSameEmail > 0) {
-      throw new ConflictException(
-        'Account sign up request for that email already exists.',
-      );
-    }
-
-    const validation_token = this.jwtService.sign({ email: user.email });
-    const password = await bcrypt.hash(
-      user.password,
-      +this.configService.get('BCRYPT_ROUNDS'),
-    );
-
+  async createSignUpRequest(user: CreateSignUpRequestDto): Promise<void> {
     await this.prisma.signUpRequests.create({
-      data: {
-        validation_token,
-        email: user.email,
-        password,
-      },
+      data: user,
     });
-
-    return validation_token;
   }
 }

@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -12,6 +13,7 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthRepository } from './auth.repository';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
+import { EmailService } from 'src/email/email.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,6 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private authRepository: AuthRepository,
+    private emailService: EmailService,
   ) {}
 
   /** @deprecated Use createSignUpRequest method instead */
@@ -48,8 +51,29 @@ export class AuthService {
     };
   }
 
-  async createSignUpRequest(user: CreateUserDto): Promise<string> {
-    return await this.authRepository.createSignUpRequest(user);
+  async createSignUpRequest(user: CreateUserDto): Promise<void> {
+    const requestsWithTheSameEmail =
+      await this.authRepository.countRequestsWithTheSameEmail(user.email);
+
+    if (requestsWithTheSameEmail > 0) {
+      throw new ConflictException(
+        'Account sign up request for that email already exists.',
+      );
+    }
+
+    const validation_token = this.jwtService.sign({ email: user.email });
+    const hashed_password = await bcrypt.hash(
+      user.password,
+      +this.configService.get('BCRYPT_ROUNDS'),
+    );
+
+    await this.authRepository.createSignUpRequest({
+      email: user.email,
+      password: hashed_password,
+      validation_token,
+    });
+
+    this.emailService.sendAccountConfirmationMail(user.email, validation_token);
   }
 
   async confirmUserRegistration(requestData: ConfirmSignUpDto): Promise<void> {

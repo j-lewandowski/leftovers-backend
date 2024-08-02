@@ -22,17 +22,13 @@ import { UserDto } from '../users/dto/user.dto';
 import { AuthService } from './auth.service';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
 import { AccessTokenDto } from './dto/access-token.dto';
-import { EmailService } from '../email/email.service';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private emailService: EmailService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @ApiOperation({
     summary: 'Allows to register a user',
@@ -96,8 +92,7 @@ export class AuthController {
   })
   @Post('/register')
   async signUpUser(@Body() userData: CreateUserDto): Promise<void> {
-    const token = await this.authService.createSignUpRequest(userData);
-    this.emailService.sendAccountConfirmationMail(userData.email, token);
+    await this.authService.createSignUpRequest(userData);
   }
 
   @ApiOperation({ summary: 'Allows to log in a user' })
