@@ -36,7 +36,7 @@ export class EmailService {
       to: userEmail,
       subject: 'Account confirmation',
       text: token,
-      template: 'activation',
+      template: 'user-account-activation.template.pug',
       context: {
         activationLink: link,
       },
