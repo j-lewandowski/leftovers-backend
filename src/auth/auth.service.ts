@@ -47,7 +47,7 @@ export class AuthService {
   async login(user: UserDto): Promise<AccessTokenDto> {
     const payload = { email: user.email, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 
@@ -61,19 +61,19 @@ export class AuthService {
       );
     }
 
-    const validation_token = this.jwtService.sign({ email: user.email });
-    const hashed_password = await bcrypt.hash(
+    const validationToken = this.jwtService.sign({ email: user.email });
+    const hashedPassword = await bcrypt.hash(
       user.password,
       +this.configService.get('BCRYPT_ROUNDS'),
     );
 
     await this.authRepository.createSignUpRequest({
       email: user.email,
-      password: hashed_password,
-      validation_token,
+      password: hashedPassword,
+      validationToken,
     });
 
-    this.emailService.sendAccountConfirmationMail(user.email, validation_token);
+    this.emailService.sendAccountConfirmationMail(user.email, validationToken);
   }
 
   async confirmUserRegistration(requestData: ConfirmSignUpDto): Promise<void> {
@@ -81,10 +81,10 @@ export class AuthService {
     if (!userRequest) {
       throw new NotFoundException('Request not found.');
     }
-    const isTokenValid = this.jwtService.verify(requestData.validation_token);
+    const isTokenValid = this.jwtService.verify(requestData.validationToken);
     if (
       !isTokenValid ||
-      requestData.validation_token !== userRequest.validation_token
+      requestData.validationToken !== userRequest.validationToken
     ) {
       throw new UnauthorizedException('Invalid token.');
     }

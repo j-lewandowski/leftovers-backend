@@ -6,5 +6,5 @@ export class ConfirmSignUpDto {
   email: string;
   @IsString()
   @IsNotEmpty()
-  validation_token: string;
+  validationToken: string;
 }

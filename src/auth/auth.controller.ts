@@ -129,8 +129,8 @@ export class AuthController {
     },
   })
   async confirmUserRegistration(
-    @Body() confirmSignUpData: ConfirmSignUpDto,
+    @Body() confirmSignUpDto: ConfirmSignUpDto,
   ): Promise<void> {
-    await this.authService.confirmUserRegistration(confirmSignUpData);
+    await this.authService.confirmUserRegistration(confirmSignUpDto);
   }
 }

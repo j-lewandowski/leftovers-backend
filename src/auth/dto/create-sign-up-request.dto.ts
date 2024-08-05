@@ -1,5 +1,5 @@
 export class CreateSignUpRequestDto {
   email: string;
-  validation_token: string;
+  validationToken: string;
   password: string;
 }

@@ -1,6 +1,6 @@
 export class SignUpRequestDto {
   email: string;
-  validation_token: string;
+  validationToken: string;
   password: string;
   createdAt: Date;
 }
