@@ -13,7 +13,7 @@ import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { AuthRepository } from './auth.repository';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 @Injectable()
 export class AuthService {
   constructor(

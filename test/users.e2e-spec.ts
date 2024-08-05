@@ -42,11 +42,14 @@ describe('users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.user.deleteMany();
-    await prisma.signUpRequests.deleteMany();
+    await Promise.all([
+      prisma.user.deleteMany(),
+      prisma.signUpRequests.deleteMany(),
+    ]);
   });
 
-  it('/ (GET)', async () => {
+  it("shoud return users' emails if user is authenticated", async () => {
+    // given
     await prisma.user.createMany({
       data: [
         { email: faker.internet.email(), password: faker.internet.password() },
@@ -54,15 +57,18 @@ describe('users (e2e)', () => {
         { email: faker.internet.email(), password: faker.internet.password() },
       ],
     });
-
     const access_token = jwt.sign({
       id: faker.string.uuid(),
       email: faker.internet.email(),
     });
+
+    // when
     const { body } = await request(app.getHttpServer())
       .get('/')
       .set('Authorization', 'Bearer ' + access_token)
       .expect(200);
+
+    // then
     expect(body).toEqual({
       emails: [
         { email: expect.any(String) },
@@ -73,7 +79,11 @@ describe('users (e2e)', () => {
   });
 
   it('should throw an error if user is not authenticated.', async () => {
-    await request(app.getHttpServer()).get('/').expect(401);
+    // when
+    await request(app.getHttpServer())
+      .get('/')
+      // then
+      .expect(401);
   });
 
   afterAll(async () => {

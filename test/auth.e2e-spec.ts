@@ -4,7 +4,7 @@ import { EmailService } from '../src/email/email.service';
 import { AuthRepository } from '../src/auth/auth.repository';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { UsersModule } from '../src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
@@ -61,20 +61,25 @@ describe('auth (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prismaService.user.deleteMany();
-    await prismaService.signUpRequests.deleteMany();
+    await Promise.all([
+      prismaService.user.deleteMany(),
+      prismaService.signUpRequests.deleteMany(),
+    ]);
   });
 
   describe('/auth/signup', () => {
-    it('/POST signup', async () => {
+    it('should create user in the database', async () => {
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
 
-      expect(status).toBe(201);
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
     });
 
-    it('throws an error if user already exists in database', async () => {
+    it('should throw an error if user already exists in database', async () => {
+      // when
       await request(app.getHttpServer())
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
@@ -83,19 +88,24 @@ describe('auth (e2e)', () => {
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
 
-      expect(status).toBe(409);
+      // then
+      expect(status).toBe(HttpStatus.CONFLICT);
     });
 
-    it('throws an error if user does not provide any credentials', async () => {
+    it('should throw an error if user does not provide any credentials', async () => {
+      // when
       const { status } = await request(app.getHttpServer()).post(
         '/auth/signup',
       );
-      expect(status).toBe(400);
+
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
   describe('/auth/login', () => {
-    it('/POST login', async () => {
+    it('should sign in user if credentials are valid', async () => {
+      // given
       const email = faker.internet.email();
       const password = faker.internet.password();
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -106,16 +116,20 @@ describe('auth (e2e)', () => {
         },
       });
       const data = btoa(`${email}:${password}`);
+
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
           Authorization: `Basic ${data}`,
         });
 
-      expect(status).toBe(200);
+      // then
+      expect(status).toBe(HttpStatus.OK);
     });
 
     it('should return access token if user is authenticated', async () => {
+      // given
       const email = faker.internet.email();
       const password = faker.internet.password();
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -126,85 +140,108 @@ describe('auth (e2e)', () => {
         },
       });
       const data = btoa(`${email}:${password}`);
+
+      // when
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
           Authorization: `Basic ${data}`,
         });
+
+      // then
       expect(body).toEqual({
-        access_token: expect.any(String),
+        accessToken: expect.any(String),
       });
     });
 
     it('should throw an error if user is not authenticated', async () => {
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
           Authorization:
             'Basic dXNlckBtb29kdXAudGVhbTpteXN1cGVyc3Ryb25ncGFzc3dvcmQ=',
         });
-
-      expect(status).toBe(401);
+      // then
+      expect(status).toBe(HttpStatus.UNAUTHORIZED);
     });
   });
 
   describe('/auth/register', () => {
-    it('/POST register', async () => {
+    it('should create sign up request in database', async () => {
+      // given
       const email = faker.internet.email();
       const password = faker.internet.password();
+
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/register')
         .send({ email, password });
-      expect(status).toBe(201);
+
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
     });
 
     it('should throw an error if user does not provide any data', async () => {
+      // when
       const { status } = await request(app.getHttpServer()).post(
         '/auth/register',
       );
 
-      expect(status).toBe(400);
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
   describe('/auth/confirm', () => {
-    it('/POST confirm', async () => {
+    it('should confirm user sign up request', async () => {
+      // given
       const email = faker.internet.email();
       const password = faker.internet.password();
       const hashedPassword = await bcrypt.hash(password, 10);
-      const validation_token = jwtService.sign({ email });
+      const validationToken = jwtService.sign({ email });
       await prismaService.signUpRequests.create({
-        data: { email, password: hashedPassword, validation_token },
+        data: { email, password: hashedPassword, validationToken },
       });
+
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/confirm')
-        .send({ email, validation_token });
-      expect(status).toBe(201);
+        .send({ email, validationToken });
+
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
     });
 
     it('should throw an error if user does not provide any data', async () => {
+      // when
       const { status } = await request(app.getHttpServer()).post(
         '/auth/register',
       );
 
-      expect(status).toBe(400);
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
     });
 
     it('should throw an error if user already created signup request', async () => {
+      // given
       const email = faker.internet.email();
       const password = faker.internet.password();
       const hashedPassword = await bcrypt.hash(password, 10);
-      const validation_token = jwtService.sign({ email });
+      const validationToken = jwtService.sign({ email });
       await prismaService.signUpRequests.create({
-        data: { email, password: hashedPassword, validation_token },
+        data: { email, password: hashedPassword, validationToken },
       });
+      // when
       await request(app.getHttpServer())
         .post('/auth/confirm')
-        .send({ email, validation_token });
+        .send({ email, validationToken });
       const { status } = await request(app.getHttpServer())
         .post('/auth/confirm')
-        .send({ email, validation_token });
-      expect(status).toBe(409);
+        .send({ email, validationToken });
+
+      // then
+      expect(status).toBe(HttpStatus.CONFLICT);
     });
   });
 

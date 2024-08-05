@@ -32,14 +32,18 @@ describe('UsersService', () => {
 
   describe('getEmails', () => {
     it('should call get emails function', async () => {
+      // when
       await service.getEmails();
 
+      // then
       expect(repository.getEmails).toHaveBeenCalled();
     });
 
     it("should return users' emails", async () => {
+      // when
       const data = await service.getEmails();
 
+      // then
       expect(data).toEqual({
         emails: [expect.any(String), expect.any(String), expect.any(String)],
       });

@@ -5,7 +5,6 @@ import { faker } from '@faker-js/faker';
 import { AuthRepository } from './auth.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { ConflictException } from '@nestjs/common';
 
 describe('AuthRepository', () => {
   let prisma: PrismaService;
@@ -23,8 +22,9 @@ describe('AuthRepository', () => {
 
   describe('find', () => {
     it('should return sign up request data', async () => {
+      // given
       const mockSignUpRequestData = {
-        validation_token: faker.string.uuid(),
+        validationToken: faker.string.uuid(),
         email: faker.internet.email(),
         password: faker.internet.password(),
         createdAt: faker.date.anytime(),
@@ -34,43 +34,36 @@ describe('AuthRepository', () => {
         .spyOn(prisma.signUpRequests, 'findFirst')
         .mockResolvedValue(mockSignUpRequestData);
 
+      // when
       const res = await repository.find(faker.string.uuid());
+
+      // then
       expect(res).toEqual(mockSignUpRequestData);
     });
   });
 
   describe('createSignUpRequest', () => {
-    it('should create sign up request and return a validation token', async () => {
+    it('should create sign up request', async () => {
+      // given
       jest.spyOn(prisma.signUpRequests, 'count').mockResolvedValue(0);
       jest.spyOn(jwt, 'sign').mockReturnValue('validation-token');
       jest.spyOn(bcrypt, 'hash').mockImplementation(() => 'hashed-password');
       jest.spyOn(prisma.signUpRequests, 'create').mockResolvedValue({
-        validation_token: 'validation-token',
+        validationToken: 'validation-token',
         email: faker.internet.email(),
         password: 'hashed-password',
         createdAt: faker.date.anytime(),
       });
 
-      const res = await repository.createSignUpRequest({
+      // when
+      await repository.createSignUpRequest({
         email: faker.internet.email(),
         password: faker.internet.password(),
+        validationToken: 'validation-token',
       });
-      expect(res).toEqual('validation-token');
-    });
 
-    it('should throw an error if request for that email already exists', async () => {
-      jest.spyOn(prisma.signUpRequests, 'count').mockResolvedValue(1);
-
-      await expect(
-        repository.createSignUpRequest({
-          email: faker.internet.email(),
-          password: faker.internet.password(),
-        }),
-      ).rejects.toEqual(
-        new ConflictException(
-          'Account sign up request for that email already exists.',
-        ),
-      );
+      // then
+      expect(prisma.signUpRequests.create).toHaveBeenCalled();
     });
   });
 });
