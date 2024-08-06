@@ -1,30 +1,38 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { RecipeDto } from './dto/recipe.dto';
 
 @Injectable()
 export class RecipesRepository {
   constructor(private prisma: PrismaService) {}
 
-  async getAll(userId?: string, params?: GetRecepiesFiltersDto) {
+  async getAll(
+    userId?: string,
+    params?: GetRecepiesFiltersDto,
+  ): Promise<RecipeDto[]> {
     let query = `
-      SELECT *
+      SELECT 
+        ${
+          params.details
+            ? 'id, title, description, avgRating, preparation_time as preparationTime, ingredients, preparation_method as preparationMethod, visibility, created_at as createdAt, author_id as authorId, category_name as categoryName'
+            : 'id, title, description, avgRating'
+        }
+        
       FROM "Recipe" re
       LEFT JOIN (
         SELECT 
           recipe_id,
-          AVG(value) as avg_rating
+          AVG(value) as avgRating
         FROM
           "Rating"
         GROUP BY
           recipe_id
-
       ) as ra ON
         re.id = ra.recipe_id
       WHERE
     `;
     const dbQueryParams = [];
-
     if (userId) {
       query += `(visibility = 'PUBLIC' OR (visibility = 'PRIVATE' AND re.author_id = $1)) `;
       dbQueryParams.push(userId);

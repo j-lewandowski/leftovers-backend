@@ -32,4 +32,7 @@ export class GetRecepiesFiltersDto {
 
   @IsOptional()
   steps?: string;
+
+  @IsOptional()
+  details?: boolean = false;
 }

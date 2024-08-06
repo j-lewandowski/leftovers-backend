@@ -113,7 +113,7 @@ export class AuthController {
       statusCode: 401,
     },
   })
-  @ApiBasicAuth('basic-auth')
+  @ApiBasicAuth()
   @UseGuards(BasicAuthGuard)
   @Post('login')
   @HttpCode(200)
