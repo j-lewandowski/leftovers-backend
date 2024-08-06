@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsDateString, IsInt, IsOptional } from 'class-validator';
+import { IsDate, IsInt, IsOptional } from 'class-validator';
 
 export class GetRecepiesFiltersDto {
   @IsOptional()
@@ -12,10 +12,24 @@ export class GetRecepiesFiltersDto {
   rating?: number;
 
   @IsOptional()
-  @IsDateString()
-  startDate?: number;
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  startDate?: Date;
 
   @IsOptional()
-  @IsDateString()
-  endDate?: number;
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  endDate?: Date;
+
+  @IsOptional()
+  title?: string;
+
+  @IsOptional()
+  description?: string;
+
+  @IsOptional()
+  ingredients?: string;
+
+  @IsOptional()
+  steps?: string;
 }

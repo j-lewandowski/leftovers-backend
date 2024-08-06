@@ -7,61 +7,86 @@ export class RecipesRepository {
   constructor(private prisma: PrismaService) {}
 
   async getAll(userId?: string, params?: GetRecepiesFiltersDto) {
-    const where: any = {};
-    const select: any = {};
+    let query = `
+      SELECT *
+      FROM "Recipe" re
+      LEFT JOIN (
+        SELECT 
+          recipe_id,
+          AVG(value) as avg_rating
+        FROM
+          "Rating"
+        GROUP BY
+          recipe_id
+
+      ) as ra ON
+        re.id = ra.recipe_id
+      WHERE
+    `;
+    const dbQueryParams = [];
 
     if (userId) {
-      where.OR = [
-        {
-          visibility: 'PUBLIC',
-        },
-        {
-          visibility: 'PRIVATE',
-          author_id: userId,
-        },
-      ];
+      query += `(visibility = 'PUBLIC' OR (visibility = 'PRIVATE' AND re.author_id = $1)) `;
+      dbQueryParams.push(userId);
     } else {
-      where.visibility = 'PUBLIC';
+      query += `visibility = 'PUBLIC' `;
     }
 
     if (params.category) {
-      where.category = {
-        name: {
-          in: params.category,
-        },
-      };
+      query += `AND category_name IN (${params.category
+        .map((_, idx) => `$${dbQueryParams.length + idx + 1}`)
+        .join(', ')}) `;
+      dbQueryParams.push(...params.category);
     }
 
     if (params.rating) {
-      where.avgRating = {
-        gte: params.rating,
-      };
+      query += `AND ra.avg_rating >= $${dbQueryParams.length + 1} `;
+      dbQueryParams.push(params.rating);
     }
 
     if (params.startDate || params.endDate) {
-      where.createdAt = {};
       if (params.startDate) {
-        where.gte = new Date(params.startDate);
-      }
-      if (params.endDate) {
-        where.lte = new Date(params.endDate);
+        query += `AND re.created_at >= $${
+          dbQueryParams.length + 1
+        }::timestamp `;
+        dbQueryParams.push(params.startDate.toISOString());
+        if (params.endDate) {
+          query += `AND re.created_at <= $${
+            dbQueryParams.length + 1
+          }::timestamp `;
+          dbQueryParams.push(params.endDate.toISOString());
+        }
       }
     }
 
-    console.log(where);
+    if (params.title) {
+      const searchTerm = `%${params.title}%`;
+      query += `AND re.title ILIKE $${dbQueryParams.length + 1} `;
+      dbQueryParams.push(searchTerm);
+    }
 
-    return await this.prisma.recipe.findMany({
-      where,
-      select: {
-        ...select,
-        avgRating: {
-          select: {
-            _avg: {
-              rating: true,
-            },
-          },
-        },
-      },
-    });
+    if (params.description) {
+      const searchTerm = `%${params.description}%`;
+      query += `AND re.description ILIKE $${dbQueryParams.length + 1} `;
+      dbQueryParams.push(searchTerm);
+    }
+
+    if (params.ingredients) {
+      const searchTerm = `%${params.ingredients}%`;
+      query += `AND array_to_string(re.ingredients, ',') ILIKE $${
+        dbQueryParams.length + 1
+      } `;
+      dbQueryParams.push(searchTerm);
+    }
+
+    if (params.steps) {
+      const searchTerm = `%${params.steps}%`;
+      query += `AND array_to_string(re.preparation_method, ',') ILIKE $${
+        dbQueryParams.length + 1
+      } `;
+      dbQueryParams.push(searchTerm);
+    }
+
+    return await this.prisma.$queryRawUnsafe(query, ...dbQueryParams);
   }
 }

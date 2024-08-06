@@ -52,7 +52,7 @@ model Category {
 
 model Rating {
   id       Int     @id @default(autoincrement())
-  rating   Int
+  value    Int
   recipe   Recipe? @relation(fields: [recipeId], references: [id])
   recipeId String? @map("recipe_id")
   user     User    @relation(fields: [userId], references: [id])
