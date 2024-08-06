@@ -11,7 +11,7 @@ async function main() {
     create: {
       email: 'john@email.com',
       password: await bcrypt.hash('password', +process.env.BCRYPT_ROUNDS),
-      Recipe: {
+      recipe: {
         create: [
           {
             title: faker.commerce.productName(),
@@ -38,7 +38,7 @@ async function main() {
     create: {
       email: 'jane@email.com',
       password: await bcrypt.hash('password', +process.env.BCRYPT_ROUNDS),
-      Recipe: {
+      recipe: {
         create: [
           {
             title: faker.commerce.productName(),
