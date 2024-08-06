@@ -15,15 +15,15 @@ export class RecipesRepository {
       SELECT 
         ${
           params.details
-            ? 'id, title, description, avgRating, preparation_time as preparationTime, ingredients, preparation_method as preparationMethod, visibility, created_at as createdAt, author_id as authorId, category_name as categoryName'
-            : 'id, title, description, avgRating'
+            ? 'id, title, description, "avgRating", preparation_time as "preparationTime", ingredients, preparation_method as "preparationMethod", visibility, created_at as "createdAt", author_id as "authorId", category_name as "categoryName"'
+            : 'id, title, description, "avgRating"'
         }
         
       FROM "Recipe" re
       LEFT JOIN (
         SELECT 
           recipe_id,
-          AVG(value) as avgRating
+          AVG(value) as "avgRating"
         FROM
           "Rating"
         GROUP BY
