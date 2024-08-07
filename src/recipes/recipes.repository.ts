@@ -8,15 +8,15 @@ export class RecipesRepository {
   constructor(private prisma: PrismaService) {}
 
   async getAll(
-    userId?: string,
-    params?: GetRecepiesFiltersDto,
+    userId: string = null,
+    params: GetRecepiesFiltersDto = {},
   ): Promise<RecipeDto[]> {
     let query = `
       SELECT 
         ${
           params.details
-            ? 'id, title, description, "avgRating", preparation_time as "preparationTime", ingredients, preparation_method as "preparationMethod", visibility, created_at as "createdAt", author_id as "authorId", category_name as "categoryName"'
-            : 'id, title, description, "avgRating"'
+            ? 'id, title, description, COALESCE("avgRating", 0) as "avgRating", preparation_time as "preparationTime", ingredients, preparation_method as "preparationMethod", visibility, created_at as "createdAt", author_id as "authorId", category_name as "categoryName"'
+            : 'id, title, description, COALESCE("avgRating", 0) as "avgRating"'
         }
         
       FROM "Recipe" re
@@ -95,6 +95,6 @@ export class RecipesRepository {
       dbQueryParams.push(searchTerm);
     }
 
-    return await this.prisma.$queryRawUnsafe(query, ...dbQueryParams);
+    return this.prisma.$queryRawUnsafe(query, ...dbQueryParams);
   }
 }
