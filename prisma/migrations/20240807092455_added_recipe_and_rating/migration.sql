@@ -5,6 +5,7 @@
   - You are about to drop the column `createdAt` on the `SignUpRequests` table. All the data in the column will be lost.
   - You are about to drop the column `createdAt` on the `User` table. All the data in the column will be lost.
   - Added the required column `email` to the `SignUpRequests` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `password` to the `SignUpRequests` table without a default value. This is not possible if the table is not empty.
 
 */
 -- CreateEnum
@@ -18,6 +19,7 @@ ALTER TABLE "SignUpRequests" DROP CONSTRAINT "SignUpRequests_pkey",
 DROP COLUMN "createdAt",
 ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN     "email" TEXT NOT NULL,
+ADD COLUMN     "password" TEXT NOT NULL,
 ADD CONSTRAINT "SignUpRequests_pkey" PRIMARY KEY ("email");
 
 -- AlterTable
@@ -49,11 +51,10 @@ CREATE TABLE "Category" (
 
 INSERT INTO "Category" (name) VALUES ('breakfast'), ('soups'), ('lunch'), ('baking'), ('desserts'), ('drinks'), ('snacks'), ('salads');
 
-
 -- CreateTable
 CREATE TABLE "Rating" (
     "id" SERIAL NOT NULL,
-    "rating" INTEGER NOT NULL,
+    "value" INTEGER NOT NULL,
     "recipe_id" TEXT,
     "user_id" TEXT NOT NULL,
 
