@@ -3,9 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
-import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersRepository {
@@ -23,6 +23,7 @@ export class UsersRepository {
     return { emails };
   }
 
+  // Deprecated
   async register(user: CreateUserDto): Promise<UserDto> {
     const usersWithTheSameEmail = await this.prisma.user.count({
       where: {
@@ -43,6 +44,28 @@ export class UsersRepository {
       data: {
         email: user.email,
         password: hashedPassword,
+      },
+    });
+
+    const { password, ...userWithoutPassword } = res;
+    return userWithoutPassword;
+  }
+
+  async confirmedRegister(user: CreateUserDto): Promise<UserDto> {
+    const usersWithTheSameEmail = await this.prisma.user.count({
+      where: {
+        email: user.email,
+      },
+    });
+
+    if (usersWithTheSameEmail > 0) {
+      throw new ConflictException('Request already exists');
+    }
+
+    const res = await this.prisma.user.create({
+      data: {
+        email: user.email,
+        password: user.password,
       },
     });
 

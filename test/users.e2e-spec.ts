@@ -6,15 +6,16 @@ import { PrismaModule } from '../src/prisma/prisma.module';
 import { UsersController } from '../src/users/users.controller';
 import { ConfigModule } from '@nestjs/config';
 import { UsersRepository } from '../src/users/users.repository';
-import { AuthService } from '../src/auth/auth.service';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { jwtConstants } from '../src/auth/constants';
+import { faker } from '@faker-js/faker';
+import { PrismaService } from '../src/prisma/prisma.service';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 
 describe('users (e2e)', () => {
   let app: INestApplication;
-  let usersService: UsersService;
-  let authService: AuthService;
+  let jwt: JwtService;
+  let prisma: PrismaService;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -25,39 +26,64 @@ describe('users (e2e)', () => {
           secret: jwtConstants.secret,
           signOptions: { expiresIn: '24h' },
         }),
+        ConfigModule.forRoot({
+          envFilePath: '.env.test.local',
+          isGlobal: true,
+        }),
       ],
-      providers: [UsersService, UsersRepository, AuthService, JwtStrategy],
+      providers: [UsersService, UsersRepository, JwtStrategy],
       controllers: [UsersController],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    usersService = moduleFixture.get<UsersService>(UsersService);
-    authService = moduleFixture.get<AuthService>(AuthService);
+    jwt = moduleFixture.get<JwtService>(JwtService);
+    prisma = moduleFixture.get<PrismaService>(PrismaService);
     await app.init();
   });
 
-  it('/ (GET)', async () => {
-    const { access_token } = await authService.login({
-      id: 'id',
-      email: 'email@email.com',
-      createdAt: new Date(),
+  beforeEach(async () => {
+    await Promise.all([
+      prisma.user.deleteMany(),
+      prisma.signUpRequests.deleteMany(),
+    ]);
+  });
+
+  it("shoud return users' emails if user is authenticated", async () => {
+    // given
+    await prisma.user.createMany({
+      data: [
+        { email: faker.internet.email(), password: faker.internet.password() },
+        { email: faker.internet.email(), password: faker.internet.password() },
+        { email: faker.internet.email(), password: faker.internet.password() },
+      ],
+    });
+    const access_token = jwt.sign({
+      id: faker.string.uuid(),
+      email: faker.internet.email(),
     });
 
-    jest.spyOn(usersService, 'getEmails').mockResolvedValue({
-      emails: [{ email: 'email1@email.com' }, { email: 'email2@email.com' }],
-    });
-
+    // when
     const { body } = await request(app.getHttpServer())
       .get('/')
       .set('Authorization', 'Bearer ' + access_token)
       .expect(200);
+
+    // then
     expect(body).toEqual({
-      emails: [{ email: 'email1@email.com' }, { email: 'email2@email.com' }],
+      emails: [
+        { email: expect.any(String) },
+        { email: expect.any(String) },
+        { email: expect.any(String) },
+      ],
     });
   });
 
   it('should throw an error if user is not authenticated.', async () => {
-    await request(app.getHttpServer()).get('/').expect(401);
+    // when
+    await request(app.getHttpServer())
+      .get('/')
+      // then
+      .expect(401);
   });
 
   afterAll(async () => {

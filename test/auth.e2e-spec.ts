@@ -1,34 +1,57 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { PrismaModule } from '../src/prisma/prisma.module';
+import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
+import { EmailService } from '../src/email/email.service';
+import { AuthRepository } from '../src/auth/auth.repository';
+import { faker } from '@faker-js/faker';
+import * as bcrypt from 'bcrypt';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as request from 'supertest';
 import { UsersModule } from '../src/users/users.module';
-import { PrismaService } from '../src/prisma/prisma.service';
-import { AuthController } from '../src/auth/auth.controller';
-import { AuthService } from '../src/auth/auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
+import { EmailModule } from '../src/email/email.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { AuthController } from '../src/auth/auth.controller';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { AuthService } from '../src/auth/auth.service';
 import { BasicStrategy } from '../src/auth/strategies/basic.strategy';
+import { ValidationPipe } from '@nestjs/common';
+import * as request from 'supertest';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
   let prismaService: PrismaService;
-  let authService: AuthService;
+  let jwtService: JwtService;
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [
         UsersModule,
         PassportModule,
+        EmailModule,
+        ConfigModule.forRoot({
+          envFilePath: '.env.test.local',
+          isGlobal: true,
+        }),
+        PrismaModule,
         JwtModule.register({
-          secret: 'test',
+          secret: 'test-secret',
         }),
       ],
       controllers: [AuthController],
-      providers: [PrismaService, AuthService, BasicStrategy],
+      providers: [
+        PrismaService,
+        AuthService,
+        BasicStrategy,
+        JwtStrategy,
+        EmailService,
+        ConfigService,
+        AuthRepository,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    authService = moduleFixture.get<AuthService>(AuthService);
+    jwtService = moduleFixture.get<JwtService>(JwtService);
     prismaService = moduleFixture.get<PrismaService>(PrismaService);
 
     app.useGlobalPipes(
@@ -37,117 +60,188 @@ describe('auth (e2e)', () => {
     await app.init();
   });
 
-  afterAll(async () => {
-    await app.close();
+  beforeEach(async () => {
+    await Promise.all([
+      prismaService.user.deleteMany(),
+      prismaService.signUpRequests.deleteMany(),
+    ]);
   });
 
   describe('/auth/signup', () => {
-    it('/POST signup', async () => {
-      jest.spyOn(prismaService.user, 'create').mockResolvedValue({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: new Date(),
-      });
-
+    it('should create user in the database', async () => {
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
 
-      expect(status).toBe(201);
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
     });
 
-    it('throws an error if user already exists in database', async () => {
-      jest.spyOn(prismaService.user, 'create').mockResolvedValueOnce({
-        id: 'id',
-        email: 'email@email.com',
-        password: 'password',
-        createdAt: new Date(),
-      });
-
+    it('should throw an error if user already exists in database', async () => {
+      // when
       await request(app.getHttpServer())
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
 
-      jest.spyOn(prismaService.user, 'create').mockRejectedValue({
-        message: 'User already exists',
-        error: 'Conflict',
-        statusCode: 409,
-      });
-
       const { status } = await request(app.getHttpServer())
         .post('/auth/signup')
         .send({ email: 'email@email.com', password: 'password' });
 
-      expect(status).toBe(409);
+      // then
+      expect(status).toBe(HttpStatus.CONFLICT);
     });
 
-    it('throws an error if user does not provide any credentials', async () => {
-      jest.spyOn(prismaService.user, 'create').mockRejectedValue({
-        message: [
-          'email must be an email',
-          'password should not be empty',
-          'password must be longer than or equal to 5 characters',
-        ],
-        error: 'Bad Request',
-        statusCode: 400,
-      });
-
+    it('should throw an error if user does not provide any credentials', async () => {
+      // when
       const { status } = await request(app.getHttpServer()).post(
         '/auth/signup',
       );
-      expect(status).toBe(400);
+
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
     });
   });
 
   describe('/auth/login', () => {
-    it('/POST login', async () => {
-      jest.spyOn(authService, 'validateUser').mockResolvedValue({
-        id: 'id',
-        email: 'user@moodup.team',
-        createdAt: new Date(),
+    it('should sign in user if credentials are valid', async () => {
+      // given
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await prismaService.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+        },
       });
+      const data = btoa(`${email}:${password}`);
 
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
-          Authorization:
-            'Basic dXNlckBtb29kdXAudGVhbTpteXN1cGVyc3Ryb25ncGFzc3dvcmQ=',
+          Authorization: `Basic ${data}`,
         });
 
-      expect(status).toBe(200);
+      // then
+      expect(status).toBe(HttpStatus.OK);
     });
 
     it('should return access token if user is authenticated', async () => {
-      jest.spyOn(authService, 'validateUser').mockResolvedValue({
-        id: 'id',
-        email: 'user@moodup.team',
-        createdAt: new Date(),
+      // given
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await prismaService.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+        },
       });
+      const data = btoa(`${email}:${password}`);
 
+      // when
       const { body } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
-          Authorization:
-            'Basic dXNlckBtb29kdXAudGVhbTpteXN1cGVyc3Ryb25ncGFzc3dvcmQ=',
+          Authorization: `Basic ${data}`,
         });
 
+      // then
       expect(body).toEqual({
-        access_token: expect.any(String),
+        accessToken: expect.any(String),
       });
     });
 
     it('should throw an error if user is not authenticated', async () => {
-      jest.spyOn(authService, 'validateUser').mockResolvedValue(null);
-
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/login')
         .set({
           Authorization:
             'Basic dXNlckBtb29kdXAudGVhbTpteXN1cGVyc3Ryb25ncGFzc3dvcmQ=',
         });
+      // then
+      expect(status).toBe(HttpStatus.UNAUTHORIZED);
+    });
+  });
 
-      expect(status).toBe(401);
+  describe('/auth/register', () => {
+    it('should create sign up request in database', async () => {
+      // given
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+
+      // when
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ email, password });
+
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
+    });
+
+    it('should throw an error if user does not provide any data', async () => {
+      // when
+      const { status } = await request(app.getHttpServer()).post(
+        '/auth/register',
+      );
+
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
+    });
+  });
+
+  describe('/auth/confirm', () => {
+    it('should confirm user sign up request', async () => {
+      // given
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const validationToken = jwtService.sign({ email });
+      await prismaService.signUpRequests.create({
+        data: { email, password: hashedPassword, validationToken },
+      });
+
+      // when
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/confirm')
+        .send({ email, validationToken });
+
+      // then
+      expect(status).toBe(HttpStatus.CREATED);
+    });
+
+    it('should throw an error if user does not provide any data', async () => {
+      // when
+      const { status } = await request(app.getHttpServer()).post(
+        '/auth/register',
+      );
+
+      // then
+      expect(status).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should throw an error if user already created signup request', async () => {
+      // given
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const validationToken = jwtService.sign({ email });
+      await prismaService.signUpRequests.create({
+        data: { email, password: hashedPassword, validationToken },
+      });
+      // when
+      await request(app.getHttpServer())
+        .post('/auth/confirm')
+        .send({ email, validationToken });
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/confirm')
+        .send({ email, validationToken });
+
+      // then
+      expect(status).toBe(HttpStatus.CONFLICT);
     });
   });
 
