@@ -9,7 +9,7 @@ import { Test } from '@nestjs/testing';
 import { UsersModule } from '../src/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { EmailModule } from '../src/email/email.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthController } from '../src/auth/auth.controller';
 import { PrismaService } from '../src/prisma/prisma.service';
@@ -40,12 +40,10 @@ describe('auth (e2e)', () => {
       ],
       controllers: [AuthController],
       providers: [
-        PrismaService,
         AuthService,
         BasicStrategy,
         JwtStrategy,
         EmailService,
-        ConfigService,
         AuthRepository,
       ],
     }).compile();
@@ -61,10 +59,10 @@ describe('auth (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await Promise.all([
-      prismaService.user.deleteMany(),
-      prismaService.signUpRequests.deleteMany(),
-    ]);
+    await prismaService.rating.deleteMany({});
+    await prismaService.recipe.deleteMany({});
+    await prismaService.user.deleteMany({});
+    await prismaService.signUpRequests.deleteMany({});
   });
 
   describe('/auth/signup', () => {

@@ -42,10 +42,10 @@ describe('users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await Promise.all([
-      prisma.user.deleteMany(),
-      prisma.signUpRequests.deleteMany(),
-    ]);
+    await prisma.rating.deleteMany({});
+    await prisma.recipe.deleteMany({});
+    await prisma.user.deleteMany({});
+    await prisma.signUpRequests.deleteMany({});
   });
 
   it("shoud return users' emails if user is authenticated", async () => {

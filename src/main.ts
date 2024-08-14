@@ -9,13 +9,8 @@ async function bootstrap() {
     .setTitle('Leftovers API')
     .setDescription('Leftovers API documentation')
     .setVersion('1.0')
-    .addBasicAuth(
-      {
-        type: 'http',
-        scheme: 'basic',
-      },
-      'basic-auth',
-    )
+    .addBasicAuth()
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {});
@@ -30,6 +25,15 @@ async function bootstrap() {
             scheme: 'basic',
           },
           value: 'Basic <base64-encoded-credentials>',
+        },
+        'jwt-auth': {
+          schema: {
+            type: 'http',
+            in: 'header',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+          value: 'Bearer <your-jwt-token>',
         },
       },
     },
