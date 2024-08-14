@@ -5,7 +5,7 @@ import { RecipeDto } from './dto/recipe.dto';
 
 @Injectable()
 export class RecipesRepository {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getAll(
     userId: string = null,

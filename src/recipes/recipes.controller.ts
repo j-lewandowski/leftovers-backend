@@ -15,6 +15,7 @@ import {
 @ApiTags('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
+
   @ApiOperation({
     summary:
       'Allows to get all recipes and filter them. When provided with valid jwt also returns private recipes user has created.',

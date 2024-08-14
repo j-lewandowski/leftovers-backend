@@ -31,9 +31,9 @@ import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 @ApiTags('auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
-    private emailService: EmailService,
-    private usersService: UsersService,
+    private readonly authService: AuthService,
+    private readonly emailService: EmailService,
+    private readonly usersService: UsersService,
   ) {}
 
   @ApiOperation({
