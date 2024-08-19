@@ -1,7 +1,7 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { RecipesRepository } from './recipes.repository';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
@@ -30,7 +30,7 @@ export class RecipesService {
       (!userId && recipe.visibility === 'PRIVATE') ||
       (userId !== recipe.authorId && recipe.visibility === 'PRIVATE')
     ) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
 
     const { rating, ...otherFields } = recipe;

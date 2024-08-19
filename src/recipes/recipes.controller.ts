@@ -12,6 +12,8 @@ import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -36,6 +38,11 @@ export class RecipesController {
   ): Promise<RecipeDto[]> {
     return this.recipesService.findAll(request.user?.userId, params);
   }
+
+  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
+  @ApiOkResponse({ description: 'Recipe details', type: RecipeDto })
+  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
+  @ApiForbiddenResponse({ description: "You can't access this recipe." })
   @UseGuards(RecipesGuard)
   @Get(':id')
   findOne(
