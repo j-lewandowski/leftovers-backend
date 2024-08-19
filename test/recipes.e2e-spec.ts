@@ -9,14 +9,16 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { faker } from '@faker-js/faker';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { RecipesGuard } from '../src/recipes/recipes.guard';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 import { Visibility } from '@prisma/client';
+import { jwtConstants } from '../src/auth/constants';
 
 describe('RecipesController (e2e)', () => {
   let app: INestApplication;
   let prismaService: PrismaService;
+  let jwtService: JwtService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -28,7 +30,8 @@ describe('RecipesController (e2e)', () => {
         }),
         PassportModule,
         JwtModule.register({
-          secret: 'test-secret',
+          secret: jwtConstants.secret,
+          signOptions: { expiresIn: '24h' },
         }),
       ],
       controllers: [RecipesController],
@@ -37,6 +40,7 @@ describe('RecipesController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     prismaService = moduleFixture.get<PrismaService>(PrismaService);
+    jwtService = moduleFixture.get<JwtService>(JwtService);
     app.useGlobalPipes(
       new ValidationPipe({ transform: true, whitelist: true }),
     );
@@ -99,7 +103,6 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?details=true')
         .expect(200)
         .expect((res) => {
-          console.log(res);
           expect(res.body).toEqual([
             {
               id: expect.any(String),
@@ -144,7 +147,6 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?category=breakfast')
         .expect(200)
         .expect((res) => {
-          console.log(res);
           expect(res.body).toEqual([
             {
               id: expect.any(String),
@@ -183,7 +185,6 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?category=breakfast&ingredients=tomato')
         .expect(200)
         .expect((res) => {
-          console.log(res);
           expect(res.body).toEqual([
             {
               id: expect.any(String),
@@ -193,6 +194,116 @@ describe('RecipesController (e2e)', () => {
             },
           ]);
         });
+    });
+  });
+
+  describe('/recipes/:id', () => {
+    it('GET /recipes/:id should return 200 if recipe exists', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                ingredients: ['tomatoes'],
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get(`/recipes/${createRes.recipe[0].id}`)
+        .expect(200);
+    });
+
+    it('GET /recipes/:id should return 403 if recipe exists but user does not have access to it', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                ingredients: ['tomatoes'],
+                visibility: Visibility.PRIVATE,
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get(`/recipes/${createRes.recipe[0].id}`)
+        .expect(403);
+    });
+
+    it('GET /recipes/:id should return 404 if recipe does not exist', async () => {
+      // when
+      return request(app.getHttpServer())
+        .get(`/recipes/${faker.string.uuid()}`)
+        .expect(404);
+    });
+
+    it('GET /recipes/:id should return 200 if jwt with user id is provided', async () => {
+      // when
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                ingredients: ['tomatoes'],
+                visibility: Visibility.PRIVATE,
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      const token = jwtService.sign({
+        sub: createRes.id,
+        email: createRes.email,
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get(`/recipes/${createRes.recipe[0].id}`)
+        .set('Authorization', 'Bearer ' + token)
+        .expect(200);
     });
   });
 });
