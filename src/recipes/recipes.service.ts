@@ -6,7 +6,7 @@ import {
 import { RecipesRepository } from './recipes.repository';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { calculateAverageRating } from 'utils/math';
+import { calculateAverageRating } from '../../utils/math';
 
 @Injectable()
 export class RecipesService {
