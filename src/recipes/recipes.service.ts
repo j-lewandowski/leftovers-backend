@@ -7,6 +7,8 @@ import { RecipesRepository } from './recipes.repository';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import { calculateAverageRating } from '../../utils/math';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { CreatedRecipeDto } from './dto/created-recipe-dto';
 
 @Injectable()
 export class RecipesService {
@@ -39,5 +41,12 @@ export class RecipesService {
       ...otherFields,
       avgRating: calculateAverageRating(rating),
     };
+  }
+
+  async create(
+    createRecipeDto: CreateRecipeDto,
+    userId: string,
+  ): Promise<CreatedRecipeDto> {
+    return this.recipesRepository.create(createRecipeDto, userId);
   }
 }

@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import { Rating, Recipe } from '@prisma/client';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
+import { CreatedRecipeDto } from './dto/created-recipe-dto';
 
 @Injectable()
 export class RecipesRepository {
@@ -105,5 +107,31 @@ export class RecipesRepository {
     });
 
     return recipe;
+  }
+
+  async create(
+    createRecipeDto: CreateRecipeDto,
+    userId: string,
+  ): Promise<CreatedRecipeDto> {
+    return this.prisma.recipe.create({
+      data: {
+        title: createRecipeDto.title,
+        description: createRecipeDto.description,
+        preparationSteps: createRecipeDto.preparationSteps,
+        servings: createRecipeDto.servings,
+        ingredients: createRecipeDto.ingredients,
+        visibility: createRecipeDto.visibility,
+        author: {
+          connect: {
+            id: userId,
+          },
+        },
+        category: {
+          connect: {
+            name: createRecipeDto.categoryName,
+          },
+        },
+      },
+    });
   }
 }
