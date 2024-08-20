@@ -1,7 +1,9 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
+  Post,
   Query,
   Request,
   UseGuards,
@@ -18,6 +20,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CreateRecipeDto } from './dto/create-recipe.dto';
 
 @Controller('recipes')
 @ApiTags('recipes')
@@ -50,5 +54,14 @@ export class RecipesController {
     @Request() request,
   ): Promise<RecipeDto> {
     return this.recipesService.findOne(recipeId, request.user?.userId);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Request() request,
+    @Body() createRecipeDto: CreateRecipeDto,
+  ): Promise<CreateRecipeDto> {
+    return this.recipesService.create(createRecipeDto, request.user.userId);
   }
 }
