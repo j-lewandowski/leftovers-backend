@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
 
 @Injectable()
 export class UploadFileService {
@@ -20,7 +21,7 @@ export class UploadFileService {
   async getUploadSignedUrl(
     userId: string,
     recipeTitle: string,
-  ): Promise<string> {
+  ): Promise<SignedUrlResponseDto> {
     const timestamp = Date.now();
     const fileKey = `recipes/${userId}/${recipeTitle}/${timestamp}`;
     const command = new PutObjectCommand({
@@ -29,10 +30,10 @@ export class UploadFileService {
       ACL: 'public-read',
     });
 
-    const url = await getSignedUrl(this.s3client, command, {
+    const uploadUrl = await getSignedUrl(this.s3client, command, {
       expiresIn: 3600, // 1 hour
     });
 
-    return url;
+    return { uploadUrl, fileKey };
   }
 }

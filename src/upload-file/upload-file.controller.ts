@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { UploadFileService } from './upload-file.service';
-import { GetSignedUrlDto } from './dto/GetSignedUrlDto';
+import { GetSignedUrlDto } from './dto/GetSignedUrl.dto';
+import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
 
 @Controller('upload-file')
 export class UploadFileController {
@@ -9,11 +10,11 @@ export class UploadFileController {
   @Post()
   async getSignedUrl(
     @Body() { userId, recipeTitle }: GetSignedUrlDto,
-  ): Promise<{ uploadUrl: string }> {
-    const url = await this.uploadFileService.getUploadSignedUrl(
+  ): Promise<SignedUrlResponseDto> {
+    const uploadData = await this.uploadFileService.getUploadSignedUrl(
       userId,
       recipeTitle,
     );
-    return { uploadUrl: url };
+    return { ...uploadData };
   }
 }
