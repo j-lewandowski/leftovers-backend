@@ -7,7 +7,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @ApiTags('users')
 @Controller()
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
   @ApiTags()
   @ApiOperation({ summary: "Get users' emails" })
   @ApiOkResponse({ type: UsersEmailsResponseDto })
