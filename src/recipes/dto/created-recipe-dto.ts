@@ -15,6 +15,8 @@ export class CreatedRecipeDto {
   @IsNotEmpty()
   categoryName: string;
 
+  image: string;
+
   preparationTime: PreparationTime;
 
   servings: number;

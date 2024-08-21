@@ -16,14 +16,17 @@ async function main() {
           {
             title: faker.commerce.productName(),
             visibility: 'PUBLIC',
+            image: faker.internet.url(),
           },
           {
             title: faker.commerce.productName(),
             visibility: 'PUBLIC',
+            image: faker.internet.url(),
           },
           {
             title: faker.commerce.productName(),
             visibility: 'PRIVATE',
+            image: faker.internet.url(),
           },
         ],
       },
@@ -43,14 +46,17 @@ async function main() {
           {
             title: faker.commerce.productName(),
             visibility: 'PUBLIC',
+            image: faker.internet.url(),
           },
           {
             title: faker.commerce.productName(),
             visibility: 'PUBLIC',
+            image: faker.internet.url(),
           },
           {
             title: faker.commerce.productName(),
             visibility: 'PRIVATE',
+            image: faker.internet.url(),
           },
         ],
       },

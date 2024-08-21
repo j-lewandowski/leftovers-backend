@@ -38,6 +38,7 @@ model Recipe {
   servings         Int             @default(1)
   ingredients      String[]
   preparationSteps String[]        @map("preparation_steps")
+  image            String
   visibility       Visibility      @default(PUBLIC)
   createdAt        DateTime        @default(now()) @map("created_at")
   author           User            @relation(fields: [authorId], references: [id])

@@ -121,6 +121,7 @@ export class RecipesRepository {
         servings: createRecipeDto.servings,
         ingredients: createRecipeDto.ingredients,
         visibility: createRecipeDto.visibility,
+        image: createRecipeDto.image,
         author: {
           connect: {
             id: userId,
