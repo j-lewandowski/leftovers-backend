@@ -23,7 +23,8 @@ export class UploadFileService {
     recipeTitle: string,
   ): Promise<SignedUrlResponseDto> {
     const timestamp = Date.now();
-    const fileKey = `recipes/${userId}/${recipeTitle}/${timestamp}`;
+    const recipe = recipeTitle.trim().replaceAll(' ', '');
+    const fileKey = `recipes/${userId}/${recipe}/${timestamp}`;
     const command = new PutObjectCommand({
       Bucket: this.configService.get('AWS_BUCKET_NAME'),
       Key: fileKey,

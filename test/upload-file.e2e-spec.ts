@@ -31,7 +31,7 @@ describe('upload file (e2e)', () => {
       .post('/upload-file')
       .send({
         userId: faker.string.uuid(),
-        recipeTitle: faker.commerce.product,
+        recipeTitle: faker.commerce.product(),
       });
 
     expect(body).toEqual({
