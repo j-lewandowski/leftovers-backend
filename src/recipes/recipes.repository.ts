@@ -18,7 +18,7 @@ export class RecipesRepository {
       SELECT 
         ${
           params.details
-            ? 'id, title, description, COALESCE("avgRating", 0) as "avgRating", preparation_time as "preparationTime", ingredients, preparation_method as "preparationMethod", visibility, created_at as "createdAt", author_id as "authorId", category_name as "categoryName"'
+            ? 'id, title, description, COALESCE("avgRating", 0) as "avgRating", preparation_time as "preparationTime", ingredients, preparation_steps as "preparationSteps", visibility, created_at as "createdAt", author_id as "authorId", category_name as "categoryName"'
             : 'id, title, description, COALESCE("avgRating", 0) as "avgRating"'
         }
         
