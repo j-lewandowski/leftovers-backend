@@ -1,13 +1,21 @@
-import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { RecipesGuard } from './recipes.guard';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import {
   ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -21,58 +29,6 @@ export class RecipesController {
       'Allows to get all recipes and filter them. When provided with valid jwt also returns private recipes user has created.',
   })
   @ApiOkResponse({ description: 'List of recipes', type: [RecipeDto] })
-  @ApiQuery({
-    name: 'details',
-    description: 'If true, returns all recipe data.',
-    type: 'boolean',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'rating',
-    description:
-      'Shows only recipes with average rating greater or equal than provided value.',
-    type: 'number',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'category',
-    description: 'Shows only recipes assinged to provided category.',
-    isArray: true,
-    type: 'string',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'startDate',
-    description: 'Shows only recipes created from this day.',
-    type: 'string',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'endDate',
-    description: 'Shows only recipes created till this day.',
-    type: 'string',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'title',
-    description: 'Shows only recipes that contain given string in the title.',
-    type: 'string',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'description',
-    description:
-      'Shows only recipes that contain given string in the description.',
-    type: 'string',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'ingredients',
-    description:
-      'Shows only recipes that contain given string in the ingredients.',
-    type: 'string',
-    required: false,
-  })
   @ApiBearerAuth()
   @UseGuards(RecipesGuard)
   @Get()
@@ -81,5 +37,18 @@ export class RecipesController {
     @Query() params: GetRecepiesFiltersDto,
   ): Promise<RecipeDto[]> {
     return this.recipesService.findAll(request.user?.userId, params);
+  }
+
+  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
+  @ApiOkResponse({ description: 'Recipe details', type: RecipeDto })
+  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
+  @ApiForbiddenResponse({ description: "You can't access this recipe." })
+  @UseGuards(RecipesGuard)
+  @Get(':id')
+  findOne(
+    @Param('id') recipeId: string,
+    @Request() request,
+  ): Promise<RecipeDto> {
+    return this.recipesService.findOne(recipeId, request.user?.userId);
   }
 }

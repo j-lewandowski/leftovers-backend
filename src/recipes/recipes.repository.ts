@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
+import { Rating, Recipe } from '@prisma/client';
 
 @Injectable()
 export class RecipesRepository {
@@ -94,7 +95,15 @@ export class RecipesRepository {
       } `;
       dbQueryParams.push(searchTerm);
     }
-
     return this.prisma.$queryRawUnsafe(query, ...dbQueryParams);
+  }
+
+  async getOne(recipeId: string): Promise<Recipe & { rating: Rating[] }> {
+    const recipe = await this.prisma.recipe.findFirst({
+      where: { id: recipeId },
+      include: { rating: true },
+    });
+
+    return recipe;
   }
 }

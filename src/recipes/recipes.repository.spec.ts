@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import { faker } from '@faker-js/faker';
+import { PreparationTime, Visibility } from '@prisma/client';
 
 describe('RecipesRepository', () => {
   let recipesRepository: RecipesRepository;
@@ -17,6 +18,9 @@ describe('RecipesRepository', () => {
           provide: PrismaService,
           useValue: {
             $queryRawUnsafe: jest.fn(),
+            recipe: {
+              findFirst: jest.fn(),
+            },
           },
         },
       ],
@@ -70,6 +74,31 @@ describe('RecipesRepository', () => {
 
       // then
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getOne', () => {
+    it('should return a single recipe if it exists in database', async () => {
+      // given
+      const recipe = {
+        id: faker.string.uuid(),
+        title: faker.commerce.product(),
+        description: 'description',
+        preparationTime: PreparationTime.UP_TO_15_MIN,
+        preparationMethod: [],
+        ingredients: [],
+        createdAt: new Date(),
+        authorId: faker.string.uuid(),
+        categoryName: 'dinner',
+        visibility: Visibility.PRIVATE,
+      };
+      jest.spyOn(prismaService.recipe, 'findFirst').mockResolvedValue(recipe);
+
+      // when
+      const res = await recipesRepository.getOne(faker.string.uuid());
+
+      // then
+      expect(res).toBe(recipe);
     });
   });
 });
