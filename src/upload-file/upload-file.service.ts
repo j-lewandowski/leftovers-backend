@@ -1,7 +1,7 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
 
 @Injectable()
@@ -28,7 +28,6 @@ export class UploadFileService {
     const command = new PutObjectCommand({
       Bucket: this.configService.get('AWS_BUCKET_NAME'),
       Key: fileKey,
-      ACL: 'public-read',
     });
 
     const uploadUrl = await getSignedUrl(this.s3client, command, {

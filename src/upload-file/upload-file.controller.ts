@@ -1,8 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { UploadFileService } from './upload-file.service';
+import { Body, Controller, Get } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetSignedUrlDto } from './dto/GetSignedUrl.dto';
 import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UploadFileService } from './upload-file.service';
 
 @Controller('upload-file')
 @ApiTags('upload file')
@@ -18,7 +18,11 @@ export class UploadFileController {
       'User id and recipe title will be used to generate object key that can be used to obtain the image later.',
     type: GetSignedUrlDto,
   })
-  @Post()
+  @ApiOkResponse({
+    description: 'Upload url and file key to access the file later.',
+    type: SignedUrlResponseDto,
+  })
+  @Get()
   async getSignedUrl(
     @Body() { userId, recipeTitle }: GetSignedUrlDto,
   ): Promise<SignedUrlResponseDto> {

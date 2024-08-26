@@ -1,9 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GetSignedUrlDto {
   @IsNotEmpty()
+  @IsString()
   @ApiProperty({
     example: faker.string.uuid(),
   })
