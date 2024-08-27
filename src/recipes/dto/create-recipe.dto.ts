@@ -55,7 +55,6 @@ export class CreateRecipeDto {
   @ArrayNotEmpty()
   @IsNotEmpty({ each: true })
   @IsString({ each: true })
-  @ArrayNotEmpty({ each: true })
   @MaxLength(100, { each: true })
   ingredients: string[];
 
@@ -63,7 +62,6 @@ export class CreateRecipeDto {
   @ArrayNotEmpty()
   @IsNotEmpty({ each: true })
   @IsString({ each: true })
-  @ArrayNotEmpty({ each: true })
   @MaxLength(100, { each: true })
   @ApiProperty({
     example: ['step1', 'step2'],

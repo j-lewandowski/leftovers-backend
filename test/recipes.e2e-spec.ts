@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -28,8 +28,14 @@ describe('RecipesController (e2e)', () => {
           isGlobal: true,
         }),
         PassportModule,
-        JwtModule.register({
-          secret: 'test-secret',
+        JwtModule.registerAsync({
+          useFactory: async (configService: ConfigService) => ({
+            secret: configService.get('JWT_SECRET'),
+            signOptions: {
+              expiresIn: '24h',
+            },
+          }),
+          inject: [ConfigService],
         }),
       ],
       controllers: [RecipesController],
@@ -231,6 +237,9 @@ describe('RecipesController (e2e)', () => {
           preparationSteps: ['1 step'],
           categoryName: 'lunch',
           image: faker.internet.url(),
+          preparationTime: PreparationTime.UP_TO_15_MIN,
+          visibility: Visibility.PUBLIC,
+          servings: 1,
         })
         .expect(HttpStatus.CREATED);
 
