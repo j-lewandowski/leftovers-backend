@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBasicAuth,
@@ -24,6 +17,7 @@ import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
+import { GetUser } from './getUser.decorator';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
 
 @ApiTags('auth')
@@ -123,8 +117,8 @@ export class AuthController {
   @UseGuards(BasicAuthGuard)
   @Post('login')
   @HttpCode(200)
-  async loginUser(@Request() req): Promise<AccessTokenDto> {
-    return this.authService.login(req.user);
+  async loginUser(@GetUser() user: UserDto): Promise<AccessTokenDto> {
+    return this.authService.login(user);
   }
 
   @Post('/confirm')
