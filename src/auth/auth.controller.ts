@@ -17,14 +17,14 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { EmailService } from '../email/email.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
-import { AuthService } from './auth.service';
-import { BasicAuthGuard } from './guards/basic-auth.guard';
-import { AccessTokenDto } from './dto/access-token.dto';
-import { EmailService } from '../email/email.service';
 import { UsersService } from '../users/users.service';
+import { AuthService } from './auth.service';
+import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
+import { BasicAuthGuard } from './guards/basic-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -97,8 +97,14 @@ export class AuthController {
     },
   })
   @Post('/register')
-  async signUpUser(@Body() userData: CreateUserDto): Promise<void> {
+  async signUpUser(
+    @Body() userData: CreateUserDto,
+  ): Promise<{ message: string }> {
     await this.authService.createSignUpRequest(userData);
+    return {
+      message:
+        "You've successfully registered on our website. To complete the registration process, please check your email 📬",
+    };
   }
 
   @ApiOperation({ summary: 'Allows to log in a user' })
