@@ -1,16 +1,15 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { UsersService } from '../src/users/users.service';
-import { PrismaModule } from '../src/prisma/prisma.module';
-import { UsersController } from '../src/users/users.controller';
-import { ConfigModule } from '@nestjs/config';
-import { UsersRepository } from '../src/users/users.repository';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { jwtConstants } from '../src/auth/constants';
 import { faker } from '@faker-js/faker';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { INestApplication } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as request from 'supertest';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
+import { PrismaModule } from '../src/prisma/prisma.module';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { UsersController } from '../src/users/users.controller';
+import { UsersRepository } from '../src/users/users.repository';
+import { UsersService } from '../src/users/users.service';
 
 describe('users (e2e)', () => {
   let app: INestApplication;
@@ -20,15 +19,19 @@ describe('users (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
-        ConfigModule,
         PrismaModule,
-        JwtModule.register({
-          secret: jwtConstants.secret,
-          signOptions: { expiresIn: '24h' },
-        }),
         ConfigModule.forRoot({
           envFilePath: '.env.test.local',
           isGlobal: true,
+        }),
+        JwtModule.registerAsync({
+          useFactory: async (configService: ConfigService) => ({
+            secret: configService.get('JWT_SECRET'),
+            signOptions: {
+              expiresIn: '24h',
+            },
+          }),
+          inject: [ConfigService],
         }),
       ],
       providers: [UsersService, UsersRepository, JwtStrategy],
