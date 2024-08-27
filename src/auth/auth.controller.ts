@@ -136,7 +136,11 @@ export class AuthController {
   })
   async confirmUserRegistration(
     @Body() confirmSignUpDto: ConfirmSignUpDto,
-  ): Promise<void> {
+  ): Promise<{ message: string }> {
     await this.authService.confirmUserRegistration(confirmSignUpDto);
+    return {
+      message:
+        "You've successfully completed the registration process. You may now log in ✅",
+    };
   }
 }
