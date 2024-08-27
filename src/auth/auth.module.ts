@@ -23,6 +23,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
           expiresIn: '24h',
         },
       }),
+      inject: [ConfigService],
     }),
     EmailModule,
     ConfigModule,

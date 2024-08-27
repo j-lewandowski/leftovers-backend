@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
-import { RecipesRepository } from './recipes.repository';
+import { PreparationTime, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { faker } from '@faker-js/faker';
-import { PreparationTime, Visibility } from '@prisma/client';
+import { RecipesRepository } from './recipes.repository';
 
 describe('RecipesRepository', () => {
   let recipesRepository: RecipesRepository;
@@ -20,6 +20,7 @@ describe('RecipesRepository', () => {
             $queryRawUnsafe: jest.fn(),
             recipe: {
               findFirst: jest.fn(),
+              create: jest.fn(),
             },
           },
         },
@@ -29,6 +30,19 @@ describe('RecipesRepository', () => {
     recipesRepository = moduleRef.get<RecipesRepository>(RecipesRepository);
     prismaService = moduleRef.get<PrismaService>(PrismaService);
   });
+
+  const recipe = {
+    title: faker.commerce.product(),
+    description: 'description',
+    preparationTime: PreparationTime.UP_TO_15_MIN,
+    preparationSteps: [],
+    ingredients: [],
+    servings: 2,
+    createdAt: new Date(),
+    image: faker.internet.url(),
+    categoryName: 'dinner',
+    visibility: Visibility.PRIVATE,
+  };
 
   describe('getAll', () => {
     it('should return an array of RecipeDto objects', async () => {
@@ -66,7 +80,6 @@ describe('RecipesRepository', () => {
         category: ['dinner'],
       };
 
-      // Mock the PrismaService method to return an empty array
       jest.spyOn(prismaService, '$queryRawUnsafe').mockResolvedValue([]);
 
       // when
@@ -80,25 +93,41 @@ describe('RecipesRepository', () => {
   describe('getOne', () => {
     it('should return a single recipe if it exists in database', async () => {
       // given
-      const recipe = {
+      const recipeResult = {
         id: faker.string.uuid(),
-        title: faker.commerce.product(),
-        description: 'description',
-        preparationTime: PreparationTime.UP_TO_15_MIN,
-        preparationMethod: [],
-        ingredients: [],
-        createdAt: new Date(),
+        ...recipe,
         authorId: faker.string.uuid(),
-        categoryName: 'dinner',
-        visibility: Visibility.PRIVATE,
       };
-      jest.spyOn(prismaService.recipe, 'findFirst').mockResolvedValue(recipe);
+      jest
+        .spyOn(prismaService.recipe, 'findFirst')
+        .mockResolvedValue(recipeResult);
 
       // when
       const res = await recipesRepository.getOne(faker.string.uuid());
 
       // then
-      expect(res).toBe(recipe);
+      expect(res).toBe(recipeResult);
+    });
+  });
+
+  describe('create', () => {
+    it('should create new recipe in database and return recipe object', async () => {
+      // given
+      const recipeResult = {
+        id: faker.string.uuid(),
+        ...recipe,
+        authorId: faker.string.uuid(),
+      };
+      jest
+        .spyOn(prismaService.recipe, 'create')
+        .mockResolvedValue(recipeResult);
+
+      // when
+      const res = await recipesRepository.create(recipe, faker.string.uuid());
+
+      // then
+
+      expect(res).toBe(recipeResult);
     });
   });
 });

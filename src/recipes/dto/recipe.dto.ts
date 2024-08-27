@@ -35,7 +35,7 @@ export class RecipeDto {
     type: 'string[]',
     example: ['1 step', '2 step', '3 step'],
   })
-  preparationMethod?: string[];
+  preparationSteps?: string[];
 
   @ApiPropertyOptional({
     type: 'PRIVATE | PUBLIC',

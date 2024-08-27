@@ -30,19 +30,21 @@ model SignUpRequests {
 }
 
 model Recipe {
-  id                String          @id @default(uuid())
-  title             String
-  description       String          @default("Description")
-  category          Category        @relation(fields: [categoryName], references: [name])
-  preparationTime   PreparationTime @default(UP_TO_15_MIN) @map("preparation_time")
-  ingredients       String[]
-  preparationMethod String[]        @map("preparation_method")
-  visibility        Visibility      @default(PUBLIC)
-  createdAt         DateTime        @default(now()) @map("created_at")
-  author            User            @relation(fields: [authorId], references: [id])
-  authorId          String          @map("author_id")
-  categoryName      String          @default("breakfast") @map("category_name")
-  rating            Rating[]
+  id               String          @id @default(uuid())
+  title            String
+  description      String          @default("Description")
+  category         Category        @relation(fields: [categoryName], references: [name])
+  preparationTime  PreparationTime @default(UP_TO_15_MIN) @map("preparation_time")
+  servings         Int             @default(1)
+  ingredients      String[]
+  preparationSteps String[]        @map("preparation_steps")
+  image            String
+  visibility       Visibility      @default(PUBLIC)
+  createdAt        DateTime        @default(now()) @map("created_at")
+  author           User            @relation(fields: [authorId], references: [id])
+  authorId         String          @map("author_id")
+  categoryName     String          @default("breakfast") @map("category_name")
+  rating           Rating[]
 }
 
 model Category {
