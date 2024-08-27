@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
 import { PreparationTime, Visibility } from '@prisma/client';
-import { IsNotEmpty, MaxLength, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class CreatedRecipeDto {
   @ApiProperty({
@@ -12,21 +11,16 @@ export class CreatedRecipeDto {
   @ApiProperty({
     example: 'Spaghetti Bolognese',
   })
-  @IsNotEmpty()
-  @MaxLength(100)
   title: string;
 
   @ApiProperty({
     example: 'Very tasty spaghetti bolognese',
   })
-  @IsNotEmpty()
-  @MaxLength(200)
   description: string;
 
   @ApiProperty({
     example: 'lunch',
   })
-  @IsNotEmpty()
   categoryName: string;
 
   @ApiProperty({
@@ -44,15 +38,11 @@ export class CreatedRecipeDto {
   })
   servings: number;
 
-  @IsArray()
-  @ArrayNotEmpty()
   @ApiProperty({
     example: ['ingredient1', 'ingredient2'],
   })
   ingredients: string[];
 
-  @IsArray()
-  @ArrayNotEmpty()
   @ApiProperty({
     example: ['step1', 'step2'],
   })

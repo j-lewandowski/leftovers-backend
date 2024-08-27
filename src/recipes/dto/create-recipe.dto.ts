@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PreparationTime, Visibility } from '@prisma/client';
-import { ArrayNotEmpty, IsArray, IsNotEmpty, MaxLength } from 'class-validator';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateRecipeDto {
   @IsNotEmpty()
@@ -29,6 +36,8 @@ export class CreateRecipeDto {
   })
   image: string;
 
+  @IsNotEmpty()
+  @IsEnum(PreparationTime)
   @ApiProperty({
     example: PreparationTime.OVER_60_MIN,
   })
@@ -39,22 +48,32 @@ export class CreateRecipeDto {
   })
   servings: number;
 
-  @IsArray()
-  @ArrayNotEmpty()
   @ApiProperty({
     example: ['ingredient1', 'ingredient2'],
   })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNotEmpty({ each: true })
+  @IsString({ each: true })
+  @ArrayNotEmpty({ each: true })
+  @MaxLength(100, { each: true })
   ingredients: string[];
 
   @IsArray()
   @ArrayNotEmpty()
+  @IsNotEmpty({ each: true })
+  @IsString({ each: true })
+  @ArrayNotEmpty({ each: true })
+  @MaxLength(100, { each: true })
   @ApiProperty({
     example: ['step1', 'step2'],
   })
   preparationSteps: string[];
 
+  @IsNotEmpty()
   @ApiProperty({
     example: Visibility.PRIVATE,
   })
+  @IsEnum(Visibility)
   visibility: Visibility;
 }

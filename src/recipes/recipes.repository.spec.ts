@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
-import { RecipesRepository } from './recipes.repository';
+import { PreparationTime, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { faker } from '@faker-js/faker';
-import { PreparationTime, Visibility } from '@prisma/client';
+import { RecipesRepository } from './recipes.repository';
 
 describe('RecipesRepository', () => {
   let recipesRepository: RecipesRepository;
@@ -80,7 +80,6 @@ describe('RecipesRepository', () => {
         category: ['dinner'],
       };
 
-      // Mock the PrismaService method to return an empty array
       jest.spyOn(prismaService, '$queryRawUnsafe').mockResolvedValue([]);
 
       // when
