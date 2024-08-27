@@ -1,10 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as request from 'supertest';
 import { UploadFileController } from '../src/upload-file/upload-file.controller';
 import { UploadFileService } from '../src/upload-file/upload-file.service';
-import { faker } from '@faker-js/faker';
-import * as request from 'supertest';
 
 describe('upload file (e2e)', () => {
   let app: INestApplication;
@@ -28,7 +28,7 @@ describe('upload file (e2e)', () => {
 
   it('should return signed upload url and object key', async () => {
     const { body } = await request(app.getHttpServer())
-      .post('/upload-file')
+      .get('/upload-file')
       .send({
         userId: faker.string.uuid(),
         recipeTitle: faker.commerce.product(),

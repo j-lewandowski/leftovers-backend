@@ -1,22 +1,21 @@
-import { PrismaModule } from '../src/prisma/prisma.module';
-import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
-import { EmailService } from '../src/email/email.service';
-import { AuthRepository } from '../src/auth/auth.repository';
 import { faker } from '@faker-js/faker';
-import * as bcrypt from 'bcrypt';
-import { HttpStatus, INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { UsersModule } from '../src/users/users.module';
-import { PassportModule } from '@nestjs/passport';
-import { EmailModule } from '../src/email/email.module';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { Test } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+import * as request from 'supertest';
 import { AuthController } from '../src/auth/auth.controller';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { AuthRepository } from '../src/auth/auth.repository';
 import { AuthService } from '../src/auth/auth.service';
 import { BasicStrategy } from '../src/auth/strategies/basic.strategy';
-import { ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
+import { EmailModule } from '../src/email/email.module';
+import { EmailService } from '../src/email/email.service';
+import { PrismaModule } from '../src/prisma/prisma.module';
+import { PrismaService } from '../src/prisma/prisma.service';
+import { UsersModule } from '../src/users/users.module';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
@@ -35,7 +34,10 @@ describe('auth (e2e)', () => {
         }),
         PrismaModule,
         JwtModule.register({
-          secret: 'test-secret',
+          secret: 'VERYSECRETKEYTEST',
+          signOptions: {
+            expiresIn: '24h',
+          },
         }),
       ],
       controllers: [AuthController],
