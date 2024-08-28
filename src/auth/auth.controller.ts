@@ -17,6 +17,7 @@ import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
+import { CreateResetPasswordRequestDto } from './dto/create-reset-password-request.dto';
 import { GetUser } from './getUser.decorator';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
 
@@ -141,6 +142,19 @@ export class AuthController {
     return {
       message:
         "You've successfully completed the registration process. You may now log in ✅",
+    };
+  }
+
+  @Post('/forgot-password')
+  async createResetPasswordRequest(
+    @Body() createResetPasswordRequestDto: CreateResetPasswordRequestDto,
+  ): Promise<{ message: string }> {
+    await this.authService.createResetPasswordRequest(
+      createResetPasswordRequestDto.email,
+    );
+    return {
+      message:
+        'Thanks! An e-mail was sent that will ask you to click on a link to verify that you own this account 📬',
     };
   }
 }

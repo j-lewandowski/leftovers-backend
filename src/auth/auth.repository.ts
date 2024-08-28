@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { SignUpRequestDto } from '../auth/dto/sign-up-request.dto';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateSignUpRequestDto } from './dto/create-sign-up-request.dto';
 
 @Injectable()
@@ -25,5 +25,13 @@ export class AuthRepository {
     await this.prisma.signUpRequests.create({
       data: user,
     });
+  }
+
+  async createResetPasswordRequest(
+    email: string,
+    validationToken: string,
+  ): Promise<void> {
+    // @TODO - create prisma model
+    return;
   }
 }
