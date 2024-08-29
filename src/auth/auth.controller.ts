@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBasicAuth,
@@ -117,7 +124,7 @@ export class AuthController {
   @ApiBasicAuth()
   @UseGuards(BasicAuthGuard)
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async loginUser(@GetUser() user: UserDto): Promise<AccessTokenDto> {
     return this.authService.login(user);
   }
@@ -146,6 +153,7 @@ export class AuthController {
   }
 
   @Post('/forgot-password')
+  @HttpCode(HttpStatus.OK)
   async createResetPasswordRequest(
     @Body() createResetPasswordRequestDto: CreateResetPasswordRequestDto,
   ): Promise<{ message: string }> {

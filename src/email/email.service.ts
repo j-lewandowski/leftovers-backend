@@ -33,12 +33,32 @@ export class EmailService {
     )}?requestId=${token}&userEmail=${userEmail}`;
 
     await this.mailService.sendMail({
+      from: 'Leftovers Team noreply@leftovers.com',
       to: userEmail,
-      subject: 'Account confirmation',
+      subject: '👋 Please confirm your e-mail',
       text: token,
       template: 'user-account-activation.template.pug',
       context: {
         activationLink: link,
+      },
+    });
+  }
+
+  async sendPasswordResetMail(
+    userEmail: string,
+    validationToken: string,
+  ): Promise<void> {
+    const resetLink = `${this.configService.get(
+      'FRONTEND_BASE_URL',
+    )}?requestId=${validationToken}&userEmail=${userEmail}`;
+    await this.mailService.sendMail({
+      from: 'Leftovers Team noreply@leftovers.com',
+      to: userEmail,
+      subject: 'Reset your password',
+      text: resetLink,
+      template: 'user-password-reset.template.pug',
+      context: {
+        resetLink,
       },
     });
   }

@@ -31,7 +31,8 @@ export class AuthRepository {
     email: string,
     validationToken: string,
   ): Promise<void> {
-    // @TODO - create prisma model
-    return;
+    await this.prisma.resetPasswordRequest.create({
+      data: { email, validationToken },
+    });
   }
 }

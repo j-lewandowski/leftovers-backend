@@ -29,6 +29,11 @@ model SignUpRequests {
   createdAt       DateTime @default(now()) @map("created_at")
 }
 
+model ResetPasswordRequest {
+  validationToken String @id @map("validation_token")
+  email           String
+}
+
 model Recipe {
   id               String          @id @default(uuid())
   title            String

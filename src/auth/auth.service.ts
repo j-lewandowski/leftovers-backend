@@ -106,5 +106,7 @@ export class AuthService {
       email,
       validationToken,
     );
+
+    await this.emailService.sendPasswordResetMail(email, validationToken);
   }
 }
