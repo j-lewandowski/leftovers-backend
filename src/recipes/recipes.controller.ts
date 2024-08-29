@@ -5,13 +5,8 @@ import {
   Param,
   Post,
   Query,
-  Request,
   UseGuards,
 } from '@nestjs/common';
-import { RecipesService } from './recipes.service';
-import { RecipesGuard } from './recipes.guard';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -23,9 +18,15 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AccessTokenUserDataDto } from 'src/auth/dto/access-token-user-data.dto';
+import { GetUser } from 'src/auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreatedRecipeDto } from './dto/created-recipe-dto';
+import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { RecipeDto } from './dto/recipe.dto';
+import { RecipesGuard } from './recipes.guard';
+import { RecipesService } from './recipes.service';
 
 @Controller('recipes')
 @ApiTags('recipes')
@@ -41,10 +42,10 @@ export class RecipesController {
   @UseGuards(RecipesGuard)
   @Get()
   findAll(
-    @Request() request,
+    @GetUser() user: AccessTokenUserDataDto,
     @Query() params: GetRecepiesFiltersDto,
   ): Promise<RecipeDto[]> {
-    return this.recipesService.findAll(request.user?.userId, params);
+    return this.recipesService.findAll(user?.userId, params);
   }
 
   @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
@@ -55,9 +56,9 @@ export class RecipesController {
   @Get(':id')
   findOne(
     @Param('id') recipeId: string,
-    @Request() request,
+    @GetUser() user: AccessTokenUserDataDto,
   ): Promise<RecipeDto> {
-    return this.recipesService.findOne(recipeId, request.user?.userId);
+    return this.recipesService.findOne(recipeId, user?.userId);
   }
 
   @ApiOperation({
@@ -86,9 +87,9 @@ export class RecipesController {
   @Post()
   @UseGuards(JwtAuthGuard)
   create(
-    @Request() request,
+    @GetUser() user: AccessTokenUserDataDto,
     @Body() createRecipeDto: CreateRecipeDto,
   ): Promise<CreateRecipeDto> {
-    return this.recipesService.create(createRecipeDto, request.user.userId);
+    return this.recipesService.create(createRecipeDto, user.userId);
   }
 }
