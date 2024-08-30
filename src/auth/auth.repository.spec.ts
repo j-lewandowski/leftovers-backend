@@ -1,10 +1,10 @@
-import { ConfigService } from '@nestjs/config';
-import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../prisma/prisma.service';
 import { faker } from '@faker-js/faker';
-import { AuthRepository } from './auth.repository';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { AuthRepository } from './auth.repository';
 
 describe('AuthRepository', () => {
   let prisma: PrismaService;
@@ -64,6 +64,25 @@ describe('AuthRepository', () => {
 
       // then
       expect(prisma.signUpRequests.create).toHaveBeenCalled();
+    });
+  });
+
+  describe('createResetPasswordRequest', () => {
+    it('should create reset password request', async () => {
+      // given
+      jest.spyOn(prisma.resetPasswordRequest, 'create').mockResolvedValue({
+        validationToken: 'jwt-token',
+        email: faker.internet.email(),
+      });
+
+      // when
+      await repository.createResetPasswordRequest(
+        faker.internet.email(),
+        'jwt-token',
+      );
+
+      // then
+      expect(prisma.resetPasswordRequest.create).toHaveBeenCalled();
     });
   });
 });

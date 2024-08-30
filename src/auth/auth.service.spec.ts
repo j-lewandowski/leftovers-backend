@@ -1,19 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
-import { UsersRepository } from '../users/users.repository';
-import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
-import { AuthRepository } from './auth.repository';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   ConflictException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
 import { EmailService } from '../email/email.service';
-import { MailerService } from '@nestjs-modules/mailer';
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersRepository } from '../users/users.repository';
+import { AuthRepository } from './auth.repository';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -254,5 +254,41 @@ describe('AuthService', () => {
       // then
       expect(usersRepository.confirmedRegister).toHaveBeenCalled();
     });
+  });
+
+  describe('createResetPasswordRequest', () => {
+    it('should call createResetPasswordRequest method if user with this email exists in database', async () => {
+      // given
+      const mockUserRequest = {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        password: 'hashed-password',
+        createdAt: faker.date.anytime(),
+      };
+      jest.spyOn(usersRepository, 'findOne').mockResolvedValue(mockUserRequest);
+      jest.spyOn(jwt, 'sign').mockReturnValue('validation-token');
+      jest
+        .spyOn(authRepository, 'createResetPasswordRequest')
+        .mockResolvedValue(undefined);
+
+      // when
+      await service.createResetPasswordRequest(mockUserRequest.email);
+
+      // then
+      expect(authRepository.createResetPasswordRequest).toHaveBeenCalled();
+    });
+  });
+
+  it('should not call createResetPasswordRequest method if user with this email does not exist in database', async () => {
+    // given
+    jest.spyOn(usersRepository, 'findOne').mockResolvedValue(null);
+    jest
+      .spyOn(authRepository, 'createResetPasswordRequest')
+      .mockResolvedValue(undefined);
+    // when
+    await service.createResetPasswordRequest(faker.internet.email());
+
+    // then
+    expect(authRepository.createResetPasswordRequest).not.toHaveBeenCalled();
   });
 });
