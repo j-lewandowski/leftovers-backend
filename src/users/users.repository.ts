@@ -1,11 +1,11 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserDto } from './dto/user.dto';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserDto } from './dto/user.dto';
+import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -80,5 +80,14 @@ export class UsersRepository {
       },
     });
     return user;
+  }
+
+  async updatePassword(email: string, newPassword: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { email },
+      data: {
+        password: newPassword,
+      },
+    });
   }
 }

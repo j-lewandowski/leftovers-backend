@@ -25,6 +25,7 @@ import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 import { CreateResetPasswordRequestDto } from './dto/create-reset-password-request.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GetUser } from './getUser.decorator';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
 
@@ -150,5 +151,13 @@ export class AuthController {
     await this.authService.createResetPasswordRequest(
       createResetPasswordRequestDto.email,
     );
+  }
+
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<void> {
+    await this.authService.resetPassword(resetPasswordDto);
   }
 }
