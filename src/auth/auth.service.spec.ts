@@ -291,4 +291,69 @@ describe('AuthService', () => {
     // then
     expect(authRepository.createResetPasswordRequest).not.toHaveBeenCalled();
   });
+
+  describe('resetPassword', () => {
+    it('should call resetPassword method if valid jwt is provided', async () => {
+      //given
+      jest
+        .spyOn(jwt, 'verify')
+        .mockReturnValue({ email: faker.internet.email() });
+      jest
+        .spyOn(usersRepository, 'updatePassword')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(authRepository, 'passwordResetRequestExists')
+        .mockResolvedValue(true);
+
+      // when
+      await service.resetPassword({
+        newPassword: faker.internet.password(),
+        validationToken: 'token',
+      });
+      expect(usersRepository.updatePassword).toHaveBeenCalled();
+    });
+
+    it('should throw error if jwt is invalid', async () => {
+      //given
+      jest
+        .spyOn(usersRepository, 'updatePassword')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(authRepository, 'passwordResetRequestExists')
+        .mockResolvedValue(false);
+
+      // when
+      await expect(
+        service.resetPassword({
+          newPassword: faker.internet.password(),
+          validationToken: 'token',
+        }),
+        // then
+      ).rejects.toEqual(new UnauthorizedException('Invalid token.'));
+    });
+
+    it('should throw error if password reset request does not exist in database', async () => {
+      //given
+      jest
+        .spyOn(jwt, 'verify')
+        .mockReturnValue({ email: faker.internet.email() });
+      jest
+        .spyOn(usersRepository, 'updatePassword')
+        .mockResolvedValue(undefined);
+      jest
+        .spyOn(authRepository, 'passwordResetRequestExists')
+        .mockResolvedValue(false);
+
+      // when
+      await expect(
+        service.resetPassword({
+          newPassword: faker.internet.password(),
+          validationToken: 'token',
+        }),
+        // then
+      ).rejects.toEqual(
+        new UnauthorizedException('Password reset request does not exist.'),
+      );
+    });
+  });
 });

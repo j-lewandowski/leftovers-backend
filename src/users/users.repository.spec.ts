@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersRepository } from '../users/users.repository';
-import { PrismaService } from '../prisma/prisma.service';
-import { ConfigService } from '@nestjs/config';
 import { faker } from '@faker-js/faker';
+import { ConfigService } from '@nestjs/config';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from '../prisma/prisma.service';
+import { UsersRepository } from '../users/users.repository';
 
 describe('UsersRepository', () => {
   let repository: UsersRepository;
@@ -13,6 +13,7 @@ describe('UsersRepository', () => {
       count: jest.fn(),
       create: jest.fn(),
       findFirst: jest.fn(),
+      update: jest.fn(),
     },
   };
 
@@ -159,6 +160,22 @@ describe('UsersRepository', () => {
 
       // then
       expect(res).toEqual(null);
+    });
+  });
+
+  describe('update', () => {
+    it('should update users password', async () => {
+      const userEmail = faker.internet.email();
+      const newPassword = faker.internet.password();
+      // given
+      jest.spyOn(prismaMockService.user, 'update').mockResolvedValue({
+        password: newPassword,
+      });
+
+      // when
+      await repository.updatePassword(userEmail, newPassword);
+
+      expect(prismaMockService.user.update).toHaveBeenCalled();
     });
   });
 });

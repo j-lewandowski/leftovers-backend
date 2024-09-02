@@ -122,7 +122,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token.');
     }
 
-    const requestExist = await this.authRepository.passwordResetExists(
+    const requestExist = await this.authRepository.passwordResetRequestExists(
       validationToken,
     );
 
