@@ -248,4 +248,16 @@ describe('auth (e2e)', () => {
   afterAll(async () => {
     await app.close();
   });
+
+  describe('/auth/forgot-password', () => {
+    it('should return 200 when password reset request is created', async () => {
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({
+          email: faker.internet.email(),
+        });
+
+      expect(status).toBe(HttpStatus.OK);
+    });
+  });
 });

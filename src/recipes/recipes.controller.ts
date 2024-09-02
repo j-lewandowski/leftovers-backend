@@ -18,8 +18,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AccessTokenUserDataDto } from 'src/auth/dto/access-token-user-data.dto';
-import { GetUser } from 'src/auth/getUser.decorator';
+import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
+import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreatedRecipeDto } from './dto/created-recipe-dto';
