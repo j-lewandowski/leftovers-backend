@@ -35,4 +35,10 @@ export class AuthRepository {
       data: { email, validationToken },
     });
   }
+
+  async passwordResetExists(validationToken: string): Promise<boolean> {
+    return !!(await this.prisma.resetPasswordRequest.count({
+      where: { validationToken },
+    }));
+  }
 }

@@ -115,16 +115,28 @@ export class AuthService {
     newPassword,
     validationToken,
   }: ResetPasswordDto): Promise<void> {
+    let isTokenValid;
     try {
-      const { email } = this.jwtService.verify(validationToken);
-      const newPasswordHashed = await bcrypt.hash(
-        newPassword,
-        +this.configService.get('BCRYPT_ROUNDS'),
-      );
-
-      await this.usersRepository.updatePassword(email, newPasswordHashed);
+      isTokenValid = this.jwtService.verify(validationToken);
     } catch (error) {
       throw new UnauthorizedException('Invalid token.');
     }
+
+    const requestExist = await this.authRepository.passwordResetExists(
+      validationToken,
+    );
+
+    if (!requestExist) {
+      throw new UnauthorizedException('Password reset request does not exist.');
+    }
+
+    const { email } = isTokenValid;
+
+    const newPasswordHashed = await bcrypt.hash(
+      newPassword,
+      +this.configService.get('BCRYPT_ROUNDS'),
+    );
+
+    await this.usersRepository.updatePassword(email, newPasswordHashed);
   }
 }
