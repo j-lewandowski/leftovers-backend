@@ -50,7 +50,7 @@ export class EmailService {
   ): Promise<void> {
     const resetLink = `${this.configService.get(
       'FRONTEND_BASE_URL',
-    )}?reset-password=true&requestId=${validationToken}&userEmail=${userEmail}`;
+    )}?reset-password=true&requestId=${validationToken}`;
     await this.mailService.sendMail({
       from: this.configService.get('NOREPLY_EMAIL'),
       to: userEmail,

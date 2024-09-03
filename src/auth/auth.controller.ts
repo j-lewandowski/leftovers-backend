@@ -178,7 +178,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
-  ): Promise<void> {
+  ): Promise<MessageDto> {
     await this.authService.resetPassword(resetPasswordDto);
+    return {
+      message: 'Your password has been reset successfully.',
+    };
   }
 }
