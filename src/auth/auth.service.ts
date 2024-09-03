@@ -138,5 +138,7 @@ export class AuthService {
     );
 
     await this.usersRepository.updatePassword(email, newPasswordHashed);
+
+    await this.authRepository.deletePasswordResetRequest(validationToken);
   }
 }

@@ -41,4 +41,10 @@ export class AuthRepository {
       where: { validationToken },
     }));
   }
+
+  async deletePasswordResetRequest(validationToken: string): Promise<void> {
+    await this.prisma.resetPasswordRequest.delete({
+      where: { validationToken },
+    });
+  }
 }
