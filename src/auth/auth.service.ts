@@ -4,16 +4,16 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersRepository } from '../users/users.repository';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { EmailService } from '../email/email.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { AccessTokenDto } from './dto/access-token.dto';
-import { ConfigService } from '@nestjs/config';
+import { UsersRepository } from '../users/users.repository';
 import { AuthRepository } from './auth.repository';
+import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
-import { EmailService } from '../email/email.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -93,5 +93,20 @@ export class AuthService {
       email: userRequest.email,
       password: userRequest.password,
     });
+  }
+
+  async createResetPasswordRequest(email: string): Promise<void> {
+    const user = await this.usersRepository.findOne(email);
+    if (!user) {
+      return;
+    }
+
+    const validationToken = this.jwtService.sign({ email });
+    await this.authRepository.createResetPasswordRequest(
+      email,
+      validationToken,
+    );
+
+    await this.emailService.sendPasswordResetMail(email, validationToken);
   }
 }
