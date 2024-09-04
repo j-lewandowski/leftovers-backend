@@ -304,6 +304,9 @@ describe('AuthService', () => {
       jest
         .spyOn(authRepository, 'passwordResetRequestExists')
         .mockResolvedValue(true);
+      jest
+        .spyOn(authRepository, 'deletePasswordResetRequest')
+        .mockResolvedValue(undefined);
 
       // when
       await service.resetPassword({

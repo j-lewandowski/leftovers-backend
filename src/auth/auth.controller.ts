@@ -7,6 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiBasicAuth,
   ApiBody,
@@ -25,7 +26,6 @@ import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 import { CreateResetPasswordRequestDto } from './dto/create-reset-password-request.dto';
-import { MessageDto } from './dto/message.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GetUser } from './getUser.decorator';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
@@ -147,15 +147,11 @@ export class AuthController {
   @ApiOperation({
     summary: 'Creates password reset request',
   })
-  @ApiOkResponse({
-    type: MessageDto,
-    example: {
-      message:
-        'Thanks! An e-mail was sent that will ask you to click on a link to verify that you own this account 📬',
-    },
-  })
   @Post('/forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({
+    description: 'Password reset request has been created.',
+  })
   async createResetPasswordRequest(
     @Body() createResetPasswordRequestDto: CreateResetPasswordRequestDto,
   ): Promise<void> {
@@ -178,10 +174,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
-  ): Promise<MessageDto> {
+  ): Promise<void> {
     await this.authService.resetPassword(resetPasswordDto);
-    return {
-      message: 'Your password has been reset successfully.',
-    };
   }
 }
