@@ -33,7 +33,7 @@ export class EmailService {
     )}?requestId=${token}&userEmail=${userEmail}`;
 
     await this.mailService.sendMail({
-      from: 'Leftovers Team noreply@leftovers.com',
+      from: this.configService.get('NOREPLY_EMAIL'),
       to: userEmail,
       subject: '👋 Please confirm your e-mail',
       text: token,
@@ -52,7 +52,7 @@ export class EmailService {
       'FRONTEND_BASE_URL',
     )}?requestId=${validationToken}&userEmail=${userEmail}`;
     await this.mailService.sendMail({
-      from: 'Leftovers Team noreply@leftovers.com',
+      from: this.configService.get('NOREPLY_EMAIL'),
       to: userEmail,
       subject: 'Reset your password',
       text: resetLink,

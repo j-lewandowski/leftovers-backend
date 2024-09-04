@@ -99,14 +99,8 @@ export class AuthController {
     },
   })
   @Post('/register')
-  async signUpUser(
-    @Body() userData: CreateUserDto,
-  ): Promise<{ message: string }> {
+  async signUpUser(@Body() userData: CreateUserDto): Promise<void> {
     await this.authService.createSignUpRequest(userData);
-    return {
-      message:
-        "You've successfully registered on our website. To complete the registration process, please check your email 📬",
-    };
   }
 
   @ApiOperation({ summary: 'Allows to log in a user' })
@@ -144,25 +138,17 @@ export class AuthController {
   })
   async confirmUserRegistration(
     @Body() confirmSignUpDto: ConfirmSignUpDto,
-  ): Promise<{ message: string }> {
+  ): Promise<void> {
     await this.authService.confirmUserRegistration(confirmSignUpDto);
-    return {
-      message:
-        "You've successfully completed the registration process. You may now log in ✅",
-    };
   }
 
   @Post('/forgot-password')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.ACCEPTED)
   async createResetPasswordRequest(
     @Body() createResetPasswordRequestDto: CreateResetPasswordRequestDto,
-  ): Promise<{ message: string }> {
+  ): Promise<void> {
     await this.authService.createResetPasswordRequest(
       createResetPasswordRequestDto.email,
     );
-    return {
-      message:
-        'Thanks! An e-mail was sent that will ask you to click on a link to verify that you own this account 📬',
-    };
   }
 }
