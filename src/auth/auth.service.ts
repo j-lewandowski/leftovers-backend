@@ -14,6 +14,7 @@ import { UsersRepository } from '../users/users.repository';
 import { AuthRepository } from './auth.repository';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -108,5 +109,36 @@ export class AuthService {
     );
 
     await this.emailService.sendPasswordResetMail(email, validationToken);
+  }
+
+  async resetPassword({
+    newPassword,
+    validationToken,
+  }: ResetPasswordDto): Promise<void> {
+    let isTokenValid;
+    try {
+      isTokenValid = this.jwtService.verify(validationToken);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token.');
+    }
+
+    const requestExist = await this.authRepository.passwordResetRequestExists(
+      validationToken,
+    );
+
+    if (!requestExist) {
+      throw new UnauthorizedException('Password reset request does not exist.');
+    }
+
+    const { email } = isTokenValid;
+
+    const newPasswordHashed = await bcrypt.hash(
+      newPassword,
+      +this.configService.get('BCRYPT_ROUNDS'),
+    );
+
+    await this.usersRepository.updatePassword(email, newPasswordHashed);
+
+    await this.authRepository.deletePasswordResetRequest(validationToken);
   }
 }

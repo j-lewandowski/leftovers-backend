@@ -7,6 +7,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
   ApiBadRequestResponse,
   ApiBasicAuth,
   ApiBody,
@@ -25,6 +26,7 @@ import { AuthService } from './auth.service';
 import { AccessTokenDto } from './dto/access-token.dto';
 import { ConfirmSignUpDto } from './dto/confirm-sign-up.dto';
 import { CreateResetPasswordRequestDto } from './dto/create-reset-password-request.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GetUser } from './getUser.decorator';
 import { BasicAuthGuard } from './guards/basic-auth.guard';
 
@@ -142,13 +144,37 @@ export class AuthController {
     await this.authService.confirmUserRegistration(confirmSignUpDto);
   }
 
+  @ApiOperation({
+    summary: 'Creates password reset request',
+  })
   @Post('/forgot-password')
   @HttpCode(HttpStatus.ACCEPTED)
+  @ApiAcceptedResponse({
+    description: 'Password reset request has been created.',
+  })
   async createResetPasswordRequest(
     @Body() createResetPasswordRequestDto: CreateResetPasswordRequestDto,
   ): Promise<void> {
     await this.authService.createResetPasswordRequest(
       createResetPasswordRequestDto.email,
     );
+  }
+
+  @ApiOperation({
+    summary: "Resets users' password.",
+  })
+  @ApiOkResponse({
+    description: 'Password has been updated.',
+  })
+  @ApiUnauthorizedResponse({
+    description:
+      'Either validation token is invalid or password reset request does not exist.',
+  })
+  @Post('/reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ): Promise<void> {
+    await this.authService.resetPassword(resetPasswordDto);
   }
 }

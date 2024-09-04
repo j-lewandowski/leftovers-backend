@@ -65,6 +65,7 @@ describe('auth (e2e)', () => {
     await prismaService.recipe.deleteMany({});
     await prismaService.user.deleteMany({});
     await prismaService.signUpRequests.deleteMany({});
+    await prismaService.resetPasswordRequest.deleteMany({});
   });
 
   describe('/auth/signup', () => {
@@ -251,13 +252,82 @@ describe('auth (e2e)', () => {
 
   describe('/auth/forgot-password', () => {
     it('should return 200 when password reset request is created', async () => {
+      // when
       const { status } = await request(app.getHttpServer())
         .post('/auth/forgot-password')
         .send({
           email: faker.internet.email(),
         });
-
+      // then
       expect(status).toBe(HttpStatus.OK);
+    });
+  });
+
+  describe('/auth/reset-password', () => {
+    it('should return 200 when password has been updated', async () => {
+      // given
+      const user = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+        },
+      });
+      const validationToken = jwtService.sign({
+        email: user.email,
+      });
+      await prismaService.resetPasswordRequest.create({
+        data: {
+          validationToken,
+          email: user.email,
+        },
+      });
+
+      // when
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          validationToken,
+          newPassword: faker.internet.password(),
+        });
+
+      // then
+      expect(status).toBe(HttpStatus.OK);
+    });
+
+    it('should return 401 if jwt is invalid', async () => {
+      // when
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          validationToken: 'invalid-token',
+          newPassword: faker.internet.password(),
+        });
+      // then
+      expect(status).toBe(401);
+    });
+
+    it('should return 401 if password reset request does not exist in database', async () => {
+      // given
+      const user = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+        },
+      });
+      const validationToken = jwtService.sign({
+        email: user.email,
+      });
+
+      // when
+      const { status } = await request(app.getHttpServer())
+        .post('/auth/reset-password')
+        .send({
+          validationToken: validationToken,
+          newPassword: faker.internet.password(),
+        });
+
+      // then
+      expect(status).toBe(401);
     });
   });
 });

@@ -85,4 +85,17 @@ describe('AuthRepository', () => {
       expect(prisma.resetPasswordRequest.create).toHaveBeenCalled();
     });
   });
+
+  describe('passwordResetRequestExists', () => {
+    it('should check if password reset request extists in database', async () => {
+      // given
+      jest.spyOn(prisma.resetPasswordRequest, 'count').mockResolvedValue(1);
+
+      // when
+      await repository.passwordResetRequestExists(faker.string.uuid());
+
+      // then
+      expect(prisma.resetPasswordRequest.count).toHaveBeenCalled();
+    });
+  });
 });
