@@ -75,7 +75,7 @@ export class RecipeDto {
     type: 'number',
     example: '2',
   })
-  servings: number;
+  servings?: number;
 
   @ApiProperty({
     type: 'string',
