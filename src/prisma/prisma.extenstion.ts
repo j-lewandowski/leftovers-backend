@@ -13,34 +13,34 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
 
           const dbQueryParams = [];
           if (params.userId) {
-            query += `(visibility = 'PUBLIC' OR (visibility = 'PRIVATE' AND v.author_id = $1)) `;
+            query += `(visibility = 'PUBLIC' OR (visibility = 'PRIVATE' AND v."authorId" = $1)) `;
             dbQueryParams.push(params.userId);
           } else {
             query += `visibility = 'PUBLIC' `;
           }
 
           if (params.category) {
-            query += `AND category_name IN (${params.category
+            query += `AND "categoryName" IN (${params.category
               .map((_, idx) => `$${dbQueryParams.length + idx + 1}`)
               .join(', ')}) `;
             dbQueryParams.push(...params.category);
           }
 
           if (params.rating) {
-            query += `AND v.avg_rating >= $${dbQueryParams.length + 1} `;
+            query += `AND v.rating >= $${dbQueryParams.length + 1} `;
             dbQueryParams.push(params.rating);
           }
 
           if (params.startDate || params.endDate) {
             if (params.startDate) {
-              query += `AND v.created_at >= $${
+              query += `AND v."createdAt" >= $${
                 dbQueryParams.length + 1
               }::timestamp `;
               dbQueryParams.push(params.startDate.toISOString());
             }
 
             if (params.endDate) {
-              query += `AND v.created_at <= $${
+              query += `AND v."createdAt" <= $${
                 dbQueryParams.length + 1
               }::timestamp `;
               dbQueryParams.push(params.endDate.toISOString());
@@ -69,7 +69,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
 
           if (params.steps) {
             const searchTerm = `%${params.steps}%`;
-            query += `AND array_to_string(v.preparation_method, ',') ILIKE $${
+            query += `AND array_to_string(v."preparationMethod", ',') ILIKE $${
               dbQueryParams.length + 1
             } `;
             dbQueryParams.push(searchTerm);
@@ -83,6 +83,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
         async getSingleRecipe(id: string): Promise<RecipeDto> {
           const recipeList =
             await prismaClient.$queryRaw<RecipeDto>`SELECT * FROM recipe_view WHERE id=${id} LIMIT 1`;
+
           return recipeList[0];
         },
       },
