@@ -88,4 +88,6 @@ export class GetRecepiesFiltersDto {
   })
   @IsOptional()
   details?: boolean = false;
+
+  userId?: string;
 }

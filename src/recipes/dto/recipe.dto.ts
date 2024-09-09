@@ -68,5 +68,5 @@ export class RecipeDto {
     type: 'number',
     example: '4.75',
   })
-  avgRating: number;
+  rating: number;
 }
