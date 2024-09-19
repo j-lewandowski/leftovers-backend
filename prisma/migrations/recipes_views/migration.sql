@@ -6,7 +6,7 @@ SELECT
 	title,
 	description,
 	category_name as "categoryName",
-	avg_rating as rating,
+	COALESCE(avg_rating, 0) AS rating,
 	preparation_time as "preparationTime",
 	ingredients,
 	preparation_steps as "preparationSteps",
