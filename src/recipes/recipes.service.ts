@@ -3,7 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UploadFileService } from 'src/upload-file/upload-file.service';
+import { Recipe } from '@prisma/client';
+import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
@@ -59,7 +60,7 @@ export class RecipesService {
   async create(
     createRecipeDto: CreateRecipeDto,
     userId: string,
-  ): Promise<void> {
-    this.recipesRepository.create(createRecipeDto, userId);
+  ): Promise<Recipe> {
+    return this.recipesRepository.create(createRecipeDto, userId);
   }
 }

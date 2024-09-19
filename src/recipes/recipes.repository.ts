@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Recipe } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
@@ -25,7 +26,7 @@ export class RecipesRepository {
   async create(
     createRecipeDto: CreateRecipeDto,
     userId: string,
-  ): Promise<CreateRecipeDto> {
+  ): Promise<Recipe> {
     return this.prisma.recipe.create({
       data: {
         title: createRecipeDto.title,

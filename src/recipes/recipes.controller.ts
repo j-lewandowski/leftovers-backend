@@ -18,6 +18,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Recipe } from '@prisma/client';
 import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
 import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -84,10 +85,10 @@ export class RecipesController {
   @ApiBearerAuth()
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(
+  create(
     @GetUser() user: AccessTokenUserDataDto,
     @Body() createRecipeDto: CreateRecipeDto,
-  ): Promise<void> {
-    await this.recipesService.create(createRecipeDto, user.userId);
+  ): Promise<Recipe> {
+    return this.recipesService.create(createRecipeDto, user.userId);
   }
 }

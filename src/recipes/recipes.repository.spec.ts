@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { PreparationTime, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/output-recipe.dto';
+import { QueryRecipeDto } from './dto/query-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
 describe('RecipesRepository', () => {
@@ -17,7 +17,12 @@ describe('RecipesRepository', () => {
         {
           provide: PrismaService,
           useValue: {
-            $queryRawUnsafe: jest.fn(),
+            client: {
+              recipe: {
+                getAllRecipes: jest.fn(),
+                getSingleRecipe: jest.fn(),
+              },
+            },
             recipe: {
               findFirst: jest.fn(),
               create: jest.fn(),
@@ -36,6 +41,7 @@ describe('RecipesRepository', () => {
     description: 'description',
     preparationTime: PreparationTime.UP_TO_15_MIN,
     preparationSteps: [],
+    imageKey: 'image/key',
     ingredients: [],
     servings: 2,
     createdAt: new Date(),
@@ -48,23 +54,25 @@ describe('RecipesRepository', () => {
     it('should return an array of RecipeDto objects', async () => {
       // given
       const userId = faker.string.uuid();
-      const expectedRecipes: RecipeDto[] = [
+      const expectedRecipes: QueryRecipeDto[] = [
         {
           id: faker.string.uuid(),
           title: 'Pancakes',
           description: 'description',
-          avgRating: 3.0,
+          rating: 3.0,
+          imageKey: 'image/key',
         },
         {
           id: faker.string.uuid(),
           title: 'Omelette',
           description: 'description',
-          avgRating: 5.0,
+          rating: 5.0,
+          imageKey: 'image/key',
         },
       ];
 
       jest
-        .spyOn(prismaService, '$queryRawUnsafe')
+        .spyOn(prismaService.client.recipe, 'getAllRecipes')
         .mockResolvedValue(expectedRecipes);
 
       // when
@@ -80,7 +88,9 @@ describe('RecipesRepository', () => {
         category: ['dinner'],
       };
 
-      jest.spyOn(prismaService, '$queryRawUnsafe').mockResolvedValue([]);
+      jest
+        .spyOn(prismaService.client.recipe, 'getAllRecipes')
+        .mockResolvedValue([]);
 
       // when
       const result = await recipesRepository.getAll(null, params);
@@ -97,9 +107,10 @@ describe('RecipesRepository', () => {
         id: faker.string.uuid(),
         ...recipe,
         authorId: faker.string.uuid(),
+        rating: 3,
       };
       jest
-        .spyOn(prismaService.recipe, 'findFirst')
+        .spyOn(prismaService.client.recipe, 'getSingleRecipe')
         .mockResolvedValue(recipeResult);
 
       // when
