@@ -11,7 +11,7 @@ SELECT
 	ingredients,
 	preparation_steps as "preparationSteps",
 	servings,
-	image,
+	image_key as "imageKey",
 	visibility,
 	created_at as "createdAt",
 	author_id as "authorId"

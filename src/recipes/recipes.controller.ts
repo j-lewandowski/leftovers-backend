@@ -89,7 +89,7 @@ export class RecipesController {
   create(
     @GetUser() user: AccessTokenUserDataDto,
     @Body() createRecipeDto: CreateRecipeDto,
-  ): Promise<CreateRecipeDto> {
-    return this.recipesService.create(createRecipeDto, user.userId);
+  ): void {
+    this.recipesService.create(createRecipeDto, user.userId);
   }
 }

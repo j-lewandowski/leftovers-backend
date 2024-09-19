@@ -24,9 +24,9 @@ export class CreatedRecipeDto {
   categoryName: string;
 
   @ApiProperty({
-    example: 'link-to-image',
+    example: 'image-key',
   })
-  image: string;
+  imageKey: string;
 
   @ApiProperty({
     example: PreparationTime.OVER_60_MIN,
@@ -37,6 +37,11 @@ export class CreatedRecipeDto {
     example: 4,
   })
   servings: number;
+
+  @ApiProperty({
+    example: 4,
+  })
+  rating: number;
 
   @ApiProperty({
     example: ['ingredient1', 'ingredient2'],
@@ -52,6 +57,12 @@ export class CreatedRecipeDto {
     example: Visibility.PRIVATE,
   })
   visibility: Visibility;
+
+  @ApiProperty({
+    type: 'string',
+    example: '1711d42a-40b4-42e8-80de-52ba3469cd36',
+  })
+  authorId: string;
 
   @ApiProperty({
     example: new Date(),

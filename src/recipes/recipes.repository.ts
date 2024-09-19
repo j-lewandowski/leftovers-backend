@@ -3,27 +3,29 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreatedRecipeDto } from './dto/created-recipe-dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
 
 @Injectable()
 export class RecipesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll(userId: string = null, params: GetRecepiesFiltersDto = {}) {
+  async getAll(
+    userId: string = null,
+    params: GetRecepiesFiltersDto = {},
+  ): Promise<CreatedRecipeDto[]> {
     return this.prisma.client.recipe.getAllRecipes({
       userId,
       ...params,
     });
   }
 
-  async getOne(recipeId: string): Promise<RecipeDto> {
+  async getOne(recipeId: string): Promise<CreatedRecipeDto> {
     return this.prisma.client.recipe.getSingleRecipe(recipeId);
   }
 
   async create(
     createRecipeDto: CreateRecipeDto,
     userId: string,
-  ): Promise<CreatedRecipeDto> {
+  ): Promise<CreateRecipeDto> {
     return this.prisma.recipe.create({
       data: {
         title: createRecipeDto.title,
@@ -32,7 +34,7 @@ export class RecipesRepository {
         servings: createRecipeDto.servings,
         ingredients: createRecipeDto.ingredients,
         visibility: createRecipeDto.visibility,
-        image: createRecipeDto.image,
+        imageKey: createRecipeDto.imageKey,
         author: {
           connect: {
             id: userId,

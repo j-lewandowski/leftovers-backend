@@ -40,7 +40,7 @@ model Recipe {
   categoryName     String          @default("breakfast") @map("category_name")
   preparationSteps String[]        @map("preparation_steps")
   servings         Int             @default(1)
-  image            String
+  imageKey         String          @map("image_key")
   rating           Rating[]
   author           User            @relation(fields: [authorId], references: [id])
   category         Category        @relation(fields: [categoryName], references: [name])

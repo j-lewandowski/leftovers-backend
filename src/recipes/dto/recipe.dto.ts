@@ -81,5 +81,5 @@ export class RecipeDto {
     type: 'string',
     example: faker.internet.url(),
   })
-  image: string;
+  imageUrl: string;
 }
