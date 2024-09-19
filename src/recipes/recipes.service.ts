@@ -3,21 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { RecipesRepository } from './recipes.repository';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
-import { calculateAverageRating } from '../../utils/math';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { CreatedRecipeDto } from './dto/created-recipe-dto';
+import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { RecipeDto } from './dto/recipe.dto';
+import { RecipesRepository } from './recipes.repository';
 
 @Injectable()
 export class RecipesService {
   constructor(private readonly recipesRepository: RecipesRepository) {}
 
-  findAll(
-    userId?: string,
-    params?: GetRecepiesFiltersDto,
-  ): Promise<RecipeDto[]> {
+  findAll(userId?: string, params?: GetRecepiesFiltersDto) {
     return this.recipesRepository.getAll(userId, params);
   }
 
@@ -27,20 +23,14 @@ export class RecipesService {
     if (!recipe) {
       throw new NotFoundException();
     }
-
     if (
       (!userId && recipe.visibility === 'PRIVATE') ||
-      (userId !== recipe.authorId && recipe.visibility === 'PRIVATE')
+      (recipe.visibility === 'PRIVATE' && userId !== recipe.authorId)
     ) {
       throw new ForbiddenException();
     }
 
-    const { rating, ...otherFields } = recipe;
-
-    return {
-      ...otherFields,
-      avgRating: calculateAverageRating(rating),
-    };
+    return recipe;
   }
 
   async create(

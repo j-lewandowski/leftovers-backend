@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RecipeDto {
@@ -68,5 +69,17 @@ export class RecipeDto {
     type: 'number',
     example: '4.75',
   })
-  avgRating: number;
+  rating: number;
+
+  @ApiProperty({
+    type: 'number',
+    example: '2',
+  })
+  servings: number;
+
+  @ApiProperty({
+    type: 'string',
+    example: faker.internet.url(),
+  })
+  image: string;
 }
