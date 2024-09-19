@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { PreparationTime, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeDto } from './dto/output-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
 describe('RecipesRepository', () => {

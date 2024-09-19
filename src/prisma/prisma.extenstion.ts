@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { CreatedRecipeDto } from 'src/recipes/dto/created-recipe-dto';
 import { GetRecepiesFiltersDto } from 'src/recipes/dto/get-recepies-filter.dto';
-import { RecipeDto } from 'src/recipes/dto/recipe.dto';
+import { QueryRecipeDto } from 'src/recipes/dto/query-recipe.dto';
 
 export const customPrismaClient = (prismaClient: PrismaClient) => {
   return prismaClient.$extends({
@@ -9,7 +8,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
       recipe: {
         async getAllRecipes(
           params: GetRecepiesFiltersDto,
-        ): Promise<CreatedRecipeDto[]> {
+        ): Promise<QueryRecipeDto[]> {
           let query = `SELECT ${
             params.details ? '*' : 'id, title, description, rating, image'
           } FROM recipe_view as v WHERE `;
@@ -78,14 +77,14 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             dbQueryParams.push(searchTerm);
           }
 
-          return prismaClient.$queryRawUnsafe<CreatedRecipeDto[]>(
+          return prismaClient.$queryRawUnsafe<QueryRecipeDto[]>(
             query,
             ...dbQueryParams,
           );
         },
-        async getSingleRecipe(id: string): Promise<CreatedRecipeDto> {
+        async getSingleRecipe(id: string): Promise<QueryRecipeDto> {
           const recipeList =
-            await prismaClient.$queryRaw<RecipeDto>`SELECT * FROM recipe_view WHERE id=${id} LIMIT 1`;
+            await prismaClient.$queryRaw<QueryRecipeDto>`SELECT * FROM recipe_view WHERE id=${id} LIMIT 1`;
 
           return recipeList[0];
         },

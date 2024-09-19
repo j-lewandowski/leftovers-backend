@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { CreatedRecipeDto } from './dto/created-recipe-dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { QueryRecipeDto } from './dto/query-recipe.dto';
 
 @Injectable()
 export class RecipesRepository {
@@ -11,14 +11,14 @@ export class RecipesRepository {
   async getAll(
     userId: string = null,
     params: GetRecepiesFiltersDto = {},
-  ): Promise<CreatedRecipeDto[]> {
+  ): Promise<QueryRecipeDto[]> {
     return this.prisma.client.recipe.getAllRecipes({
       userId,
       ...params,
     });
   }
 
-  async getOne(recipeId: string): Promise<CreatedRecipeDto> {
+  async getOne(recipeId: string): Promise<QueryRecipeDto> {
     return this.prisma.client.recipe.getSingleRecipe(recipeId);
   }
 
