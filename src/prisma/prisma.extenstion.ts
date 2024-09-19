@@ -94,7 +94,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
 };
 
 export class PrismaClientExtended extends PrismaClient {
-  customPrismaClient: CustomPrismaClient;
+  private customPrismaClient: CustomPrismaClient;
 
   get client() {
     if (!this.customPrismaClient) {
