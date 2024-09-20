@@ -4,9 +4,11 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -90,5 +92,14 @@ export class RecipesController {
     @Body() createRecipeDto: CreateRecipeDto,
   ): Promise<Recipe> {
     return this.recipesService.create(createRecipeDto, user.userId);
+  }
+
+  @Get('/recipe-of-the-day')
+  getRecipeOfTheDay() {}
+
+  @Cron('00 12 * * *')
+  @Put('/recipe-of-the-day')
+  async refreshRecipeOfTheDay() {
+    await this.recipesService.refreshRecipeOfTheDay();
   }
 }

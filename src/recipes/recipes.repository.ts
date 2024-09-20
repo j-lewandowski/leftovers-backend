@@ -49,4 +49,28 @@ export class RecipesRepository {
       },
     });
   }
+
+  async getAllRecipeIds(): Promise<{ id: string }[]> {
+    return this.prisma.recipe.findMany({ select: { id: true } });
+  }
+
+  async getRecipeOfTheDay(): Promise<{ recipeId: string } | null> {
+    return this.prisma.recipeOfTheDay.findFirst({});
+  }
+
+  async refreshRecipeOfTheDay(recipeId: string): Promise<void> {
+    await this.prisma.recipeOfTheDay.updateMany({
+      data: {
+        recipeId,
+      },
+    });
+  }
+
+  async addRecipeOfTheDay(recipeId: string): Promise<void> {
+    await this.prisma.recipeOfTheDay.create({
+      data: {
+        recipeId,
+      },
+    });
+  }
 }

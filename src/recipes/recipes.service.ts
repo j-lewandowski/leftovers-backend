@@ -63,4 +63,22 @@ export class RecipesService {
   ): Promise<Recipe> {
     return this.recipesRepository.create(createRecipeDto, userId);
   }
+
+  async refreshRecipeOfTheDay(): Promise<void> {
+    const recipes = await this.recipesRepository.getAllRecipeIds();
+
+    if (!recipes.length) {
+      return;
+    }
+    const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)].id;
+
+    const currentRecipeOfTheDay =
+      await this.recipesRepository.getRecipeOfTheDay();
+
+    if (!currentRecipeOfTheDay) {
+      await this.recipesRepository.addRecipeOfTheDay(randomRecipe);
+    }
+
+    await this.recipesRepository.refreshRecipeOfTheDay(randomRecipe);
+  }
 }
