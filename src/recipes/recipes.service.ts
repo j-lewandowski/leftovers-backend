@@ -77,6 +77,7 @@ export class RecipesService {
 
     if (!currentRecipeOfTheDay) {
       await this.recipesRepository.addRecipeOfTheDay(randomRecipe);
+      return;
     }
 
     await this.recipesRepository.refreshRecipeOfTheDay(randomRecipe);
