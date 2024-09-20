@@ -134,10 +134,9 @@ describe('RecipesService', () => {
         faker.string.uuid(),
         faker.string.uuid(),
       );
-      const { rating: _r, imageKey: _i, ...otherFields } = recipe;
       // then
       expect(res).toEqual({
-        ...otherFields,
+        ...recipe,
         rating: 0,
         imageUrl: expect.any(String),
       });
