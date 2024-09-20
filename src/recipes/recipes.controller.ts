@@ -50,19 +50,6 @@ export class RecipesController {
     return this.recipesService.findAll(user?.userId, params);
   }
 
-  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
-  @ApiCreatedResponse({ description: 'Recipe details', type: OutputRecipeDto })
-  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
-  @ApiForbiddenResponse({ description: "You can't access this recipe." })
-  @UseGuards(RecipesGuard)
-  @Get(':id')
-  findOne(
-    @Param('id') recipeId: string,
-    @GetUser() user: AccessTokenUserDataDto,
-  ): Promise<OutputRecipeDto> {
-    return this.recipesService.findOne(recipeId, user?.userId);
-  }
-
   @ApiOperation({
     summary: 'Allows to create new recipe.',
   })
@@ -94,12 +81,27 @@ export class RecipesController {
     return this.recipesService.create(createRecipeDto, user.userId);
   }
 
-  @Get('/recipe-of-the-day')
-  getRecipeOfTheDay() {}
-
   @Cron('00 12 * * *')
   @Put('/recipe-of-the-day')
-  async refreshRecipeOfTheDay() {
+  async refreshRecipeOfTheDay(): Promise<void> {
     await this.recipesService.refreshRecipeOfTheDay();
+  }
+
+  @Get('/recipe-of-the-day')
+  getRecipeOfTheDay() {
+    return this.recipesService.getRecipeOfTheDay();
+  }
+
+  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
+  @ApiCreatedResponse({ description: 'Recipe details', type: OutputRecipeDto })
+  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
+  @ApiForbiddenResponse({ description: "You can't access this recipe." })
+  @UseGuards(RecipesGuard)
+  @Get(':id')
+  findOne(
+    @Param('id') recipeId: string,
+    @GetUser() user: AccessTokenUserDataDto,
+  ): Promise<OutputRecipeDto> {
+    return this.recipesService.findOne(recipeId, user?.userId);
   }
 }

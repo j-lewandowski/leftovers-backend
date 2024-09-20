@@ -65,7 +65,7 @@ export class RecipesService {
   }
 
   async refreshRecipeOfTheDay(): Promise<void> {
-    const recipes = await this.recipesRepository.getAllRecipeIds();
+    const recipes = await this.recipesRepository.getAllPublicRecipeIds();
 
     if (!recipes.length) {
       return;
@@ -80,5 +80,12 @@ export class RecipesService {
     }
 
     await this.recipesRepository.refreshRecipeOfTheDay(randomRecipe);
+  }
+
+  async getRecipeOfTheDay() {
+    const currentRecipeOfTheDay =
+      await this.recipesRepository.getRecipeOfTheDay();
+
+    return this.findOne(currentRecipeOfTheDay.recipeId);
   }
 }
