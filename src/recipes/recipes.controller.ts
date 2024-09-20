@@ -81,12 +81,25 @@ export class RecipesController {
     return this.recipesService.create(createRecipeDto, user.userId);
   }
 
+  @ApiOperation({
+    summary: 'Allows to refresh recipe of the day.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe of the day updated successfully.',
+  })
   @Cron('00 12 * * *')
   @Put('/recipe-of-the-day')
   async refreshRecipeOfTheDay(): Promise<void> {
     await this.recipesService.refreshRecipeOfTheDay();
   }
 
+  @ApiOperation({
+    summary: 'Allows to get recipe of the day.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe of the day.',
+    type: OutputRecipeDto,
+  })
   @Get('/recipe-of-the-day')
   getRecipeOfTheDay() {
     return this.recipesService.getRecipeOfTheDay();
