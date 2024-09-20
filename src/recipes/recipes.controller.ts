@@ -18,13 +18,13 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Recipe } from '@prisma/client';
 import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
 import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { CreatedRecipeDto } from './dto/created-recipe-dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { OutputRecipeDto } from './dto/output-recipe.dto';
 import { RecipesGuard } from './recipes.guard';
 import { RecipesService } from './recipes.service';
 
@@ -37,19 +37,19 @@ export class RecipesController {
     summary:
       'Allows to get all recipes and filter them. When provided with valid jwt also returns private recipes user has created.',
   })
-  @ApiOkResponse({ description: 'List of recipes', type: [RecipeDto] })
+  @ApiOkResponse({ description: 'List of recipes', type: [OutputRecipeDto] })
   @ApiBearerAuth()
   @UseGuards(RecipesGuard)
   @Get()
   findAll(
     @GetUser() user: AccessTokenUserDataDto,
     @Query() params: GetRecepiesFiltersDto,
-  ): Promise<RecipeDto[]> {
+  ): Promise<OutputRecipeDto[]> {
     return this.recipesService.findAll(user?.userId, params);
   }
 
   @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
-  @ApiCreatedResponse({ description: 'Recipe details', type: RecipeDto })
+  @ApiCreatedResponse({ description: 'Recipe details', type: OutputRecipeDto })
   @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
   @ApiForbiddenResponse({ description: "You can't access this recipe." })
   @UseGuards(RecipesGuard)
@@ -57,7 +57,7 @@ export class RecipesController {
   findOne(
     @Param('id') recipeId: string,
     @GetUser() user: AccessTokenUserDataDto,
-  ): Promise<RecipeDto> {
+  ): Promise<OutputRecipeDto> {
     return this.recipesService.findOne(recipeId, user?.userId);
   }
 
@@ -74,7 +74,6 @@ export class RecipesController {
   })
   @ApiCreatedResponse({
     description: 'Recipe has been created.',
-    type: CreatedRecipeDto,
   })
   @ApiUnauthorizedResponse({
     description: 'Token expired.',
@@ -89,7 +88,7 @@ export class RecipesController {
   create(
     @GetUser() user: AccessTokenUserDataDto,
     @Body() createRecipeDto: CreateRecipeDto,
-  ): Promise<CreateRecipeDto> {
+  ): Promise<Recipe> {
     return this.recipesService.create(createRecipeDto, user.userId);
   }
 }

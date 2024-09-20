@@ -1,25 +1,7 @@
-import { faker } from '@faker-js/faker';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { BaseRecipeDto } from './base-recipe.dto';
 
-export class RecipeDto {
-  @ApiProperty({
-    type: 'string',
-    example: '452b9e46-1ca2-4201-aa4e-df50f331c25a',
-  })
-  id: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'Spaghetti Bolognese',
-  })
-  title: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'Example description',
-  })
-  description: string;
-
+export class RecipeDto extends BaseRecipeDto {
   @ApiPropertyOptional({
     type: 'string',
     example: 'UP_TO_15_MIN',
@@ -65,21 +47,9 @@ export class RecipeDto {
   })
   categoryName?: string;
 
-  @ApiProperty({
-    type: 'number',
-    example: '4.75',
-  })
-  rating: number;
-
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: 'number',
     example: '2',
   })
-  servings: number;
-
-  @ApiProperty({
-    type: 'string',
-    example: faker.internet.url(),
-  })
-  image: string;
+  servings?: number;
 }

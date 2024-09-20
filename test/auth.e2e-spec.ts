@@ -259,7 +259,7 @@ describe('auth (e2e)', () => {
           email: faker.internet.email(),
         });
       // then
-      expect(status).toBe(HttpStatus.OK);
+      expect(status).toBe(HttpStatus.ACCEPTED);
     });
   });
 

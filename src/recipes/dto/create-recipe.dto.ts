@@ -34,7 +34,7 @@ export class CreateRecipeDto {
   @ApiProperty({
     example: 'link-to-image',
   })
-  image: string;
+  imageKey: string;
 
   @IsNotEmpty()
   @IsEnum(PreparationTime)

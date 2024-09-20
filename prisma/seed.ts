@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
@@ -23,7 +22,7 @@ async function main() {
             categoryName: 'lunch',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/chicken.png',
           },
           {
             title: 'Spaghetti Carbonara',
@@ -35,7 +34,7 @@ async function main() {
             categoryName: 'lunch',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/carbonara.png',
           },
           {
             title: 'Cheeseburger',
@@ -47,7 +46,7 @@ async function main() {
             categoryName: 'lunch',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/burger.png',
           },
           {
             title: 'Garden Fresh Gourmet Salad',
@@ -59,7 +58,7 @@ async function main() {
             categoryName: 'salads',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/salad.png',
           },
         ],
       },
@@ -89,7 +88,7 @@ async function main() {
             categoryName: 'soups',
             visibility: 'PRIVATE',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/soup.png',
           },
           {
             title: 'Garlic Butter Bliss Prawns',
@@ -101,7 +100,7 @@ async function main() {
             categoryName: 'lunch',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/prawns.png',
           },
           {
             title: 'Fluffy Vanilla Pancakes',
@@ -113,7 +112,7 @@ async function main() {
             categoryName: 'breakfast',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/pancakes.png',
           },
           {
             title: 'Tuna and Tomato Rice Bowl',
@@ -125,7 +124,7 @@ async function main() {
             categoryName: 'lunch',
             visibility: 'PUBLIC',
             servings: 2,
-            image: faker.internet.url(),
+            imageKey: 'recipes/mockRecipes/rice.png',
           },
         ],
       },

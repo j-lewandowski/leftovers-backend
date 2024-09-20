@@ -13,6 +13,7 @@ import { RecipesController } from '../src/recipes/recipes.controller';
 import { RecipesGuard } from '../src/recipes/recipes.guard';
 import { RecipesRepository } from '../src/recipes/recipes.repository';
 import { RecipesService } from '../src/recipes/recipes.service';
+import { UploadFileService } from '../src/upload-file/upload-file.service';
 
 describe('RecipesController (e2e)', () => {
   let app: INestApplication;
@@ -45,6 +46,7 @@ describe('RecipesController (e2e)', () => {
         RecipesGuard,
         JwtStrategy,
         JwtService,
+        UploadFileService,
       ],
     }).compile();
 
@@ -74,11 +76,11 @@ describe('RecipesController (e2e)', () => {
             create: [
               {
                 title: faker.commerce.productName(),
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -104,7 +106,7 @@ describe('RecipesController (e2e)', () => {
             create: [
               {
                 title: faker.commerce.productName(),
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -120,7 +122,7 @@ describe('RecipesController (e2e)', () => {
             {
               id: expect.any(String),
               authorId: expect.any(String),
-              avgRating: expect.any(String),
+              rating: expect.any(String),
               categoryName: expect.any(String),
               createdAt: expect.any(String),
               description: expect.any(String),
@@ -129,6 +131,8 @@ describe('RecipesController (e2e)', () => {
               preparationTime: expect.any(String),
               title: expect.any(String),
               visibility: expect.any(String),
+              imageUrl: expect.any(String),
+              servings: expect.any(Number),
             },
           ]);
         });
@@ -145,12 +149,12 @@ describe('RecipesController (e2e)', () => {
               {
                 title: faker.commerce.productName(),
                 categoryName: 'breakfast',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
                 categoryName: 'drinks',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -165,9 +169,10 @@ describe('RecipesController (e2e)', () => {
           expect(res.body).toEqual([
             {
               id: expect.any(String),
-              avgRating: expect.any(String),
+              rating: expect.any(String),
               description: expect.any(String),
               title: expect.any(String),
+              imageUrl: expect.any(String),
             },
           ]);
         });
@@ -185,12 +190,12 @@ describe('RecipesController (e2e)', () => {
                 title: faker.commerce.productName(),
                 categoryName: 'breakfast',
                 ingredients: ['tomatoes'],
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
                 categoryName: 'drinks',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -205,9 +210,10 @@ describe('RecipesController (e2e)', () => {
           expect(res.body).toEqual([
             {
               id: expect.any(String),
-              avgRating: expect.any(String),
+              rating: expect.any(String),
               description: expect.any(String),
               title: expect.any(String),
+              imageUrl: expect.any(String),
             },
           ]);
         });
@@ -236,7 +242,7 @@ describe('RecipesController (e2e)', () => {
           ingredients: ['cheese'],
           preparationSteps: ['1 step'],
           categoryName: 'lunch',
-          image: faker.internet.url(),
+          imageKey: 'test/test.png',
           preparationTime: PreparationTime.UP_TO_15_MIN,
           visibility: Visibility.PUBLIC,
           servings: 1,
@@ -251,7 +257,7 @@ describe('RecipesController (e2e)', () => {
         ingredients: ['cheese'],
         preparationSteps: ['1 step'],
         categoryName: 'lunch',
-        image: expect.any(String),
+        imageKey: expect.any(String),
         visibility: Visibility.PUBLIC,
         servings: 1,
         preparationTime: PreparationTime.UP_TO_15_MIN,
@@ -282,7 +288,7 @@ describe('RecipesController (e2e)', () => {
           ingredients: ['cheese'],
           preparationSteps: ['1 step'],
           categoryName: 'lunch',
-          image: faker.internet.url(),
+          imageKey: 'test/test.png',
         })
         .expect(HttpStatus.BAD_REQUEST);
     });
@@ -309,7 +315,7 @@ describe('RecipesController (e2e)', () => {
           ingredients: [],
           preparationSteps: ['1 step'],
           categoryName: 'lunch',
-          image: faker.internet.url(),
+          imageKey: 'test/test.png',
         })
         .expect(HttpStatus.BAD_REQUEST);
     });
@@ -328,12 +334,12 @@ describe('RecipesController (e2e)', () => {
                 title: faker.commerce.productName(),
                 categoryName: 'breakfast',
                 ingredients: ['tomatoes'],
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
                 categoryName: 'drinks',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -362,12 +368,12 @@ describe('RecipesController (e2e)', () => {
                 categoryName: 'breakfast',
                 ingredients: ['tomatoes'],
                 visibility: Visibility.PRIVATE,
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
                 categoryName: 'drinks',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },
@@ -403,12 +409,12 @@ describe('RecipesController (e2e)', () => {
                 categoryName: 'breakfast',
                 ingredients: ['tomatoes'],
                 visibility: Visibility.PRIVATE,
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
               {
                 title: faker.commerce.productName(),
                 categoryName: 'drinks',
-                image: faker.internet.url(),
+                imageKey: 'test/test.png',
               },
             ],
           },

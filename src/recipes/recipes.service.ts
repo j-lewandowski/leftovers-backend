@@ -3,21 +3,40 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Recipe } from '@prisma/client';
+import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { CreatedRecipeDto } from './dto/created-recipe-dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { OutputRecipeDto } from './dto/output-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
 @Injectable()
 export class RecipesService {
-  constructor(private readonly recipesRepository: RecipesRepository) {}
+  constructor(
+    private readonly recipesRepository: RecipesRepository,
+    private readonly uploadFileService: UploadFileService,
+  ) {}
 
-  findAll(userId?: string, params?: GetRecepiesFiltersDto) {
-    return this.recipesRepository.getAll(userId, params);
+  async findAll(
+    userId?: string,
+    params?: GetRecepiesFiltersDto,
+  ): Promise<OutputRecipeDto[]> {
+    const recipes = await this.recipesRepository.getAll(userId, params);
+    return Promise.all(
+      recipes.map(async (recipe) => {
+        const { imageKey, ...otherFields } = recipe;
+        return {
+          ...otherFields,
+          imageUrl: await this.uploadFileService.getImageUrl(imageKey),
+        };
+      }),
+    );
   }
 
-  async findOne(recipeId: string, userId: string = null): Promise<RecipeDto> {
+  async findOne(
+    recipeId: string,
+    userId: string = null,
+  ): Promise<OutputRecipeDto> {
     const recipe = await this.recipesRepository.getOne(recipeId);
 
     if (!recipe) {
@@ -30,13 +49,18 @@ export class RecipesService {
       throw new ForbiddenException();
     }
 
-    return recipe;
+    const { imageKey, ...otherFields } = recipe;
+
+    return {
+      ...otherFields,
+      imageUrl: await this.uploadFileService.getImageUrl(imageKey),
+    };
   }
 
   async create(
     createRecipeDto: CreateRecipeDto,
     userId: string,
-  ): Promise<CreatedRecipeDto> {
+  ): Promise<Recipe> {
     return this.recipesRepository.create(createRecipeDto, userId);
   }
 }
