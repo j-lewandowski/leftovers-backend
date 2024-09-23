@@ -7,6 +7,7 @@ SELECT
 	description,
 	category_name as "categoryName",
 	COALESCE(avg_rating, 0) AS rating,
+	COALESCE(number_of_ratings, 0) AS "numberOfRatings",
 	preparation_time as "preparationTime",
 	ingredients,
 	preparation_steps as "preparationSteps",
@@ -20,7 +21,8 @@ FROM
 LEFT JOIN (
 	SELECT
 		recipe_id,
-		AVG(value) AS avg_rating
+		AVG(value) AS avg_rating,
+		COUNT(id)::int AS number_of_ratings
 	FROM
 		"Rating"
 	GROUP BY 

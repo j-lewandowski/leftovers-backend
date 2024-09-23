@@ -10,7 +10,9 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
           params: GetRecepiesFiltersDto,
         ): Promise<QueryRecipeDto[]> {
           let query = `SELECT ${
-            params.details ? '*' : 'id, title, description, rating, "imageKey"'
+            params.details
+              ? '*'
+              : 'id, title, description, rating, "numberOfRatings", "imageKey"'
           } FROM recipe_view as v WHERE `;
 
           const dbQueryParams = [];
