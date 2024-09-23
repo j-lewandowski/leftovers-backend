@@ -24,6 +24,10 @@ describe('RecipesService', () => {
             getAll: jest.fn(),
             getOne: jest.fn(),
             create: jest.fn(),
+            refreshRecipeOfTheDay: jest.fn(),
+            getAllPublicRecipeIds: jest.fn(),
+            getRecipeOfTheDay: jest.fn(),
+            addRecipeOfTheDay: jest.fn(),
           }),
         },
       ],
@@ -187,6 +191,65 @@ describe('RecipesService', () => {
 
       // then
       expect(res).toBe(recipe);
+    });
+  });
+
+  describe('refreshRecipeOfTheDay', () => {
+    it('should refresh recipe of the day', async () => {
+      // given
+      jest
+        .spyOn(recipesRepository, 'refreshRecipeOfTheDay')
+        .mockResolvedValue();
+      jest
+        .spyOn(recipesRepository, 'getAllPublicRecipeIds')
+        .mockResolvedValue([
+          { id: faker.string.uuid() },
+          { id: faker.string.uuid() },
+          { id: faker.string.uuid() },
+        ]);
+      jest
+        .spyOn(recipesRepository, 'getRecipeOfTheDay')
+        .mockResolvedValue({ recipeId: faker.string.uuid() });
+
+      // when
+      await recipesService.refreshRecipeOfTheDay();
+
+      // then
+      expect(recipesRepository.refreshRecipeOfTheDay).toHaveBeenCalled();
+    });
+
+    it('should not refresh recipe of the day if there are no recipes in database', async () => {
+      // given
+      jest
+        .spyOn(recipesRepository, 'getAllPublicRecipeIds')
+        .mockResolvedValue([]);
+
+      // when
+      await recipesService.refreshRecipeOfTheDay();
+
+      // then
+      expect(recipesRepository.refreshRecipeOfTheDay).not.toHaveBeenCalled();
+    });
+
+    it('should add recipe of the day to database if it does not exist', async () => {
+      // given
+      jest
+        .spyOn(recipesRepository, 'getAllPublicRecipeIds')
+        .mockResolvedValue([
+          { id: faker.string.uuid() },
+          { id: faker.string.uuid() },
+          { id: faker.string.uuid() },
+        ]);
+      jest
+        .spyOn(recipesRepository, 'getRecipeOfTheDay')
+        .mockResolvedValue(null);
+      jest.spyOn(recipesRepository, 'addRecipeOfTheDay').mockResolvedValue();
+
+      // when
+      await recipesService.refreshRecipeOfTheDay();
+
+      // then
+      expect(recipesRepository.addRecipeOfTheDay).toHaveBeenCalled();
     });
   });
 });

@@ -4,9 +4,11 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -48,19 +50,6 @@ export class RecipesController {
     return this.recipesService.findAll(user?.userId, params);
   }
 
-  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
-  @ApiCreatedResponse({ description: 'Recipe details', type: OutputRecipeDto })
-  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
-  @ApiForbiddenResponse({ description: "You can't access this recipe." })
-  @UseGuards(RecipesGuard)
-  @Get(':id')
-  findOne(
-    @Param('id') recipeId: string,
-    @GetUser() user: AccessTokenUserDataDto,
-  ): Promise<OutputRecipeDto> {
-    return this.recipesService.findOne(recipeId, user?.userId);
-  }
-
   @ApiOperation({
     summary: 'Allows to create new recipe.',
   })
@@ -90,5 +79,42 @@ export class RecipesController {
     @Body() createRecipeDto: CreateRecipeDto,
   ): Promise<Recipe> {
     return this.recipesService.create(createRecipeDto, user.userId);
+  }
+
+  @ApiOperation({
+    summary: 'Allows to refresh recipe of the day.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe of the day updated successfully.',
+  })
+  @Cron('00 12 * * *')
+  @Put('/recipe-of-the-day')
+  async refreshRecipeOfTheDay(): Promise<void> {
+    await this.recipesService.refreshRecipeOfTheDay();
+  }
+
+  @ApiOperation({
+    summary: 'Allows to get recipe of the day.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe of the day.',
+    type: OutputRecipeDto,
+  })
+  @Get('/recipe-of-the-day')
+  getRecipeOfTheDay() {
+    return this.recipesService.getRecipeOfTheDay();
+  }
+
+  @ApiOperation({ summary: 'Allows to get single recipe by its id.' })
+  @ApiCreatedResponse({ description: 'Recipe details', type: OutputRecipeDto })
+  @ApiNotFoundResponse({ description: 'Recipe with this id does not exist.' })
+  @ApiForbiddenResponse({ description: "You can't access this recipe." })
+  @UseGuards(RecipesGuard)
+  @Get(':id')
+  findOne(
+    @Param('id') recipeId: string,
+    @GetUser() user: AccessTokenUserDataDto,
+  ): Promise<OutputRecipeDto> {
+    return this.recipesService.findOne(recipeId, user?.userId);
   }
 }

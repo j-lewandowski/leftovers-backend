@@ -61,6 +61,7 @@ describe('RecipesController (e2e)', () => {
 
   beforeEach(async () => {
     await prismaService.rating.deleteMany({});
+    await prismaService.recipeOfTheDay.deleteMany({});
     await prismaService.recipe.deleteMany({});
     await prismaService.user.deleteMany({});
   });
@@ -434,6 +435,85 @@ describe('RecipesController (e2e)', () => {
         .get(`/recipes/${createRes.recipe[0].id}`)
         .set('Authorization', 'Bearer ' + token)
         .expect(HttpStatus.OK);
+    });
+  });
+
+  describe('/recipes/recipe-of-the-day', () => {
+    it('PUT /recipes/recipe-of-the-day should refresh recipe of the day', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      await prismaService.recipeOfTheDay.create({
+        data: { recipeId: data.recipe[0].id },
+      });
+
+      // when
+      return (
+        request(app.getHttpServer())
+          .put('/recipes/recipe-of-the-day')
+          // then
+          .expect(HttpStatus.OK)
+      );
+    });
+
+    it('GET /recipes/recipe-of-the-day should get current recipe of the day', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+      await prismaService.recipeOfTheDay.create({
+        data: { recipeId: data.recipe[0].id },
+      });
+
+      // when
+      return (
+        request(app.getHttpServer())
+          .get('/recipes/recipe-of-the-day')
+          // then
+          .expect(HttpStatus.OK)
+      );
     });
   });
 });

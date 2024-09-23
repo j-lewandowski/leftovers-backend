@@ -29,21 +29,27 @@ model ResetPasswordRequest {
 }
 
 model Recipe {
-  id               String          @id @default(uuid())
+  id               String           @id @default(uuid())
   title            String
-  description      String          @default("Description")
-  preparationTime  PreparationTime @default(UP_TO_15_MIN) @map("preparation_time")
+  description      String           @default("Description")
+  preparationTime  PreparationTime  @default(UP_TO_15_MIN) @map("preparation_time")
   ingredients      String[]
-  visibility       Visibility      @default(PUBLIC)
-  createdAt        DateTime        @default(now()) @map("created_at")
-  authorId         String          @map("author_id")
-  categoryName     String          @default("breakfast") @map("category_name")
-  preparationSteps String[]        @map("preparation_steps")
-  servings         Int             @default(1)
-  imageKey         String          @map("image_key")
+  visibility       Visibility       @default(PUBLIC)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  authorId         String           @map("author_id")
+  categoryName     String           @default("breakfast") @map("category_name")
+  preparationSteps String[]         @map("preparation_steps")
+  servings         Int              @default(1)
+  imageKey         String           @map("image_key")
   rating           Rating[]
-  author           User            @relation(fields: [authorId], references: [id])
-  category         Category        @relation(fields: [categoryName], references: [name])
+  author           User             @relation(fields: [authorId], references: [id])
+  category         Category         @relation(fields: [categoryName], references: [name])
+  RecipeOfTheDay   RecipeOfTheDay[]
+}
+
+model RecipeOfTheDay {
+  recipeId String @id
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
 }
 
 model Category {

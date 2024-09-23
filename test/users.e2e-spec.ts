@@ -46,6 +46,7 @@ describe('users (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.rating.deleteMany({});
+    await prisma.recipeOfTheDay.deleteMany({});
     await prisma.recipe.deleteMany({});
     await prisma.user.deleteMany({});
     await prisma.signUpRequests.deleteMany({});

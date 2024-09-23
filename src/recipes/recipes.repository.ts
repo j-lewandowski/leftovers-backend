@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe } from '@prisma/client';
+import { Recipe, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
@@ -46,6 +46,33 @@ export class RecipesRepository {
             name: createRecipeDto.categoryName,
           },
         },
+      },
+    });
+  }
+
+  async getAllPublicRecipeIds(): Promise<{ id: string }[]> {
+    return this.prisma.recipe.findMany({
+      select: { id: true },
+      where: { visibility: Visibility.PUBLIC },
+    });
+  }
+
+  async getRecipeOfTheDay(): Promise<{ recipeId: string } | null> {
+    return this.prisma.recipeOfTheDay.findFirst({});
+  }
+
+  async refreshRecipeOfTheDay(recipeId: string): Promise<void> {
+    await this.prisma.recipeOfTheDay.updateMany({
+      data: {
+        recipeId,
+      },
+    });
+  }
+
+  async addRecipeOfTheDay(recipeId: string): Promise<void> {
+    await this.prisma.recipeOfTheDay.create({
+      data: {
+        recipeId,
       },
     });
   }
