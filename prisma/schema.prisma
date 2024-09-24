@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now()) @map("created_at")
-  rating    Rating[]
-  recipe    Recipe[]
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  rating       Rating[]
+  recipe       Recipe[]
+  SavedRecipes SavedRecipe[]
 }
 
 model SignUpRequests {
@@ -45,11 +46,22 @@ model Recipe {
   author           User             @relation(fields: [authorId], references: [id])
   category         Category         @relation(fields: [categoryName], references: [name])
   RecipeOfTheDay   RecipeOfTheDay[]
+  SavedRecipes     SavedRecipe[]
 }
 
 model RecipeOfTheDay {
   recipeId String @id
   recipe   Recipe @relation(fields: [recipeId], references: [id])
+}
+
+model SavedRecipe {
+  recipeId String
+  userId   String
+
+  user   User   @relation(fields: [userId], references: [id])
+  recipe Recipe @relation(fields: [recipeId], references: [id])
+
+  @@id([userId, recipeId])
 }
 
 model Category {
