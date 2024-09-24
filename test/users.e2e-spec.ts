@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -46,6 +46,7 @@ describe('users (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.rating.deleteMany({});
+    await prisma.savedRecipe.deleteMany({});
     await prisma.recipeOfTheDay.deleteMany({});
     await prisma.recipe.deleteMany({});
     await prisma.user.deleteMany({});
@@ -68,7 +69,7 @@ describe('users (e2e)', () => {
 
     // when
     const { body } = await request(app.getHttpServer())
-      .get('/')
+      .get('/users')
       .set('Authorization', 'Bearer ' + access_token)
       .expect(200);
 
@@ -85,9 +86,43 @@ describe('users (e2e)', () => {
   it('should throw an error if user is not authenticated.', async () => {
     // when
     await request(app.getHttpServer())
-      .get('/')
+      .get('/users')
       // then
       .expect(401);
+  });
+
+  it('PUT /users/:userId/saved should add recipe to favourites', async () => {
+    // given
+    const data = await prisma.user.create({
+      data: {
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        recipe: {
+          create: [
+            {
+              title: faker.commerce.productName(),
+              categoryName: 'breakfast',
+              imageKey: 'test/test.png',
+            },
+          ],
+        },
+      },
+      include: {
+        recipe: true,
+      },
+    });
+
+    const access_token = jwt.sign({
+      id: data.id,
+      email: data.email,
+    });
+
+    // when
+    return request(app.getHttpServer())
+      .put(`/users/${data.id}/saved`)
+      .set('Authorization', 'Bearer ' + access_token)
+      .send({ recipeId: data.recipe[0].id, save: true })
+      .expect(HttpStatus.OK);
   });
 
   afterAll(async () => {

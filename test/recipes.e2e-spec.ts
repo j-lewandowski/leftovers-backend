@@ -61,6 +61,7 @@ describe('RecipesController (e2e)', () => {
 
   beforeEach(async () => {
     await prismaService.rating.deleteMany({});
+    await prismaService.savedRecipe.deleteMany({});
     await prismaService.recipeOfTheDay.deleteMany({});
     await prismaService.recipe.deleteMany({});
     await prismaService.user.deleteMany({});
@@ -124,6 +125,8 @@ describe('RecipesController (e2e)', () => {
               id: expect.any(String),
               authorId: expect.any(String),
               rating: expect.any(String),
+              isSaved: expect.any(Boolean),
+              numberOfRatings: expect.any(Number),
               categoryName: expect.any(String),
               createdAt: expect.any(String),
               description: expect.any(String),
@@ -171,6 +174,8 @@ describe('RecipesController (e2e)', () => {
             {
               id: expect.any(String),
               rating: expect.any(String),
+              isSaved: expect.any(Boolean),
+              numberOfRatings: expect.any(Number),
               description: expect.any(String),
               title: expect.any(String),
               imageUrl: expect.any(String),
@@ -212,6 +217,8 @@ describe('RecipesController (e2e)', () => {
             {
               id: expect.any(String),
               rating: expect.any(String),
+              isSaved: expect.any(Boolean),
+              numberOfRatings: expect.any(Number),
               description: expect.any(String),
               title: expect.any(String),
               imageUrl: expect.any(String),

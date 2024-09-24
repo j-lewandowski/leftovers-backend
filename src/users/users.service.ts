@@ -11,7 +11,7 @@ export class UsersService {
     return this.usersRepository.getEmails();
   }
 
-  async updateSaved(updateData: SaveRecipeDto, userId: string) {
+  async updateSavedRecipes(updateData: SaveRecipeDto, userId: string) {
     const savedRecipe = await this.usersRepository.findSaved(
       updateData.recipeId,
       userId,

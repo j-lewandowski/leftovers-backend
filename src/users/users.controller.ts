@@ -23,10 +23,10 @@ export class UsersController {
   @ApiOkResponse({ description: 'Recipe saved/unsaved successfully.' })
   @UseGuards(JwtAuthGuard)
   @Put(':userId/saved')
-  updateSaved(
+  updateSavedRecipes(
     @Body() updateData: SaveRecipeDto,
     @Param('userId') userId: string,
   ) {
-    return this.usersService.updateSaved(updateData, userId);
+    return this.usersService.updateSavedRecipes(updateData, userId);
   }
 }
