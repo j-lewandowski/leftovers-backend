@@ -55,8 +55,8 @@ model RecipeOfTheDay {
 }
 
 model SavedRecipe {
-  recipeId String
-  userId   String
+  recipeId String @map("recipe_id")
+  userId   String @map("user_id")
 
   user   User   @relation(fields: [userId], references: [id])
   recipe Recipe @relation(fields: [recipeId], references: [id])

@@ -16,6 +16,7 @@ SELECT
 	visibility,
 	created_at as "createdAt",
 	author_id as "authorId"
+	EXISTS (SELECT 1 from "SavedRecipe" sr WHERE sr.recipe_id = re.id) AS "isSaved"
 FROM
 	"Recipe" re
 LEFT JOIN (
