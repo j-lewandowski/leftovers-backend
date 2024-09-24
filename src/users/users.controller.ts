@@ -17,6 +17,10 @@ export class UsersController {
     return this.usersService.getEmails();
   }
 
+  @ApiOperation({
+    summary: 'Allows to add or remove recipe to favourite recipes.',
+  })
+  @ApiOkResponse({ description: 'Recipe saved/unsaved successfully.' })
   @UseGuards(JwtAuthGuard)
   @Put(':userId/saved')
   updateSaved(
