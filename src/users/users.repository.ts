@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@prisma/client';
+import { SavedRecipe, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -89,5 +89,32 @@ export class UsersRepository {
         password: newPassword,
       },
     });
+  }
+
+  findSavedRecipes(recipeId: string, userId: string): Promise<SavedRecipe> {
+    return this.prisma.savedRecipe.findFirst({
+      where: {
+        recipeId,
+        userId,
+      },
+    });
+  }
+
+  async removeFromSavedRecipes(
+    recipeId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.prisma.savedRecipe.delete({
+      where: {
+        userId_recipeId: {
+          userId,
+          recipeId,
+        },
+      },
+    });
+  }
+
+  async addToSaved(recipeId: string, userId: string): Promise<void> {
+    await this.prisma.savedRecipe.create({ data: { recipeId, userId } });
   }
 }

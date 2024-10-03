@@ -87,6 +87,8 @@ describe('RecipesService', () => {
           description: 'description',
           rating: 3.0,
           imageKey: 'image/key',
+          isSaved: false,
+          numberOfRatings: 3,
         },
         {
           id: 'recipe2',
@@ -94,6 +96,8 @@ describe('RecipesService', () => {
           description: 'description',
           rating: 3.0,
           imageKey: 'image/key',
+          isSaved: false,
+          numberOfRatings: 3,
         },
       ]);
       jest
@@ -111,6 +115,8 @@ describe('RecipesService', () => {
           description: 'description',
           rating: 3.0,
           imageUrl: expect.any(String),
+          isSaved: false,
+          numberOfRatings: 3,
         },
         {
           id: 'recipe2',
@@ -118,6 +124,8 @@ describe('RecipesService', () => {
           description: 'description',
           rating: 3.0,
           imageUrl: expect.any(String),
+          isSaved: false,
+          numberOfRatings: 3,
         },
       ]);
     });
@@ -126,9 +134,12 @@ describe('RecipesService', () => {
   describe('findOne', () => {
     it('should return a recipe with caluclated rating', async () => {
       // given
-      jest
-        .spyOn(recipesRepository, 'getOne')
-        .mockResolvedValue({ ...recipe, rating: 0 });
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue({
+        ...recipe,
+        rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
+      });
       jest
         .spyOn(uploadFileService, 'getImageUrl')
         .mockResolvedValue(faker.internet.url());
@@ -138,11 +149,15 @@ describe('RecipesService', () => {
         faker.string.uuid(),
         faker.string.uuid(),
       );
+
+      const { imageKey: _, ...otherFields } = recipe;
       // then
       expect(res).toEqual({
-        ...recipe,
+        ...otherFields,
         rating: 0,
         imageUrl: expect.any(String),
+        isSaved: false,
+        numberOfRatings: 3,
       });
     });
 
@@ -152,6 +167,8 @@ describe('RecipesService', () => {
         ...recipe,
         visibility: Visibility.PRIVATE,
         rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
       });
 
       jest

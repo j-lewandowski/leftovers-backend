@@ -24,4 +24,16 @@ export class BaseRecipeDto {
     example: '4.75',
   })
   rating: number;
+
+  @ApiProperty({
+    type: 'boolean',
+    example: true,
+  })
+  isSaved: boolean;
+
+  @ApiProperty({
+    type: 'number',
+    example: 12,
+  })
+  numberOfRatings: number;
 }
