@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Recipe, Visibility } from '@prisma/client';
+import { Rating, Recipe, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
@@ -73,6 +73,30 @@ export class RecipesRepository {
     await this.prisma.recipeOfTheDay.create({
       data: {
         recipeId,
+      },
+    });
+  }
+
+  async findRating(recipeId: string, userId: string): Promise<Rating | null> {
+    return this.prisma.rating.findFirst({
+      where: {
+        recipeId: recipeId,
+        userId: userId,
+      },
+    });
+  }
+
+  async rateRecipe(
+    recipeId: string,
+    userId: string,
+    value: number,
+  ): Promise<void> {
+    console.log(recipeId, userId, value);
+    await this.prisma.rating.create({
+      data: {
+        recipeId,
+        userId,
+        value,
       },
     });
   }

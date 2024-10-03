@@ -24,6 +24,7 @@ import { Recipe } from '@prisma/client';
 import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
 import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RatingDto } from './dto/create-rating.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
@@ -116,5 +117,15 @@ export class RecipesController {
     @GetUser() user: AccessTokenUserDataDto,
   ): Promise<OutputRecipeDto> {
     return this.recipesService.findOne(recipeId, user?.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/rate-recipe')
+  async rateRecipe(
+    @GetUser() user: AccessTokenUserDataDto,
+    @Param('id') recipeId: string,
+    @Body() rating: RatingDto,
+  ) {
+    await this.recipesService.rateRecipe(recipeId, user.userId, rating.value);
   }
 }

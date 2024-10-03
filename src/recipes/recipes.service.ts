@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -88,5 +89,18 @@ export class RecipesService {
       await this.recipesRepository.getRecipeOfTheDay();
 
     return this.findOne(currentRecipeOfTheDay.recipeId);
+  }
+
+  async rateRecipe(
+    recipeId: string,
+    userId: string,
+    value: number,
+  ): Promise<void> {
+    const rating = await this.recipesRepository.findRating(recipeId, userId);
+    if (rating) {
+      throw new ConflictException();
+    }
+
+    await this.recipesRepository.rateRecipe(recipeId, userId, value);
   }
 }
