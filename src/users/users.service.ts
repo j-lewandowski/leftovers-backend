@@ -11,8 +11,11 @@ export class UsersService {
     return this.usersRepository.getEmails();
   }
 
-  async updateSavedRecipes(updateData: SaveRecipeDto, userId: string) {
-    const savedRecipe = await this.usersRepository.findSaved(
+  async updateSavedRecipes(
+    updateData: SaveRecipeDto,
+    userId: string,
+  ): Promise<void> {
+    const savedRecipe = await this.usersRepository.findSavedRecipes(
       updateData.recipeId,
       userId,
     );
@@ -27,7 +30,10 @@ export class UsersService {
     if (updateData.save) {
       await this.usersRepository.addToSaved(updateData.recipeId, userId);
     } else {
-      await this.usersRepository.removeFromSaved(updateData.recipeId, userId);
+      await this.usersRepository.removeFromSavedRecipes(
+        updateData.recipeId,
+        userId,
+      );
     }
   }
 }

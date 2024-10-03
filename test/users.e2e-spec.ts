@@ -112,17 +112,20 @@ describe('users (e2e)', () => {
       },
     });
 
-    const access_token = jwt.sign({
+    const accessToken = jwt.sign({
       id: data.id,
       email: data.email,
     });
 
     // when
-    return request(app.getHttpServer())
-      .put(`/users/${data.id}/saved`)
-      .set('Authorization', 'Bearer ' + access_token)
-      .send({ recipeId: data.recipe[0].id, save: true })
-      .expect(HttpStatus.OK);
+    return (
+      request(app.getHttpServer())
+        .put(`/users/${data.id}/saved`)
+        .set('Authorization', 'Bearer ' + accessToken)
+        .send({ recipeId: data.recipe[0].id, save: true })
+        // then
+        .expect(HttpStatus.OK)
+    );
   });
 
   afterAll(async () => {

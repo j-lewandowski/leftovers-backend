@@ -91,7 +91,7 @@ export class UsersRepository {
     });
   }
 
-  findSaved(recipeId: string, userId: string): Promise<SavedRecipe> {
+  findSavedRecipes(recipeId: string, userId: string): Promise<SavedRecipe> {
     return this.prisma.savedRecipe.findFirst({
       where: {
         recipeId,
@@ -100,7 +100,10 @@ export class UsersRepository {
     });
   }
 
-  async removeFromSaved(recipeId: string, userId: string): Promise<void> {
+  async removeFromSavedRecipes(
+    recipeId: string,
+    userId: string,
+  ): Promise<void> {
     await this.prisma.savedRecipe.delete({
       where: {
         userId_recipeId: {

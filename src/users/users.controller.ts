@@ -20,9 +20,11 @@ export class UsersController {
   @ApiOperation({
     summary: 'Allows to add or remove recipe to favourite recipes.',
   })
-  @ApiOkResponse({ description: 'Recipe saved/unsaved successfully.' })
+  @ApiOkResponse({
+    description: 'Recipe saved/removed from saved successfully.',
+  })
   @UseGuards(JwtAuthGuard)
-  @Put(':userId/saved')
+  @Put(':userId/saved-recipes')
   updateSavedRecipes(
     @Body() updateData: SaveRecipeDto,
     @Param('userId') userId: string,
