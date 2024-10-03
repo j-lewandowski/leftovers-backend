@@ -12,6 +12,7 @@ import { Cron } from '@nestjs/schedule';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -120,6 +121,10 @@ export class RecipesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Allows to rate a recipe' })
+  @ApiCreatedResponse({ description: 'Recipe rated successfully' })
+  @ApiConflictResponse({ description: 'Recipe is already rated by the user' })
   @Post(':id/rate-recipe')
   async rateRecipe(
     @GetUser() user: AccessTokenUserDataDto,

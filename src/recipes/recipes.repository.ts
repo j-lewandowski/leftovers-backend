@@ -91,7 +91,6 @@ export class RecipesRepository {
     userId: string,
     value: number,
   ): Promise<void> {
-    console.log(recipeId, userId, value);
     await this.prisma.rating.create({
       data: {
         recipeId,
