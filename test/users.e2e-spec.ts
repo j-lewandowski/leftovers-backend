@@ -120,7 +120,7 @@ describe('users (e2e)', () => {
     // when
     return (
       request(app.getHttpServer())
-        .put(`/users/${data.id}/saved`)
+        .put(`/users/${data.id}/saved-recipes`)
         .set('Authorization', 'Bearer ' + accessToken)
         .send({ recipeId: data.recipe[0].id, save: true })
         // then

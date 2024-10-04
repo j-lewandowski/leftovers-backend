@@ -28,7 +28,7 @@ export class UsersService {
     }
 
     if (updateData.save) {
-      await this.usersRepository.addToSaved(updateData.recipeId, userId);
+      await this.usersRepository.addToSavedRecipes(updateData.recipeId, userId);
     } else {
       await this.usersRepository.removeFromSavedRecipes(
         updateData.recipeId,

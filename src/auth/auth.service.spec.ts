@@ -151,7 +151,10 @@ describe('AuthService', () => {
       // when
       const res = await service.login(userDto);
       // then
-      expect(res).toEqual({ accessToken: 'jwt-encoded-string' });
+      expect(res).toEqual({
+        accessToken: 'jwt-encoded-string',
+        userId: expect.any(String),
+      });
     });
   });
 
