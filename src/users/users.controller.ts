@@ -1,5 +1,7 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
+import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { SaveRecipeDto } from './dto/save-recipe.dto';
 import { UsersEmailsResponseDto } from './dto/users-email-reponse.dto';
@@ -21,14 +23,14 @@ export class UsersController {
     summary: 'Allows to add or remove recipe to favourite recipes.',
   })
   @ApiOkResponse({
-    description: 'Recipe saved/removed from saved successfully.',
+    description: 'Recipe saved/removed from saved recipes successfully.',
   })
   @UseGuards(JwtAuthGuard)
-  @Put(':userId/saved-recipes')
+  @Put('/save-recipes')
   updateSavedRecipes(
     @Body() updateData: SaveRecipeDto,
-    @Param('userId') userId: string,
-  ) {
-    return this.usersService.updateSavedRecipes(updateData, userId);
+    @GetUser() user: AccessTokenUserDataDto,
+  ): Promise<void> {
+    return this.usersService.updateSavedRecipes(updateData, user.userId);
   }
 }

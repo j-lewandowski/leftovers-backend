@@ -153,7 +153,6 @@ describe('AuthService', () => {
       // then
       expect(res).toEqual({
         accessToken: 'jwt-encoded-string',
-        userId: expect.any(String),
       });
     });
   });
