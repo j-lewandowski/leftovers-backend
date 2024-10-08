@@ -154,7 +154,6 @@ describe('auth (e2e)', () => {
       // then
       expect(body).toEqual({
         accessToken: expect.any(String),
-        userId: expect.any(String),
       });
     });
 

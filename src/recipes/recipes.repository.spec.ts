@@ -61,6 +61,8 @@ describe('RecipesRepository', () => {
           description: 'description',
           rating: 3.0,
           imageKey: 'image/key',
+          isSaved: false,
+          numberOfRatings: 1,
         },
         {
           id: faker.string.uuid(),
@@ -68,6 +70,8 @@ describe('RecipesRepository', () => {
           description: 'description',
           rating: 5.0,
           imageKey: 'image/key',
+          isSaved: true,
+          numberOfRatings: 1,
         },
       ];
 
@@ -108,6 +112,8 @@ describe('RecipesRepository', () => {
         ...recipe,
         authorId: faker.string.uuid(),
         rating: 3,
+        isSaved: false,
+        numberOfRatings: 1,
       };
       jest
         .spyOn(prismaService.client.recipe, 'getSingleRecipe')
