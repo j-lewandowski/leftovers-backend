@@ -26,7 +26,7 @@ export class UsersController {
     description: 'Recipe saved/removed from saved recipes successfully.',
   })
   @UseGuards(JwtAuthGuard)
-  @Put('/saved-recipes')
+  @Put('/save-recipes')
   updateSavedRecipes(
     @Body() updateData: SaveRecipeDto,
     @GetUser() user: AccessTokenUserDataDto,

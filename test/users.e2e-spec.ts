@@ -91,7 +91,7 @@ describe('users (e2e)', () => {
       .expect(401);
   });
 
-  it('PUT /users/saved-recipes should add recipe to favourites', async () => {
+  it('PUT /users/save-recipes should add recipe to favourites', async () => {
     // given
     const data = await prisma.user.create({
       data: {
@@ -120,7 +120,7 @@ describe('users (e2e)', () => {
     // when
     return (
       request(app.getHttpServer())
-        .put(`/users/saved-recipes`)
+        .put(`/users/save-recipes`)
         .set('Authorization', 'Bearer ' + accessToken)
         .send({ recipeId: data.recipe[0].id, save: true })
         // then
