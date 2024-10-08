@@ -77,7 +77,7 @@ export class RecipesRepository {
     });
   }
 
-  async findRating(recipeId: string, userId: string): Promise<Rating | null> {
+  findRating(recipeId: string, userId: string): Promise<Rating | null> {
     return this.prisma.rating.findFirst({
       where: {
         recipeId: recipeId,
