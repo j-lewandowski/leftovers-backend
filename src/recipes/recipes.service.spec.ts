@@ -28,6 +28,8 @@ describe('RecipesService', () => {
             getAllPublicRecipeIds: jest.fn(),
             getRecipeOfTheDay: jest.fn(),
             addRecipeOfTheDay: jest.fn(),
+            findRating: jest.fn(),
+            rateRecipe: jest.fn(),
           }),
         },
       ],
@@ -267,6 +269,39 @@ describe('RecipesService', () => {
 
       // then
       expect(recipesRepository.addRecipeOfTheDay).toHaveBeenCalled();
+    });
+  });
+
+  describe('rateRecipe', () => {
+    it('should throw an error if rating for this recipe has already been added by a the user', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'findRating').mockResolvedValue({
+        id: 1234,
+        userId: faker.string.uuid(),
+        recipeId: faker.string.uuid(),
+        value: 4,
+      });
+
+      // when
+      expect(
+        recipesService.rateRecipe(faker.string.uuid(), faker.string.uuid(), 4),
+        // then
+      ).rejects.toThrowError();
+    });
+
+    it('should add new rating if user has not rated this recipe yet', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'findRating').mockResolvedValue(null);
+
+      // when
+      await recipesService.rateRecipe(
+        faker.string.uuid(),
+        faker.string.uuid(),
+        4,
+      );
+
+      // then
+      expect(recipesRepository.rateRecipe).toHaveBeenCalled();
     });
   });
 });

@@ -114,7 +114,7 @@ export class UsersRepository {
     });
   }
 
-  async addToSaved(recipeId: string, userId: string): Promise<void> {
+  async addToSavedRecipes(recipeId: string, userId: string): Promise<void> {
     await this.prisma.savedRecipe.create({ data: { recipeId, userId } });
   }
 }

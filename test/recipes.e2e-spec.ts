@@ -523,4 +523,98 @@ describe('RecipesController (e2e)', () => {
       );
     });
   });
+
+  describe('/recipes/:id/rating', () => {
+    it('POST /recipes/:id/rating should rate recipe', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      const token = jwtService.sign({
+        sub: data.id,
+        email: data.email,
+      });
+
+      // when
+      return (
+        request(app.getHttpServer())
+          .post(`/recipes/${data.recipe[0].id}/rate-recipe`)
+          .set('Authorization', 'Bearer ' + token)
+          .send({ value: 5 })
+          // then
+          .expect(HttpStatus.CREATED)
+      );
+    });
+
+    it('POST /recipes/:id/rating should throw an error if user already rated the recipe', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      const token = jwtService.sign({
+        sub: data.id,
+        email: data.email,
+      });
+
+      await prismaService.rating.create({
+        data: {
+          userId: data.id,
+          recipeId: data.recipe[0].id,
+          value: 5,
+        },
+      });
+
+      // when
+      return (
+        request(app.getHttpServer())
+          .post(`/recipes/${data.recipe[0].id}/rate-recipe`)
+          .set('Authorization', 'Bearer ' + token)
+          .send({ value: 5 })
+          // then
+          .expect(HttpStatus.CONFLICT)
+      );
+    });
+  });
 });

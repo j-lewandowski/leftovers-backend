@@ -131,7 +131,7 @@ describe('auth (e2e)', () => {
       expect(status).toBe(HttpStatus.OK);
     });
 
-    it('should return access token if user is authenticated', async () => {
+    it('should return access token and user id if user is authenticated', async () => {
       // given
       const email = faker.internet.email();
       const password = faker.internet.password();
@@ -154,6 +154,7 @@ describe('auth (e2e)', () => {
       // then
       expect(body).toEqual({
         accessToken: expect.any(String),
+        userId: expect.any(String),
       });
     });
 

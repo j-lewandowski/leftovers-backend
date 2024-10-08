@@ -22,9 +22,9 @@ describe('UsersService', () => {
               ],
             })),
             updateSavedRecipes: jest.fn(),
-            findSaved: jest.fn(),
-            addToSaved: jest.fn(),
-            removeFromSaved: jest.fn(),
+            findSavedRecipes: jest.fn(),
+            addToSavedRecipes: jest.fn(),
+            removeFromSavedRecipes: jest.fn(),
           },
         },
       ],
@@ -59,7 +59,7 @@ describe('UsersService', () => {
       // given
       const recipeId = faker.string.uuid();
       const userId = faker.string.uuid();
-      jest.spyOn(repository, 'findSaved').mockResolvedValue({
+      jest.spyOn(repository, 'findSavedRecipes').mockResolvedValue({
         recipeId,
         userId,
       });
@@ -68,42 +68,42 @@ describe('UsersService', () => {
       await service.updateSavedRecipes({ recipeId, save: true }, userId);
 
       // then
-      expect(repository.addToSaved).not.toHaveBeenCalled();
-      expect(repository.removeFromSaved).not.toHaveBeenCalled();
+      expect(repository.addToSavedRecipes).not.toHaveBeenCalled();
+      expect(repository.removeFromSavedRecipes).not.toHaveBeenCalled();
     });
 
     it("should not remove recipe from saved if it's not saved", async () => {
       // given
       const recipeId = faker.string.uuid();
       const userId = faker.string.uuid();
-      jest.spyOn(repository, 'findSaved').mockResolvedValue(null);
+      jest.spyOn(repository, 'findSavedRecipes').mockResolvedValue(null);
 
       // when
       await service.updateSavedRecipes({ recipeId, save: false }, userId);
 
       // then
-      expect(repository.addToSaved).not.toHaveBeenCalled();
-      expect(repository.removeFromSaved).not.toHaveBeenCalled();
+      expect(repository.addToSavedRecipes).not.toHaveBeenCalled();
+      expect(repository.removeFromSavedRecipes).not.toHaveBeenCalled();
     });
 
     it("should add recipe to saved if it's not saved", async () => {
       // given
       const recipeId = faker.string.uuid();
       const userId = faker.string.uuid();
-      jest.spyOn(repository, 'findSaved').mockResolvedValue(null);
+      jest.spyOn(repository, 'findSavedRecipes').mockResolvedValue(null);
 
       // when
       await service.updateSavedRecipes({ recipeId, save: true }, userId);
 
       // then
-      expect(repository.addToSaved).toHaveBeenCalled();
+      expect(repository.addToSavedRecipes).toHaveBeenCalled();
     });
 
     it("should remove recipe from saved if it's saved", async () => {
       // given
       const recipeId = faker.string.uuid();
       const userId = faker.string.uuid();
-      jest.spyOn(repository, 'findSaved').mockResolvedValue({
+      jest.spyOn(repository, 'findSavedRecipes').mockResolvedValue({
         recipeId,
         userId,
       });
@@ -112,7 +112,7 @@ describe('UsersService', () => {
       await service.updateSavedRecipes({ recipeId, save: false }, userId);
 
       // then
-      expect(repository.removeFromSaved).toHaveBeenCalled();
+      expect(repository.removeFromSavedRecipes).toHaveBeenCalled();
     });
   });
 });

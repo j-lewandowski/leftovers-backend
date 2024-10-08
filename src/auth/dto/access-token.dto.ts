@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AccessTokenDto {
@@ -7,4 +8,9 @@ export class AccessTokenDto {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.cThIIoDvwdueQB468K5xDc5633seEFoqwxjF_xSJyQQ',
   })
   accessToken: string;
+  @ApiProperty({
+    type: 'string',
+    example: faker.string.uuid(),
+  })
+  userId: string;
 }
