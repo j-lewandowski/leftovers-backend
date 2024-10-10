@@ -22,7 +22,7 @@ FROM
 LEFT JOIN (
 	SELECT
 		recipe_id,
-		AVG(value) AS avg_rating,
+		AVG(value)::float AS avg_rating,
 		COUNT(id)::int AS number_of_ratings
 	FROM
 		"Rating"
