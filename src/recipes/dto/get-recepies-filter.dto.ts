@@ -109,8 +109,23 @@ export class GetRecepiesFiltersDto {
   @IsOptional()
   details?: boolean = false;
 
+  @ApiProperty({
+    name: 'userId',
+    description: 'Shows only recipes created by given user.',
+    type: 'string',
+    required: false,
+  })
   userId?: string;
 
+  @IsOptional()
+  @ApiProperty({
+    name: 'sort',
+    description:
+      'Sorts recipes by given field. Allowed values: createdAt, rating.',
+    type: 'string',
+    example: 'createdAt,desc',
+    required: false,
+  })
   @Transform(({ value }) => {
     const sortParams = Array.isArray(value) ? value : [value];
 
