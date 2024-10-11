@@ -227,6 +227,56 @@ describe('RecipesController (e2e)', () => {
         });
     });
 
+    it('GET /recipes?sort=rating,desc should sort the results by rating field', async () => {
+      // when
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: 'Recipe 1',
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: 'Recipe 2',
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      await prismaService.rating.create({
+        data: {
+          userId: data.id,
+          recipeId: data.recipe[1].id,
+          value: 5,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get('/recipes?sort=rating,desc')
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body[0].title).toBe('Recipe 2');
+        });
+    });
+
+    it('GET /recipes?sort=unknown,desc should return 400', async () => {
+      // then
+      return request(app.getHttpServer())
+        .get('/recipes?sort=unknown,desc')
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it('POST /recipes should add recipe to database and return recipe data from endpoint', async () => {
       // given
       const createRes = await prismaService.user.create({
