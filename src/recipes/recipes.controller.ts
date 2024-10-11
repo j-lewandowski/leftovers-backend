@@ -47,9 +47,11 @@ export class RecipesController {
   @Get()
   findAll(
     @GetUser() user: AccessTokenUserDataDto,
-    @Query() params: GetRecepiesFiltersDto,
+    @Query() queryParams: GetRecepiesFiltersDto,
   ): Promise<OutputRecipeDto[]> {
-    return this.recipesService.findAll(user?.userId, params);
+    return this.recipesService.findAll(user?.userId, {
+      ...queryParams,
+    });
   }
 
   @ApiOperation({

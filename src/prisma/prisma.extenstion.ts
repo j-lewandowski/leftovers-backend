@@ -79,6 +79,19 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             dbQueryParams.push(searchTerm);
           }
 
+          query += 'ORDER BY ';
+          if (params.sort) {
+            const orderClauses = params.sort
+              .map(
+                ({ field, direction }) =>
+                  `v."${field}" ${direction.toUpperCase()}`,
+              )
+              .join(', ');
+            query += orderClauses;
+          } else {
+            query += `v."createdAt" DESC, v.rating DESC `;
+          }
+
           return prismaClient.$queryRawUnsafe<QueryRecipeDto[]>(
             query,
             ...dbQueryParams,

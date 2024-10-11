@@ -20,9 +20,9 @@ export class RecipesService {
 
   async findAll(
     userId?: string,
-    params?: GetRecepiesFiltersDto,
+    queryParams?: GetRecepiesFiltersDto,
   ): Promise<OutputRecipeDto[]> {
-    const recipes = await this.recipesRepository.getAll(userId, params);
+    const recipes = await this.recipesRepository.getAll(userId, queryParams);
     return Promise.all(
       recipes.map(async (recipe) => {
         const { imageKey, ...otherFields } = recipe;

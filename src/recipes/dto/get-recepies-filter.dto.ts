@@ -1,6 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsDate, IsInt, IsOptional } from 'class-validator';
+import { plainToClass, Transform, Type } from 'class-transformer';
+import {
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
+import { SortDirection } from '../enums/sort-direction.enum';
+import { SortField } from '../enums/sort-field.enum';
+
+class SortCondition {
+  @IsEnum(SortField, {
+    message: 'Invalid sort field. Allowed values: createdAt, rating.',
+  })
+  field: SortField;
+
+  @IsEnum(SortDirection, {
+    message: 'Invalid sort direction. Allowed values: asc, desc.',
+  })
+  direction: SortDirection;
+}
 
 export class GetRecepiesFiltersDto {
   @ApiProperty({
@@ -90,4 +110,17 @@ export class GetRecepiesFiltersDto {
   details?: boolean = false;
 
   userId?: string;
+
+  @Transform(({ value }) => {
+    const sortParams = Array.isArray(value) ? value : [value];
+
+    return sortParams.map((param: string) => {
+      const [field, direction] = param.split(',');
+
+      return plainToClass(SortCondition, { field, direction });
+    });
+  })
+  @ValidateNested({ each: true })
+  @Type(() => SortCondition)
+  sort?: SortCondition[];
 }
