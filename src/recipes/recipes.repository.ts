@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Rating, Recipe, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { QueryRecipeDto } from './dto/query-recipe.dto';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class RecipesRepository {
 
   async getAll(
     userId: string = null,
-    params: GetRecepiesFiltersDto = {},
+    params: GetRecipesFiltersDto = {},
   ): Promise<QueryRecipeDto[]> {
     return this.prisma.client.recipe.getAllRecipes({
       userId,

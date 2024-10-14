@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import { PreparationTime, Visibility } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { QueryRecipeDto } from './dto/query-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
@@ -88,7 +88,7 @@ describe('RecipesRepository', () => {
 
     it('should return an empty array if no recipes are found', async () => {
       // given
-      const params: GetRecepiesFiltersDto = {
+      const params: GetRecipesFiltersDto = {
         category: ['dinner'],
       };
 

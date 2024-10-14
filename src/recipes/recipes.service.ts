@@ -7,7 +7,7 @@ import {
 import { Recipe } from '@prisma/client';
 import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
@@ -20,7 +20,7 @@ export class RecipesService {
 
   async findAll(
     userId?: string,
-    queryParams?: GetRecepiesFiltersDto,
+    queryParams?: GetRecipesFiltersDto,
   ): Promise<OutputRecipeDto[]> {
     const recipes = await this.recipesRepository.getAll(userId, queryParams);
     return Promise.all(

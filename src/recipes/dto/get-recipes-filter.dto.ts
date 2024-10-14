@@ -22,7 +22,7 @@ class SortCondition {
   direction: SortDirection;
 }
 
-export class GetRecepiesFiltersDto {
+export class GetRecipesFiltersDto {
   @ApiProperty({
     name: 'category',
     description: 'Shows only recipes assinged to provided category.',

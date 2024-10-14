@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { GetRecepiesFiltersDto } from 'src/recipes/dto/get-recepies-filter.dto';
+import { GetRecipesFiltersDto } from 'src/recipes/dto/get-recipes-filter.dto';
 import { QueryRecipeDto } from 'src/recipes/dto/query-recipe.dto';
 
 export const customPrismaClient = (prismaClient: PrismaClient) => {
@@ -7,7 +7,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
     model: {
       recipe: {
         async getAllRecipes(
-          params: GetRecepiesFiltersDto,
+          params: GetRecipesFiltersDto,
         ): Promise<QueryRecipeDto[]> {
           let query = `SELECT ${
             params.details
