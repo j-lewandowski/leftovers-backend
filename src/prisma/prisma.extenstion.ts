@@ -79,7 +79,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             dbQueryParams.push(searchTerm);
           }
 
-          if (params.saved === true || params.saved === false) {
+          if (!!params.saved) {
             query += `AND v."isSaved" = $${dbQueryParams.length + 1} `;
             dbQueryParams.push(params.saved);
           }
