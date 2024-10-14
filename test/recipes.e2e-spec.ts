@@ -316,6 +316,63 @@ describe('RecipesController (e2e)', () => {
         });
     });
 
+    it('GET /recipes?myRecipes=true should return only recipes created by user', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get('/recipes?myRecipes=true')
+        .set('Authorization', 'Bearer ' + jwtService.sign({ sub: data.id }))
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body.length).toBe(2);
+        });
+    });
+
     it('POST /recipes should add recipe to database and return recipe data from endpoint', async () => {
       // given
       const createRes = await prismaService.user.create({
