@@ -1,8 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsDate, IsInt, IsOptional } from 'class-validator';
+import { plainToClass, Transform, Type } from 'class-transformer';
+import {
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
+import { SortDirection } from '../enums/sort-direction.enum';
+import { SortField } from '../enums/sort-field.enum';
 
-export class GetRecepiesFiltersDto {
+class SortCondition {
+  @IsEnum(SortField, {
+    message: 'Invalid sort field. Allowed values: createdAt, rating.',
+  })
+  field: SortField;
+
+  @IsEnum(SortDirection, {
+    message: 'Invalid sort direction. Allowed values: asc, desc.',
+  })
+  direction: SortDirection;
+}
+
+export class GetRecipesFiltersDto {
   @ApiProperty({
     name: 'category',
     description: 'Shows only recipes assinged to provided category.',
@@ -89,5 +109,33 @@ export class GetRecepiesFiltersDto {
   @IsOptional()
   details?: boolean = false;
 
+  @ApiProperty({
+    name: 'userId',
+    description: 'Shows only recipes created by given user.',
+    type: 'string',
+    required: false,
+  })
   userId?: string;
+
+  @IsOptional()
+  @ApiProperty({
+    name: 'sort',
+    description:
+      'Sorts recipes by given field. Allowed values: createdAt, rating.',
+    type: 'string',
+    example: 'createdAt,desc',
+    required: false,
+  })
+  @Transform(({ value }) => {
+    const sortParams = Array.isArray(value) ? value : [value];
+
+    return sortParams.map((param: string) => {
+      const [field, direction] = param.split(',');
+
+      return plainToClass(SortCondition, { field, direction });
+    });
+  })
+  @ValidateNested({ each: true })
+  @Type(() => SortCondition)
+  sort?: SortCondition[];
 }

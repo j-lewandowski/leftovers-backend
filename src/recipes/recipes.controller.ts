@@ -27,7 +27,7 @@ import { GetUser } from '../auth/getUser.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RatingDto } from './dto/create-rating.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
-import { GetRecepiesFiltersDto } from './dto/get-recepies-filter.dto';
+import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
 import { RecipesGuard } from './recipes.guard';
 import { RecipesService } from './recipes.service';
@@ -47,9 +47,11 @@ export class RecipesController {
   @Get()
   findAll(
     @GetUser() user: AccessTokenUserDataDto,
-    @Query() params: GetRecepiesFiltersDto,
+    @Query() queryParams: GetRecipesFiltersDto,
   ): Promise<OutputRecipeDto[]> {
-    return this.recipesService.findAll(user?.userId, params);
+    return this.recipesService.findAll(user?.userId, {
+      ...queryParams,
+    });
   }
 
   @ApiOperation({
