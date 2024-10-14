@@ -101,12 +101,24 @@ export class GetRecipesFiltersDto {
   steps?: string;
 
   @ApiProperty({
+    name: 'saved',
+    description:
+      'Shows only saved or not saved recipes. If not provided, returns all recipes.',
+    type: 'boolean',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => value.toLowerCase() === 'true')
+  saved?: boolean;
+
+  @ApiProperty({
     name: 'details',
     description: 'If true, returns all recipe data.',
     type: 'boolean',
     required: false,
   })
   @IsOptional()
+  @Transform(({ value }) => value.toLowerCase() === 'true')
   details?: boolean = false;
 
   @ApiProperty({

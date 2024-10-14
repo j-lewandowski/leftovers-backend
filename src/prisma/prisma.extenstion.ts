@@ -79,6 +79,11 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             dbQueryParams.push(searchTerm);
           }
 
+          if (params.saved === true || params.saved === false) {
+            query += `AND v."isSaved" = $${dbQueryParams.length + 1} `;
+            dbQueryParams.push(params.saved);
+          }
+
           query += 'ORDER BY ';
           if (params.sort) {
             const orderClauses = params.sort
