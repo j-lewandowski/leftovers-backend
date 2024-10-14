@@ -130,6 +130,16 @@ export class GetRecipesFiltersDto {
   })
   userId?: string;
 
+  @ApiProperty({
+    name: 'myRecipes',
+    description: 'Shows only recipes created by user.',
+    type: 'boolean',
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => value.toLowerCase() === 'true')
+  myRecipes?: boolean;
+
   @IsOptional()
   @ApiProperty({
     name: 'sort',

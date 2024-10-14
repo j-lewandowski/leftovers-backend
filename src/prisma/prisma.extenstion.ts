@@ -84,6 +84,11 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             dbQueryParams.push(params.saved);
           }
 
+          if (params.myRecipes) {
+            query += `AND v."authorId" = $${dbQueryParams.length + 1} `;
+            dbQueryParams.push(params.userId);
+          }
+
           query += 'ORDER BY ';
           if (params.sort) {
             const orderClauses = params.sort
