@@ -1,5 +1,14 @@
-import { Body, Controller, Get } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AccessTokenUserDataDto } from 'src/auth/dto/access-token-user-data.dto';
+import { GetUser } from 'src/auth/getUser.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetSignedUrlDto } from './dto/GetSignedUrl.dto';
 import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
 import { UploadFileService } from './upload-file.service';
@@ -22,9 +31,12 @@ export class UploadFileController {
     description: 'Upload url and file key to access the file later.',
     type: SignedUrlResponseDto,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get()
   async getSignedUrl(
-    @Body() { userId, recipeTitle }: GetSignedUrlDto,
+    @Body() { recipeTitle }: GetSignedUrlDto,
+    @GetUser() { userId }: AccessTokenUserDataDto,
   ): Promise<SignedUrlResponseDto> {
     const uploadData = await this.uploadFileService.getUploadSignedUrl(
       userId,
