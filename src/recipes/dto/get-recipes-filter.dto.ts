@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { plainToClass, Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsInt,
@@ -108,7 +109,7 @@ export class GetRecipesFiltersDto {
     required: false,
   })
   @IsOptional()
-  @Transform(({ value }) => value.toLowerCase() === 'true')
+  @IsBoolean()
   saved?: boolean;
 
   @ApiProperty({
@@ -117,8 +118,8 @@ export class GetRecipesFiltersDto {
     type: 'boolean',
     required: false,
   })
+  @IsBoolean()
   @IsOptional()
-  @Transform(({ value }) => value.toLowerCase() === 'true')
   details?: boolean = false;
 
   @ApiProperty({
