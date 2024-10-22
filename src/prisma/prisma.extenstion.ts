@@ -99,7 +99,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
               .join(', ');
             query += orderClauses;
           } else {
-            query += `v."createdAt" DESC, v.rating DESC `;
+            query += `v.rating DESC, v."createdAt" DESC `;
           }
 
           return prismaClient.$queryRawUnsafe<QueryRecipeDto[]>(

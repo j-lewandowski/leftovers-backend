@@ -137,7 +137,7 @@ export class GetRecipesFiltersDto {
     required: false,
   })
   @IsOptional()
-  @Transform(({ value }) => value.toLowerCase() === 'true')
+  @IsBoolean()
   myRecipes?: boolean;
 
   @IsOptional()
