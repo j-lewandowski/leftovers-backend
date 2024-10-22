@@ -6,9 +6,9 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AccessTokenUserDataDto } from 'src/auth/dto/access-token-user-data.dto';
-import { GetUser } from 'src/auth/getUser.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { AccessTokenUserDataDto } from '../auth/dto/access-token-user-data.dto';
+import { GetUser } from '../auth/getUser.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetSignedUrlDto } from './dto/GetSignedUrl.dto';
 import { SignedUrlResponseDto } from './dto/SignedUrlResponse.dto';
 import { UploadFileService } from './upload-file.service';
