@@ -47,10 +47,7 @@ describe('upload file (e2e)', () => {
     });
     const { body } = await request(app.getHttpServer())
       .get('/upload-file')
-      .set('Authorization', `Bearer ${accessToken}`)
-      .send({
-        recipeTitle: faker.commerce.product(),
-      });
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(body).toEqual({
       uploadUrl: expect.any(String),

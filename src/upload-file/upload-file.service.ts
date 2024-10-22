@@ -22,13 +22,9 @@ export class UploadFileService {
     });
   }
 
-  async getUploadSignedUrl(
-    userId: string,
-    recipeTitle: string,
-  ): Promise<SignedUrlResponseDto> {
+  async getUploadSignedUrl(userId: string): Promise<SignedUrlResponseDto> {
     const timestamp = Date.now();
-    const recipe = recipeTitle.trim().replaceAll(' ', '');
-    const fileKey = `recipes/${userId}/${recipe}/${timestamp}`;
+    const fileKey = `recipes/${userId}/${timestamp}`;
     const command = new PutObjectCommand({
       Bucket: this.configService.get('AWS_BUCKET_NAME'),
       Key: fileKey,
