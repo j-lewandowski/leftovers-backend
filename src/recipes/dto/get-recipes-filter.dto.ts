@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { plainToClass, Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsInt,
@@ -101,11 +102,23 @@ export class GetRecipesFiltersDto {
   steps?: string;
 
   @ApiProperty({
+    name: 'saved',
+    description:
+      'Shows only saved or not saved recipes. If not provided, returns all recipes.',
+    type: 'boolean',
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  saved?: boolean;
+
+  @ApiProperty({
     name: 'details',
     description: 'If true, returns all recipe data.',
     type: 'boolean',
     required: false,
   })
+  @IsBoolean()
   @IsOptional()
   details?: boolean = false;
 

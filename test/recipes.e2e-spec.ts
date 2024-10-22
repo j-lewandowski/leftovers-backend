@@ -277,6 +277,45 @@ describe('RecipesController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST);
     });
 
+    it('GET /recipes?saved=true should return only saved recipes', async () => {
+      // given
+      const data = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+      await prismaService.savedRecipe.create({
+        data: { userId: data.id, recipeId: data.recipe[0].id },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .get('/recipes?saved=true')
+        .set('Authorization', 'Bearer ' + jwtService.sign({ sub: data.id }))
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body.length).toBe(1);
+        });
+    });
+
     it('POST /recipes should add recipe to database and return recipe data from endpoint', async () => {
       // given
       const createRes = await prismaService.user.create({
