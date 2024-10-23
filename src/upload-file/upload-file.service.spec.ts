@@ -1,8 +1,8 @@
+import * as presigner from '@aws-sdk/s3-request-presigner';
+import { faker } from '@faker-js/faker';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UploadFileService } from './upload-file.service';
-import { ConfigService } from '@nestjs/config';
-import { faker } from '@faker-js/faker';
-import * as presigner from '@aws-sdk/s3-request-presigner';
 jest.mock('@aws-sdk/s3-request-presigner');
 
 describe('UploadFileService', () => {
@@ -23,10 +23,7 @@ describe('UploadFileService', () => {
       (presigner.getSignedUrl as jest.Mock) = mockGetSignedUrl;
 
       // when
-      const res = await service.getUploadSignedUrl(
-        faker.string.uuid(),
-        faker.commerce.product(),
-      );
+      const res = await service.getUploadSignedUrl(faker.string.uuid());
 
       // then
       expect(res).toEqual({
