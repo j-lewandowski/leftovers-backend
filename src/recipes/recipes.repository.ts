@@ -50,6 +50,14 @@ export class RecipesRepository {
     });
   }
 
+  async remove(recipeId: string): Promise<void> {
+    await this.prisma.recipe.delete({
+      where: {
+        id: recipeId,
+      },
+    });
+  }
+
   async getAllPublicRecipeIds(): Promise<{ id: string }[]> {
     return this.prisma.recipe.findMany({
       select: { id: true },
