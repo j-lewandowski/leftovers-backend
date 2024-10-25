@@ -22,6 +22,7 @@ describe('RecipesService', () => {
           provide: RecipesRepository,
           useFactory: () => ({
             getAll: jest.fn(),
+            remove: jest.fn(),
             getOne: jest.fn(),
             create: jest.fn(),
             refreshRecipeOfTheDay: jest.fn(),
@@ -302,6 +303,51 @@ describe('RecipesService', () => {
 
       // then
       expect(recipesRepository.rateRecipe).toHaveBeenCalled();
+    });
+  });
+
+  describe('remove', () => {
+    it('should throw an error if recipe does not exist', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue(null);
+
+      // when
+      expect(
+        recipesService.remove(faker.string.uuid(), faker.string.uuid()),
+        // then
+      ).rejects.toThrowError();
+    });
+
+    it('should throw an error if user is not an author of the recipe', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue({
+        ...recipe,
+        rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
+      });
+
+      // when
+      expect(
+        recipesService.remove(faker.string.uuid(), faker.string.uuid()),
+        // then
+      ).rejects.toThrowError();
+    });
+
+    it('should remove recipe if user is an author', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue({
+        ...recipe,
+        rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
+      });
+
+      // when
+      await recipesService.remove(faker.string.uuid(), recipe.authorId);
+
+      // then
+      expect(recipesRepository.remove).toHaveBeenCalled();
     });
   });
 });

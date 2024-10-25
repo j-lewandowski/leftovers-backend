@@ -65,6 +65,20 @@ export class RecipesService {
     return this.recipesRepository.create(createRecipeDto, userId);
   }
 
+  async remove(recipeId: string, userId: string): Promise<void> {
+    const recipe = await this.recipesRepository.getOne(recipeId);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (recipe.authorId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    await this.recipesRepository.remove(recipeId);
+  }
+
   async refreshRecipeOfTheDay(): Promise<void> {
     const recipes = await this.recipesRepository.getAllPublicRecipeIds();
 

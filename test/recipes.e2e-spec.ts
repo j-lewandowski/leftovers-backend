@@ -589,6 +589,78 @@ describe('RecipesController (e2e)', () => {
         .set('Authorization', 'Bearer ' + token)
         .expect(HttpStatus.OK);
     });
+
+    it('DELETE /recipes/:id should delete recipe', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .delete(`/recipes/${createRes.recipe[0].id}`)
+        .set(
+          'Authorization',
+          'Bearer ' + jwtService.sign({ sub: createRes.id }),
+        )
+        .expect(HttpStatus.NO_CONTENT);
+    });
+
+    it('DELETE /recipes/:id should throw an error if user is not the author of the recipe', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .delete(`/recipes/${createRes.recipe[0].id}`)
+        .set(
+          'Authorization',
+          'Bearer ' + jwtService.sign({ sub: faker.string.uuid() }),
+        )
+        .expect(HttpStatus.FORBIDDEN);
+    });
   });
 
   describe('/recipes/recipe-of-the-day', () => {

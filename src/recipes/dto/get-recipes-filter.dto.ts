@@ -109,6 +109,9 @@ export class GetRecipesFiltersDto {
     required: false,
   })
   @IsOptional()
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   @IsBoolean()
   saved?: boolean;
 
@@ -118,6 +121,9 @@ export class GetRecipesFiltersDto {
     type: 'boolean',
     required: false,
   })
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   @IsBoolean()
   @IsOptional()
   details?: boolean = false;
@@ -137,6 +143,9 @@ export class GetRecipesFiltersDto {
     required: false,
   })
   @IsOptional()
+  @Transform(({ value }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
   @IsBoolean()
   myRecipes?: boolean;
 

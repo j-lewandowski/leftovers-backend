@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -15,6 +18,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -120,6 +124,29 @@ export class RecipesController {
     @GetUser() user: AccessTokenUserDataDto,
   ): Promise<OutputRecipeDto> {
     return this.recipesService.findOne(recipeId, user?.userId);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Allows to delete recipe.',
+  })
+  @ApiNoContentResponse({
+    description: 'Recipe has been deleted.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Recipe with this id does not exist.',
+  })
+  @ApiForbiddenResponse({
+    description: "You can't delete this recipe.",
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async remove(
+    @GetUser() user: AccessTokenUserDataDto,
+    @Param('id') recipeId: string,
+  ): Promise<void> {
+    await this.recipesService.remove(recipeId, user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
