@@ -39,7 +39,7 @@ describe('RecipesRepository', () => {
   const recipe = {
     title: faker.commerce.product(),
     description: 'description',
-    preparationTime: PreparationTime.UP_TO_15_MIN,
+    preparationTime: PreparationTime.UpTo15Min,
     preparationSteps: [],
     imageKey: 'image/key',
     ingredients: [],
