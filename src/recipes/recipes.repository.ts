@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { QueryRecipeDto } from './dto/query-recipe.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 
 @Injectable()
 export class RecipesRepository {
@@ -44,6 +45,31 @@ export class RecipesRepository {
         category: {
           connect: {
             name: createRecipeDto.categoryName,
+          },
+        },
+      },
+    });
+  }
+
+  async update(
+    recipeId: string,
+    updateRecipeDto: UpdateRecipeDto,
+  ): Promise<Recipe> {
+    return this.prisma.recipe.update({
+      where: {
+        id: recipeId,
+      },
+      data: {
+        title: updateRecipeDto.title,
+        description: updateRecipeDto.description,
+        preparationSteps: updateRecipeDto.preparationSteps,
+        servings: updateRecipeDto.servings,
+        ingredients: updateRecipeDto.ingredients,
+        visibility: updateRecipeDto.visibility,
+        imageKey: updateRecipeDto.imageKey,
+        category: {
+          connect: {
+            name: updateRecipeDto.categoryName,
           },
         },
       },

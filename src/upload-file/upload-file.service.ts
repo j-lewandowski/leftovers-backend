@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -45,5 +46,13 @@ export class UploadFileService {
     return await getSignedUrl(this.s3client, command, {
       expiresIn: 3600, // 1 hour
     });
+  }
+
+  async deleteImage(key: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: this.configService.get('AWS_BUCKET_NAME'),
+      Key: key,
+    });
+    await this.s3client.send(command);
   }
 }
