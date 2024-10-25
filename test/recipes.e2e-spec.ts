@@ -623,7 +623,7 @@ describe('RecipesController (e2e)', () => {
           'Authorization',
           'Bearer ' + jwtService.sign({ sub: createRes.id }),
         )
-        .expect(HttpStatus.OK);
+        .expect(HttpStatus.NO_CONTENT);
     });
 
     it('DELETE /recipes/:id should throw an error if user is not the author of the recipe', async () => {
