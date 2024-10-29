@@ -39,7 +39,7 @@ describe('RecipesRepository', () => {
   const recipe = {
     title: faker.commerce.product(),
     description: 'description',
-    preparationTime: PreparationTime.UP_TO_15_MIN,
+    preparationTime: PreparationTime.UpTo15Min,
     preparationSteps: [],
     imageKey: 'image/key',
     ingredients: [],
@@ -63,6 +63,7 @@ describe('RecipesRepository', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 1,
+          visibility: Visibility.PRIVATE,
         },
         {
           id: faker.string.uuid(),
@@ -72,6 +73,7 @@ describe('RecipesRepository', () => {
           imageKey: 'image/key',
           isSaved: true,
           numberOfRatings: 1,
+          visibility: Visibility.PRIVATE,
         },
       ];
 

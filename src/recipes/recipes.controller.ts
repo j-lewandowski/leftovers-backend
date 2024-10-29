@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -33,6 +34,7 @@ import { RatingDto } from './dto/create-rating.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesGuard } from './recipes.guard';
 import { RecipesService } from './recipes.service';
 
@@ -124,6 +126,29 @@ export class RecipesController {
     @GetUser() user: AccessTokenUserDataDto,
   ): Promise<OutputRecipeDto> {
     return this.recipesService.findOne(recipeId, user?.userId);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Allows to update recipe.',
+  })
+  @ApiOkResponse({
+    description: 'Recipe has been updated.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Recipe with this id does not exist.',
+  })
+  @ApiForbiddenResponse({
+    description: "You can't update this recipe.",
+  })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  update(
+    @Param('id') recipeId: string,
+    @GetUser() user: AccessTokenUserDataDto,
+    @Body() recipeData: UpdateRecipeDto,
+  ) {
+    return this.recipesService.update(recipeId, recipeData, user.userId);
   }
 
   @Delete(':id')

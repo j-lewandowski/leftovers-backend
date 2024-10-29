@@ -9,6 +9,7 @@ import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
 @Injectable()
@@ -65,6 +66,27 @@ export class RecipesService {
     return this.recipesRepository.create(createRecipeDto, userId);
   }
 
+  async update(
+    recipeId: string,
+    updateRecipeDto: UpdateRecipeDto,
+    userId: string,
+  ): Promise<Recipe> {
+    const recipe = await this.recipesRepository.getOne(recipeId);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (recipe.imageKey !== updateRecipeDto.imageKey) {
+      await this.uploadFileService.deleteImage(recipe.imageKey);
+    }
+
+    if (recipe.authorId !== userId) {
+      throw new ForbiddenException();
+    }
+
+    return this.recipesRepository.update(recipeId, updateRecipeDto);
+  }
   async remove(recipeId: string, userId: string): Promise<void> {
     const recipe = await this.recipesRepository.getOne(recipeId);
 

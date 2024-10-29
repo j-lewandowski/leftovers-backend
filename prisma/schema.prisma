@@ -33,7 +33,7 @@ model Recipe {
   id               String           @id @default(uuid())
   title            String
   description      String           @default("Description")
-  preparationTime  PreparationTime  @default(UP_TO_15_MIN) @map("preparation_time")
+  preparationTime  PreparationTime  @default(UpTo15Min) @map("preparation_time")
   ingredients      String[]
   visibility       Visibility       @default(PUBLIC)
   createdAt        DateTime         @default(now()) @map("created_at")
@@ -84,8 +84,8 @@ enum Visibility {
 }
 
 enum PreparationTime {
-  UP_TO_15_MIN
-  UP_TO_30_MIN
-  UP_TO_60_MIN
-  OVER_60_MIN
+  UpTo15Min
+  UpTo30Min
+  UpTo60Min
+  Over60Min
 }

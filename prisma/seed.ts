@@ -16,7 +16,7 @@ async function main() {
             title: 'Grilled Chicken with Roasted Vegetables',
             description:
               'This grilled chicken is a breeze to make and delivers a delicious combo of flavors. Start by marinating chicken in a mix of zesty lemon, aromatic herbs, and garlic.',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'lunch',
@@ -28,7 +28,7 @@ async function main() {
             title: 'Spaghetti Carbonara',
             description:
               'This is a timeless Italian dish, showcasing perfectly cooked pasta...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'lunch',
@@ -40,7 +40,7 @@ async function main() {
             title: 'Cheeseburger',
             description:
               'A perfectly grilled beef patty meets the creaminess of aged cheddar, all...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'lunch',
@@ -52,7 +52,7 @@ async function main() {
             title: 'Garden Fresh Gourmet Salad',
             description:
               'A medley of farm-fresh greens, including crisp lettuce, peppery arag...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'salads',
@@ -82,7 +82,7 @@ async function main() {
             title: 'Creamy Vegetable Soup 2',
             description:
               'Carrots, celery, and leeks mingle in a velvety broth, creating a symphonyo....',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'soups',
@@ -94,7 +94,7 @@ async function main() {
             title: 'Garlic Butter Bliss Prawns',
             description:
               'Delight your senses with our Garlic Butter Bliss Prawns – a tantalizing...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'lunch',
@@ -106,7 +106,7 @@ async function main() {
             title: 'Fluffy Vanilla Pancakes',
             description:
               'Elevate your breakfast experience with our Fluffy Vanilla Pancakes – a ...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'breakfast',
@@ -118,7 +118,7 @@ async function main() {
             title: 'Tuna and Tomato Rice Bowl',
             description:
               'Dive into a culinary adventure with our Tuna and Avocado Rice Bowl – a...',
-            preparationTime: 'UP_TO_30_MIN',
+            preparationTime: 'UpTo15Min',
             preparationSteps: ['Step 1'],
             ingredients: ['Ingredient 1', 'Ingredient 2', 'Ingredient 3'],
             categoryName: 'lunch',

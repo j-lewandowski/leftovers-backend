@@ -22,6 +22,7 @@ describe('RecipesService', () => {
           provide: RecipesRepository,
           useFactory: () => ({
             getAll: jest.fn(),
+            update: jest.fn(),
             remove: jest.fn(),
             getOne: jest.fn(),
             create: jest.fn(),
@@ -45,7 +46,7 @@ describe('RecipesService', () => {
     id: faker.string.uuid(),
     title: faker.commerce.product(),
     description: 'description',
-    preparationTime: PreparationTime.UP_TO_15_MIN,
+    preparationTime: PreparationTime.UpTo15Min,
     preparationSteps: [],
     servings: 2,
     imageKey: 'image/key',
@@ -92,6 +93,7 @@ describe('RecipesService', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
         {
           id: 'recipe2',
@@ -101,6 +103,7 @@ describe('RecipesService', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
       ]);
       jest
@@ -120,6 +123,7 @@ describe('RecipesService', () => {
           imageUrl: expect.any(String),
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
         {
           id: 'recipe2',
@@ -129,6 +133,7 @@ describe('RecipesService', () => {
           imageUrl: expect.any(String),
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
       ]);
     });
@@ -303,6 +308,51 @@ describe('RecipesService', () => {
 
       // then
       expect(recipesRepository.rateRecipe).toHaveBeenCalled();
+    });
+  });
+
+  describe('update', () => {
+    it('should throw an error if recipe does not exist', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue(null);
+
+      // when
+      expect(
+        recipesService.update(faker.string.uuid(), recipe, faker.string.uuid()),
+        // then
+      ).rejects.toThrowError();
+    });
+
+    it('should throw an error if user is not an author of the recipe', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue({
+        ...recipe,
+        rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
+      });
+
+      // when
+      expect(
+        recipesService.update(faker.string.uuid(), recipe, faker.string.uuid()),
+        // then
+      ).rejects.toThrowError();
+    });
+
+    it('should update recipe if user is an author', async () => {
+      // given
+      jest.spyOn(recipesRepository, 'getOne').mockResolvedValue({
+        ...recipe,
+        rating: 0,
+        isSaved: false,
+        numberOfRatings: 3,
+      });
+
+      // when
+      await recipesService.update(recipe.id, recipe, recipe.authorId);
+
+      // then
+      expect(recipesRepository.update).toHaveBeenCalled();
     });
   });
 

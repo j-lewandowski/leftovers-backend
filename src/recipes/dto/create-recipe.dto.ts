@@ -39,7 +39,7 @@ export class CreateRecipeDto {
   @IsNotEmpty()
   @IsEnum(PreparationTime)
   @ApiProperty({
-    example: PreparationTime.OVER_60_MIN,
+    example: PreparationTime.Over60Min,
   })
   preparationTime: PreparationTime;
 

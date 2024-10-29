@@ -397,7 +397,7 @@ describe('RecipesController (e2e)', () => {
           preparationSteps: ['1 step'],
           categoryName: 'lunch',
           imageKey: 'test/test.png',
-          preparationTime: PreparationTime.UP_TO_15_MIN,
+          preparationTime: PreparationTime.UpTo15Min,
           visibility: Visibility.PUBLIC,
           servings: 1,
         })
@@ -414,7 +414,7 @@ describe('RecipesController (e2e)', () => {
         imageKey: expect.any(String),
         visibility: Visibility.PUBLIC,
         servings: 1,
-        preparationTime: PreparationTime.UP_TO_15_MIN,
+        preparationTime: PreparationTime.UpTo15Min,
         authorId: expect.any(String),
         createdAt: expect.any(String),
       });
@@ -624,6 +624,111 @@ describe('RecipesController (e2e)', () => {
           'Bearer ' + jwtService.sign({ sub: createRes.id }),
         )
         .expect(HttpStatus.NO_CONTENT);
+    });
+
+    it('PATCH /recipes/:id should update recipe', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: 'Test',
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // when
+      const { body } = await request(app.getHttpServer())
+        .patch(`/recipes/${createRes.recipe[0].id}`)
+        .set(
+          'Authorization',
+          'Bearer ' + jwtService.sign({ sub: createRes.id }),
+        )
+        .send({
+          title: 'Updated title',
+          description: 'Updated description',
+          ingredients: ['cheese'],
+          preparationSteps: ['1 step'],
+          categoryName: 'lunch',
+          imageKey: 'test/test.png',
+          preparationTime: PreparationTime.UpTo15Min,
+          visibility: Visibility.PUBLIC,
+          servings: 1,
+        })
+        .expect(HttpStatus.OK);
+
+      // then
+      expect(body).toEqual({
+        id: expect.any(String),
+        title: 'Updated title',
+        description: 'Updated description',
+        ingredients: ['cheese'],
+        preparationSteps: ['1 step'],
+        categoryName: 'lunch',
+        imageKey: expect.any(String),
+        visibility: Visibility.PUBLIC,
+        servings: 1,
+        preparationTime: PreparationTime.UpTo15Min,
+        authorId: expect.any(String),
+        createdAt: expect.any(String),
+      });
+    });
+
+    it('PATCH /recipes/:id should throw an error if user is not the author of the recipe', async () => {
+      // given
+      const createRes = await prismaService.user.create({
+        data: {
+          email: faker.internet.email(),
+          password: faker.internet.password(),
+          recipe: {
+            create: [
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'breakfast',
+                imageKey: 'test/test.png',
+              },
+              {
+                title: faker.commerce.productName(),
+                categoryName: 'drinks',
+                imageKey: 'test/test.png',
+              },
+            ],
+          },
+        },
+        include: {
+          recipe: true,
+        },
+      });
+
+      // then
+      return request(app.getHttpServer())
+        .patch(`/recipes/${createRes.recipe[0].id}`)
+        .set(
+          'Authorization',
+          'Bearer ' + jwtService.sign({ sub: faker.string.uuid() }),
+        )
+        .send({
+          title: 'Updated title',
+          description: 'Updated description',
+          ingredients: ['cheese'],
+          preparationSteps: ['1 step'],
+          categoryName: 'lunch',
+          imageKey: 'test/test.png',
+          preparationTime: PreparationTime.UpTo15Min,
+          visibility: Visibility.PUBLIC,
+          servings: 1,
+        })
+        .expect(HttpStatus.FORBIDDEN);
     });
 
     it('DELETE /recipes/:id should throw an error if user is not the author of the recipe', async () => {
