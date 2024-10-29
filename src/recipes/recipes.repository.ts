@@ -60,16 +60,16 @@ export class RecipesRepository {
         id: recipeId,
       },
       data: {
-        title: updateRecipeDto.title,
-        description: updateRecipeDto.description,
-        preparationSteps: updateRecipeDto.preparationSteps,
-        servings: updateRecipeDto.servings,
-        ingredients: updateRecipeDto.ingredients,
-        visibility: updateRecipeDto.visibility,
-        imageKey: updateRecipeDto.imageKey,
-        category: {
+        title: updateRecipeDto?.title,
+        description: updateRecipeDto?.description,
+        preparationSteps: updateRecipeDto?.preparationSteps,
+        servings: updateRecipeDto?.servings,
+        ingredients: updateRecipeDto?.ingredients,
+        visibility: updateRecipeDto?.visibility,
+        imageKey: updateRecipeDto?.imageKey,
+        category: updateRecipeDto?.categoryName && {
           connect: {
-            name: updateRecipeDto.categoryName,
+            name: updateRecipeDto?.categoryName,
           },
         },
       },
