@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApiProperty } from '@nestjs/swagger';
+import { Visibility } from '@prisma/client';
 
 export class BaseRecipeDto {
   @ApiProperty({
@@ -36,4 +37,10 @@ export class BaseRecipeDto {
     example: 12,
   })
   numberOfRatings: number;
+
+  @ApiProperty({
+    type: 'string',
+    example: Visibility.PUBLIC,
+  })
+  visibility: Visibility;
 }

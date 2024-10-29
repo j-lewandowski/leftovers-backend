@@ -73,12 +73,12 @@ export class RecipesService {
   ): Promise<Recipe> {
     const recipe = await this.recipesRepository.getOne(recipeId);
 
-    if (recipe.imageKey !== updateRecipeDto.imageKey) {
-      await this.uploadFileService.deleteImage(recipe.imageKey);
-    }
-
     if (!recipe) {
       throw new NotFoundException();
+    }
+
+    if (recipe.imageKey !== updateRecipeDto.imageKey) {
+      await this.uploadFileService.deleteImage(recipe.imageKey);
     }
 
     if (recipe.authorId !== userId) {

@@ -63,6 +63,7 @@ describe('RecipesRepository', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 1,
+          visibility: Visibility.PRIVATE,
         },
         {
           id: faker.string.uuid(),
@@ -72,6 +73,7 @@ describe('RecipesRepository', () => {
           imageKey: 'image/key',
           isSaved: true,
           numberOfRatings: 1,
+          visibility: Visibility.PRIVATE,
         },
       ];
 

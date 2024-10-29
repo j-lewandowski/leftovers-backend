@@ -93,6 +93,7 @@ describe('RecipesService', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
         {
           id: 'recipe2',
@@ -102,6 +103,7 @@ describe('RecipesService', () => {
           imageKey: 'image/key',
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
       ]);
       jest
@@ -121,6 +123,7 @@ describe('RecipesService', () => {
           imageUrl: expect.any(String),
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
         {
           id: 'recipe2',
@@ -130,6 +133,7 @@ describe('RecipesService', () => {
           imageUrl: expect.any(String),
           isSaved: false,
           numberOfRatings: 3,
+          visibility: Visibility.PUBLIC,
         },
       ]);
     });

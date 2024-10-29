@@ -21,12 +21,6 @@ export class RecipeDto extends BaseRecipeDto {
   preparationSteps?: string[];
 
   @ApiPropertyOptional({
-    type: 'PRIVATE | PUBLIC',
-    example: 'PUBLIC',
-  })
-  visibility?: 'PRIVATE' | 'PUBLIC';
-
-  @ApiPropertyOptional({
     type: 'Date',
     example: '2024-08-05 09:22:28.250',
   })

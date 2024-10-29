@@ -12,7 +12,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
           let query = `SELECT ${
             params.details
               ? '*'
-              : 'id, title, description, rating, "numberOfRatings", "imageKey", "isSaved"'
+              : 'id, title, description, rating, "numberOfRatings", "imageKey", "isSaved", visibility'
           } FROM recipe_view as v WHERE `;
 
           const dbQueryParams = [];
