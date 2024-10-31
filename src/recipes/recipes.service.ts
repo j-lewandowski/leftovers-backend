@@ -77,7 +77,7 @@ export class RecipesService {
       throw new NotFoundException();
     }
 
-    if (recipe.imageKey !== updateRecipeDto.imageKey) {
+    if (recipe?.imageKey !== updateRecipeDto.imageKey) {
       await this.uploadFileService.deleteImage(recipe.imageKey);
     }
 
