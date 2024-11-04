@@ -58,10 +58,9 @@ export class EmailService {
       to: userEmail,
       subject: 'Reset your password',
       text: resetLink,
-      template: 'user-password-reset.template.pug',
-      context: {
-        resetLink,
-      },
+      html: this.compileEmailTemplate('user-password-reset', {
+        resetPasswordUrl: resetLink,
+      }),
     });
   }
 }
