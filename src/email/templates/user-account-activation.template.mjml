@@ -65,16 +65,28 @@
       </mj-column>
     </mj-section>
 
-    <mj-section> 
+   <mj-section> 
       <mj-column> 
-          <mj-text align="center">contact@leftovers.com</mj-text>
+          <mj-text align="center" color="rgba(0, 0, 0, 0.6)">
+            <a href="#" style="color: inherit;">
+              contact@leftovers.com
+            </a>
+          </mj-text>
         </mj-social>
       </mj-column>
       <mj-column> 
-        <mj-text align="center">Privacy policy</mj-text>
+        <mj-text align="center" color="rgba(0, 0, 0, 0.6)">
+          <a href="#" style="color: inherit;">
+            Privacy policy
+          </a>
+        </mj-text>
       </mj-column>
       <mj-column> 
-        <mj-text align="center">Terms & Conditions</mj-text>
+        <mj-text align="center" color="rgba(0, 0, 0, 0.6)">
+          <a href="#" style="color: inherit;">
+            Terms & Conditions
+          </a>
+        </mj-text>
       </mj-column>
     </mj-section>
   </mj-body>
