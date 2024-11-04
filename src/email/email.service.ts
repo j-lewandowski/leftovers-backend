@@ -1,6 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { readFileSync } from 'fs';
+import * as path from 'path';
+import mjml2html = require('mjml');
 
 @Injectable()
 export class EmailService {
@@ -9,19 +12,19 @@ export class EmailService {
     private configService: ConfigService,
   ) {}
 
-  async sendMail(
-    from: string,
-    to: string,
-    subject: string,
-    text: string,
-  ): Promise<void> {
-    await this.mailService.sendMail({
-      from: 'test',
-      to,
-      subject,
-      text,
-      template: 'test',
+  compileEmailTemplate(template: string, context: any): string {
+    const mjmlFilePath = path.resolve(
+      __dirname,
+      './templates',
+      `${template}.template.mjml`,
+    );
+    const mjml = readFileSync(mjmlFilePath, 'utf8');
+    const htmlOutput = mjml2html(mjml);
+    let filledHtml = htmlOutput.html;
+    Object.keys(context).forEach((key) => {
+      filledHtml = filledHtml.replace(`{{${key}}}`, context[key]);
     });
+    return filledHtml;
   }
 
   async sendAccountConfirmationMail(
@@ -37,10 +40,9 @@ export class EmailService {
       to: userEmail,
       subject: '👋 Please confirm your e-mail',
       text: token,
-      template: 'user-account-activation.template.pug',
-      context: {
-        activationLink: link,
-      },
+      html: this.compileEmailTemplate('user-account-activation', {
+        activationUrl: link,
+      }),
     });
   }
 
