@@ -1,6 +1,10 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import ejs from 'ejs';
+import { readFileSync } from 'fs';
+import mjml2html from 'mjml';
+import * as path from 'path';
 
 @Injectable()
 export class EmailService {
@@ -9,19 +13,20 @@ export class EmailService {
     private configService: ConfigService,
   ) {}
 
-  async sendMail(
-    from: string,
-    to: string,
-    subject: string,
-    text: string,
-  ): Promise<void> {
-    await this.mailService.sendMail({
-      from: 'test',
-      to,
-      subject,
-      text,
-      template: 'test',
-    });
+  compileEmailTemplate(
+    templateName: string,
+    context: Record<string, unknown>,
+  ): string {
+    const mjmlFilePath = path.resolve(
+      __dirname,
+      './templates',
+      `${templateName}.template.mjml`,
+    );
+    const template = readFileSync(mjmlFilePath, 'utf8');
+    const htmlOutput = mjml2html(template);
+    const filledHtml = ejs.render(htmlOutput.html, context);
+
+    return filledHtml;
   }
 
   async sendAccountConfirmationMail(
@@ -37,10 +42,9 @@ export class EmailService {
       to: userEmail,
       subject: '👋 Please confirm your e-mail',
       text: token,
-      template: 'user-account-activation.template.pug',
-      context: {
-        activationLink: link,
-      },
+      html: this.compileEmailTemplate('user-account-activation', {
+        activationUrl: link,
+      }),
     });
   }
 
@@ -56,10 +60,9 @@ export class EmailService {
       to: userEmail,
       subject: 'Reset your password',
       text: resetLink,
-      template: 'user-password-reset.template.pug',
-      context: {
-        resetLink,
-      },
+      html: this.compileEmailTemplate('user-password-reset', {
+        resetPasswordUrl: resetLink,
+      }),
     });
   }
 }
