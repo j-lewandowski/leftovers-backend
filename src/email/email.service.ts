@@ -1,9 +1,10 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import ejs from 'ejs';
 import { readFileSync } from 'fs';
+import mjml2html from 'mjml';
 import * as path from 'path';
-import mjml2html = require('mjml');
 
 @Injectable()
 export class EmailService {
@@ -12,18 +13,19 @@ export class EmailService {
     private configService: ConfigService,
   ) {}
 
-  compileEmailTemplate(template: string, context: any): string {
+  compileEmailTemplate(
+    templateName: string,
+    context: Record<string, unknown>,
+  ): string {
     const mjmlFilePath = path.resolve(
       __dirname,
       './templates',
-      `${template}.template.mjml`,
+      `${templateName}.template.mjml`,
     );
-    const mjml = readFileSync(mjmlFilePath, 'utf8');
-    const htmlOutput = mjml2html(mjml);
-    let filledHtml = htmlOutput.html;
-    Object.keys(context).forEach((key) => {
-      filledHtml = filledHtml.replace(`{{${key}}}`, context[key]);
-    });
+    const template = readFileSync(mjmlFilePath, 'utf8');
+    const htmlOutput = mjml2html(template);
+    const filledHtml = ejs.render(htmlOutput.html, context);
+
     return filledHtml;
   }
 
