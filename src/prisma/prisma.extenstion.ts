@@ -102,6 +102,18 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             query += `v.rating DESC, v."createdAt" DESC `;
           }
 
+          query += `LIMIT ${params.limit} OFFSET ${
+            (params.page - 1) * params.limit
+          }`;
+
+          if (params.limit) {
+            dbQueryParams.push(params.limit);
+          }
+
+          if (params.page) {
+            dbQueryParams.push(params.page);
+          }
+
           return prismaClient.$queryRawUnsafe<QueryRecipeDto[]>(
             query,
             ...dbQueryParams,

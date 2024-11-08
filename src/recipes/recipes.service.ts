@@ -9,6 +9,7 @@ import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
+import { PaginatedRecipesDto } from './dto/paginated-recipes.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesRepository } from './recipes.repository';
 
@@ -22,17 +23,23 @@ export class RecipesService {
   async findAll(
     userId?: string,
     queryParams?: GetRecipesFiltersDto,
-  ): Promise<OutputRecipeDto[]> {
+  ): Promise<PaginatedRecipesDto> {
     const recipes = await this.recipesRepository.getAll(userId, queryParams);
-    return Promise.all(
-      recipes.map(async (recipe) => {
-        const { imageKey, ...otherFields } = recipe;
-        return {
-          ...otherFields,
-          imageUrl: await this.uploadFileService.getImageUrl(imageKey),
-        };
-      }),
-    );
+    const totalRecipes = await this.recipesRepository.totalRecipes(userId);
+    return {
+      recipes: await Promise.all(
+        recipes.map(async (recipe) => {
+          const { imageKey, ...otherFields } = recipe;
+          return {
+            ...otherFields,
+            imageUrl: await this.uploadFileService.getImageUrl(imageKey),
+          };
+        }),
+      ),
+      page: queryParams.page || 1,
+      limit: queryParams.limit || 50,
+      totalRecipes,
+    };
   }
 
   async findOne(

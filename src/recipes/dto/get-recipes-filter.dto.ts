@@ -5,7 +5,9 @@ import {
   IsDate,
   IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
+  IsPositive,
   ValidateNested,
 } from 'class-validator';
 import { SortDirection } from '../enums/sort-direction.enum';
@@ -43,7 +45,7 @@ export class GetRecipesFiltersDto {
     required: false,
   })
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   @Transform(({ value }) => parseFloat(value))
   rating?: number;
 
@@ -170,4 +172,26 @@ export class GetRecipesFiltersDto {
   @ValidateNested({ each: true })
   @Type(() => SortCondition)
   sort?: SortCondition[];
+
+  @ApiProperty({
+    name: 'page',
+    description: 'Page number.',
+    type: 'number',
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Transform(({ value }) => +value)
+  page: number = 1;
+
+  @ApiProperty({
+    name: 'limit',
+    description: 'Number of recipes per page.',
+    type: 'number',
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @Transform(({ value }) => +value)
+  limit: number = 50;
 }
