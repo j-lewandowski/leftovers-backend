@@ -26,6 +26,7 @@ export class RecipesService {
   ): Promise<PaginatedRecipesDto> {
     const recipes = await this.recipesRepository.getAll(userId, queryParams);
     const totalRecipes = await this.recipesRepository.totalRecipes(userId);
+
     return {
       recipes: await Promise.all(
         recipes.map(async (recipe) => {

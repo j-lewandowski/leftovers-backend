@@ -182,7 +182,7 @@ export class GetRecipesFiltersDto {
   @IsInt()
   @IsPositive()
   @Transform(({ value }) => +value)
-  page: number = 1;
+  page?: number = 1;
 
   @ApiProperty({
     name: 'limit',
@@ -193,5 +193,5 @@ export class GetRecipesFiltersDto {
   @IsInt()
   @IsPositive()
   @Transform(({ value }) => +value)
-  limit: number = 50;
+  limit?: number = 50;
 }

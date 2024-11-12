@@ -97,13 +97,13 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
                   `v."${field}" ${direction.toUpperCase()}`,
               )
               .join(', ');
-            query += orderClauses;
+            query += orderClauses + ' ';
           } else {
             query += `v.rating DESC, v."createdAt" DESC `;
           }
 
-          query += `LIMIT ${params.limit} OFFSET ${
-            (params.page - 1) * params.limit
+          query += `LIMIT $${dbQueryParams.length + 1} OFFSET $${
+            dbQueryParams.length + 2
           }`;
 
           if (params.limit) {
@@ -111,7 +111,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
           }
 
           if (params.page) {
-            dbQueryParams.push(params.page);
+            dbQueryParams.push((params.page - 1) * params.limit);
           }
 
           return prismaClient.$queryRawUnsafe<QueryRecipeDto[]>(
@@ -119,6 +119,7 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
             ...dbQueryParams,
           );
         },
+
         async getSingleRecipe(id: string): Promise<QueryRecipeDto> {
           const recipeList =
             await prismaClient.$queryRaw<QueryRecipeDto>`SELECT * FROM recipe_view WHERE id=${id} LIMIT 1`;

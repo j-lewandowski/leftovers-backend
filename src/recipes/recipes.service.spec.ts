@@ -26,6 +26,7 @@ describe('RecipesService', () => {
             remove: jest.fn(),
             getOne: jest.fn(),
             create: jest.fn(),
+            totalRecipes: jest.fn(),
             refreshRecipeOfTheDay: jest.fn(),
             getAllPublicRecipeIds: jest.fn(),
             getRecipeOfTheDay: jest.fn(),
@@ -109,33 +110,39 @@ describe('RecipesService', () => {
       jest
         .spyOn(uploadFileService, 'getImageUrl')
         .mockResolvedValue(faker.internet.url());
+      jest.spyOn(recipesRepository, 'totalRecipes').mockResolvedValue(2);
 
       // when
       const result = await recipesService.findAll(userId, filters);
 
       // then
-      expect(result).toEqual([
-        {
-          id: 'recipe1',
-          title: 'Pancakes',
-          description: 'description',
-          rating: 3.0,
-          imageUrl: expect.any(String),
-          isSaved: false,
-          numberOfRatings: 3,
-          visibility: Visibility.PUBLIC,
-        },
-        {
-          id: 'recipe2',
-          title: 'Omelette',
-          description: 'description',
-          rating: 3.0,
-          imageUrl: expect.any(String),
-          isSaved: false,
-          numberOfRatings: 3,
-          visibility: Visibility.PUBLIC,
-        },
-      ]);
+      expect(result).toEqual({
+        recipes: [
+          {
+            id: 'recipe1',
+            title: 'Pancakes',
+            description: 'description',
+            rating: 3.0,
+            imageUrl: expect.any(String),
+            isSaved: false,
+            numberOfRatings: 3,
+            visibility: Visibility.PUBLIC,
+          },
+          {
+            id: 'recipe2',
+            title: 'Omelette',
+            description: 'description',
+            rating: 3.0,
+            imageUrl: expect.any(String),
+            isSaved: false,
+            numberOfRatings: 3,
+            visibility: Visibility.PUBLIC,
+          },
+        ],
+        page: 1,
+        limit: 50,
+        totalRecipes: 2,
+      });
     });
   });
 

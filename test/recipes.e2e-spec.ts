@@ -5,7 +5,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PreparationTime, Visibility } from '@prisma/client';
-import * as request from 'supertest';
+import request from 'supertest';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 import { PrismaModule } from '../src/prisma/prisma.module';
 import { PrismaService } from '../src/prisma/prisma.service';
@@ -68,7 +68,7 @@ describe('RecipesController (e2e)', () => {
   });
 
   describe('/recipes', () => {
-    it('GET /recipes should return an array of recipes', async () => {
+    it('GET /recipes should return an object of recipes 50 first recipes', async () => {
       // when
       await prismaService.user.create({
         data: {
@@ -93,8 +93,12 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes')
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(Array.isArray(res.body)).toBe(true);
-          expect(res.body.length).toBeGreaterThan(0);
+          expect(res.body).toEqual({
+            limit: 50,
+            page: 1,
+            recipes: expect.any(Array),
+            totalRecipes: expect.any(Number),
+          });
         });
     });
 
@@ -109,6 +113,8 @@ describe('RecipesController (e2e)', () => {
               {
                 title: faker.commerce.productName(),
                 imageKey: 'test/test.png',
+                ingredients: ['ingredient 1'],
+                preparationSteps: ['step 1'],
               },
             ],
           },
@@ -120,25 +126,31 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?details=true')
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body).toEqual([
-            {
-              id: expect.any(String),
-              authorId: expect.any(String),
-              rating: expect.any(Number),
-              isSaved: expect.any(Boolean),
-              numberOfRatings: expect.any(Number),
-              categoryName: expect.any(String),
-              createdAt: expect.any(String),
-              description: expect.any(String),
-              ingredients: null,
-              preparationSteps: null,
-              preparationTime: expect.any(String),
-              title: expect.any(String),
-              visibility: expect.any(String),
-              imageUrl: expect.any(String),
-              servings: expect.any(Number),
-            },
-          ]);
+          expect(res.body).toMatchObject({
+            limit: 50,
+            page: 1,
+            recipes: [
+              {
+                authorId: expect.any(String),
+                categoryName: expect.any(String),
+                createdAt: expect.any(String),
+                description: expect.any(String),
+                id: expect.any(String),
+                imageUrl: expect.any(String),
+                ingredients: expect.any(Array),
+                isSaved: expect.any(Boolean),
+                numberOfRatings: expect.any(Number),
+                preparationSteps: expect.any(Array),
+                preparationTime: expect.any(String),
+                rating: expect.any(Number),
+                servings: expect.any(Number),
+                title: expect.any(String),
+                visibility: expect.any(String),
+              },
+            ],
+            // recipes: expect.any(Array),
+            totalRecipes: expect.any(Number),
+          });
         });
     });
 
@@ -170,17 +182,23 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?category=breakfast')
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body).toEqual([
-            {
-              id: expect.any(String),
-              rating: expect.any(Number),
-              isSaved: expect.any(Boolean),
-              numberOfRatings: expect.any(Number),
-              description: expect.any(String),
-              title: expect.any(String),
-              imageUrl: expect.any(String),
-            },
-          ]);
+          expect(res.body).toEqual({
+            limit: 50,
+            page: 1,
+            recipes: expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                id: expect.any(String),
+                imageUrl: expect.any(String),
+                isSaved: expect.any(Boolean),
+                numberOfRatings: expect.any(Number),
+                rating: expect.any(Number),
+                title: expect.any(String),
+                visibility: expect.any(String),
+              }),
+            ]),
+            totalRecipes: expect.any(Number),
+          });
         });
     });
 
@@ -213,17 +231,23 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?category=breakfast&ingredients=tomato')
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body).toEqual([
-            {
-              id: expect.any(String),
-              rating: expect.any(Number),
-              isSaved: expect.any(Boolean),
-              numberOfRatings: expect.any(Number),
-              description: expect.any(String),
-              title: expect.any(String),
-              imageUrl: expect.any(String),
-            },
-          ]);
+          expect(res.body).toEqual({
+            limit: 50,
+            page: 1,
+            recipes: expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                id: expect.any(String),
+                imageUrl: expect.any(String),
+                isSaved: expect.any(Boolean),
+                numberOfRatings: expect.any(Number),
+                rating: expect.any(Number),
+                title: expect.any(String),
+                visibility: expect.any(String),
+              }),
+            ]),
+            totalRecipes: expect.any(Number),
+          });
         });
     });
 
@@ -236,20 +260,30 @@ describe('RecipesController (e2e)', () => {
           recipe: {
             create: [
               {
+                id: '1',
                 title: 'Recipe 1',
                 categoryName: 'breakfast',
                 imageKey: 'test/test.png',
               },
               {
+                id: '2',
                 title: 'Recipe 2',
                 categoryName: 'drinks',
                 imageKey: 'test/test.png',
               },
             ],
           },
+          rating: {
+            create: {
+              value: 5,
+              recipeId: '2',
+            },
+          },
         },
+
         include: {
           recipe: true,
+          rating: true,
         },
       });
 
@@ -266,7 +300,7 @@ describe('RecipesController (e2e)', () => {
         .get('/recipes?sort=rating,desc')
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body[0].title).toBe('Recipe 2');
+          expect(res.body.recipes[0].title).toBe('Recipe 2');
         });
     });
 
@@ -312,7 +346,7 @@ describe('RecipesController (e2e)', () => {
         .set('Authorization', 'Bearer ' + jwtService.sign({ sub: data.id }))
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body.length).toBe(1);
+          expect(res.body.recipes.length).toBe(1);
         });
     });
 
@@ -369,7 +403,7 @@ describe('RecipesController (e2e)', () => {
         .set('Authorization', 'Bearer ' + jwtService.sign({ sub: data.id }))
         .expect(HttpStatus.OK)
         .expect((res) => {
-          expect(res.body.length).toBe(2);
+          expect(res.body.recipes.length).toBe(2);
         });
     });
 

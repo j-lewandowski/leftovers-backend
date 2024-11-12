@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
 import { UploadFileController } from '../src/upload-file/upload-file.controller';
 import { UploadFileService } from '../src/upload-file/upload-file.service';
