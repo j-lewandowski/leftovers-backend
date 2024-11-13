@@ -48,7 +48,10 @@ export class RecipesController {
     summary:
       'Allows to get all recipes and filter them. When provided with valid jwt also returns private recipes user has created.',
   })
-  @ApiOkResponse({ description: 'List of recipes', type: [OutputRecipeDto] })
+  @ApiOkResponse({
+    description: 'List of recipes',
+    type: [PaginatedRecipesDto],
+  })
   @ApiBearerAuth()
   @UseGuards(RecipesGuard)
   @Get()
