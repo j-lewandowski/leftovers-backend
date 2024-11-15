@@ -34,6 +34,7 @@ import { RatingDto } from './dto/create-rating.dto';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { GetRecipesFiltersDto } from './dto/get-recipes-filter.dto';
 import { OutputRecipeDto } from './dto/output-recipe.dto';
+import { PaginatedRecipesDto } from './dto/paginated-recipes.dto';
 import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesGuard } from './recipes.guard';
 import { RecipesService } from './recipes.service';
@@ -47,14 +48,17 @@ export class RecipesController {
     summary:
       'Allows to get all recipes and filter them. When provided with valid jwt also returns private recipes user has created.',
   })
-  @ApiOkResponse({ description: 'List of recipes', type: [OutputRecipeDto] })
+  @ApiOkResponse({
+    description: 'List of recipes',
+    type: [PaginatedRecipesDto],
+  })
   @ApiBearerAuth()
   @UseGuards(RecipesGuard)
   @Get()
   findAll(
     @GetUser() user: AccessTokenUserDataDto,
     @Query() queryParams: GetRecipesFiltersDto,
-  ): Promise<OutputRecipeDto[]> {
+  ): Promise<PaginatedRecipesDto> {
     return this.recipesService.findAll(user?.userId, {
       ...queryParams,
     });

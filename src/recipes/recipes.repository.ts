@@ -12,7 +12,7 @@ export class RecipesRepository {
 
   async getAll(
     userId: string = null,
-    params: GetRecipesFiltersDto = {},
+    params: GetRecipesFiltersDto,
   ): Promise<QueryRecipeDto[]> {
     return this.prisma.client.recipe.getAllRecipes({
       userId,
@@ -88,6 +88,16 @@ export class RecipesRepository {
     return this.prisma.recipe.findMany({
       select: { id: true },
       where: { visibility: Visibility.PUBLIC },
+    });
+  }
+
+  async totalRecipes(userId: string): Promise<number> {
+    return this.prisma.recipe.count({
+      where: {
+        visibility: userId
+          ? { in: [Visibility.PRIVATE, Visibility.PUBLIC] }
+          : Visibility.PUBLIC,
+      },
     });
   }
 
