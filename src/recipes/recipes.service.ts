@@ -106,6 +106,7 @@ export class RecipesService {
       throw new ForbiddenException();
     }
 
+    await this.uploadFileService.deleteImage(recipe.imageKey);
     await this.recipesRepository.remove(recipeId);
   }
 
