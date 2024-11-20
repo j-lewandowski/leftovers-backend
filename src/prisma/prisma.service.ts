@@ -10,7 +10,7 @@ export class PrismaService
     await this.$connect();
   }
 
-  async clearDatabase() {
+  clearDatabase() {
     return this.$transaction([
       this.rating.deleteMany({}),
       this.savedRecipe.deleteMany({}),

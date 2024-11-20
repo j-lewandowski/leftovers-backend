@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 
 export const getMailerConfig = (config: ConfigService) => ({
   transport: {
@@ -11,7 +10,6 @@ export const getMailerConfig = (config: ConfigService) => ({
   },
   template: {
     dir: process.cwd() + '/templates/',
-    adapter: new PugAdapter(),
     options: {
       strict: true,
     },

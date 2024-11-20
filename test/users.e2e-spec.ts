@@ -1,15 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
-import { PrismaModule } from '../src/prisma/prisma.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { UsersController } from '../src/users/users.controller';
-import { UsersRepository } from '../src/users/users.repository';
-import { UsersService } from '../src/users/users.service';
 
 describe('users (e2e)', () => {
   let app: INestApplication;
@@ -18,24 +13,7 @@ describe('users (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        PrismaModule,
-        ConfigModule.forRoot({
-          envFilePath: '.env.test.local',
-          isGlobal: true,
-        }),
-        JwtModule.registerAsync({
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get('JWT_SECRET'),
-            signOptions: {
-              expiresIn: '24h',
-            },
-          }),
-          inject: [ConfigService],
-        }),
-      ],
-      providers: [UsersService, UsersRepository, JwtStrategy],
-      controllers: [UsersController],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -46,6 +24,11 @@ describe('users (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.clearDatabase();
+  });
+
+  afterAll(async () => {
+    await prisma.$disconnect();
+    await app.close();
   });
 
   it("shoud return users' emails if user is authenticated", async () => {
@@ -121,9 +104,5 @@ describe('users (e2e)', () => {
         // then
         .expect(HttpStatus.OK)
     );
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });

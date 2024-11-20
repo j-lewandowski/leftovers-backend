@@ -1,13 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
-import { UploadFileController } from '../src/upload-file/upload-file.controller';
-import { UploadFileService } from '../src/upload-file/upload-file.service';
+import { AppModule } from '../src/app.module';
 
 describe('upload file (e2e)', () => {
   let app: INestApplication;
@@ -15,29 +11,16 @@ describe('upload file (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        PassportModule,
-        ConfigModule.forRoot({
-          envFilePath: '.env.test.local',
-          isGlobal: true,
-        }),
-        JwtModule.registerAsync({
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get('JWT_SECRET'),
-            signOptions: {
-              expiresIn: '24h',
-            },
-          }),
-          inject: [ConfigService],
-        }),
-      ],
-      providers: [UploadFileService, JwtStrategy],
-      controllers: [UploadFileController],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     jwtService = moduleFixture.get<JwtService>(JwtService);
     await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   it('should return signed upload url and object key', async () => {

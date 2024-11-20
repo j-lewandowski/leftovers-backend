@@ -1,21 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import bcrypt from 'bcrypt';
 import request from 'supertest';
-import { AuthController } from '../src/auth/auth.controller';
-import { AuthRepository } from '../src/auth/auth.repository';
-import { AuthService } from '../src/auth/auth.service';
-import { BasicStrategy } from '../src/auth/strategies/basic.strategy';
-import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
-import { EmailModule } from '../src/email/email.module';
-import { EmailService } from '../src/email/email.service';
-import { PrismaModule } from '../src/prisma/prisma.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { UsersModule } from '../src/users/users.module';
 
 describe('auth (e2e)', () => {
   let app: INestApplication;
@@ -24,30 +14,7 @@ describe('auth (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
-      imports: [
-        UsersModule,
-        PassportModule,
-        EmailModule,
-        ConfigModule.forRoot({
-          envFilePath: '.env.test.local',
-          isGlobal: true,
-        }),
-        PrismaModule,
-        JwtModule.register({
-          secret: 'VERYSECRETKEYTEST',
-          signOptions: {
-            expiresIn: '24h',
-          },
-        }),
-      ],
-      controllers: [AuthController],
-      providers: [
-        AuthService,
-        BasicStrategy,
-        JwtStrategy,
-        EmailService,
-        AuthRepository,
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -62,6 +29,11 @@ describe('auth (e2e)', () => {
 
   beforeEach(async () => {
     await prismaService.clearDatabase();
+  });
+
+  afterAll(async () => {
+    await prismaService.$disconnect();
+    await app.close();
   });
 
   describe('/auth/signup', () => {
