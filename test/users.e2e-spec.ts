@@ -16,7 +16,7 @@ describe('users (e2e)', () => {
   let jwt: JwtService;
   let prisma: PrismaService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         PrismaModule,
@@ -45,12 +45,7 @@ describe('users (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prisma.rating.deleteMany({});
-    await prisma.savedRecipe.deleteMany({});
-    await prisma.recipeOfTheDay.deleteMany({});
-    await prisma.recipe.deleteMany({});
-    await prisma.user.deleteMany({});
-    await prisma.signUpRequests.deleteMany({});
+    await prisma.clearDatabase();
   });
 
   it("shoud return users' emails if user is authenticated", async () => {

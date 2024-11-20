@@ -60,11 +60,7 @@ describe('RecipesController (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prismaService.rating.deleteMany({});
-    await prismaService.savedRecipe.deleteMany({});
-    await prismaService.recipeOfTheDay.deleteMany({});
-    await prismaService.recipe.deleteMany({});
-    await prismaService.user.deleteMany({});
+    await prismaService.clearDatabase();
   });
 
   describe('/recipes', () => {

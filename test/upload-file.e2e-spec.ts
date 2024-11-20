@@ -13,7 +13,7 @@ describe('upload file (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         PassportModule,
