@@ -31,7 +31,6 @@ describe('RecipesController (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prismaService.$disconnect();
     await app.close();
   });
 
