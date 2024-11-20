@@ -106,7 +106,10 @@ export class RecipesService {
       throw new ForbiddenException();
     }
 
-    await this.recipesRepository.remove(recipeId);
+    await Promise.allSettled([
+      this.uploadFileService.deleteImage(recipe.imageKey),
+      this.recipesRepository.remove(recipeId),
+    ]);
   }
 
   async refreshRecipeOfTheDay(): Promise<void> {
