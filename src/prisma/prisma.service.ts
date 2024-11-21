@@ -9,4 +9,16 @@ export class PrismaService
   async onModuleInit() {
     await this.$connect();
   }
+
+  clearDatabase() {
+    return this.$transaction([
+      this.rating.deleteMany({}),
+      this.savedRecipe.deleteMany({}),
+      this.recipeOfTheDay.deleteMany({}),
+      this.recipe.deleteMany({}),
+      this.user.deleteMany({}),
+      this.signUpRequests.deleteMany({}),
+      this.resetPasswordRequest.deleteMany({}),
+    ]);
+  }
 }

@@ -1,19 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PreparationTime, Visibility } from '@prisma/client';
 import request from 'supertest';
-import { JwtStrategy } from '../src/auth/strategies/jwt.strategy';
-import { PrismaModule } from '../src/prisma/prisma.module';
+import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { RecipesController } from '../src/recipes/recipes.controller';
-import { RecipesGuard } from '../src/recipes/recipes.guard';
-import { RecipesRepository } from '../src/recipes/recipes.repository';
-import { RecipesService } from '../src/recipes/recipes.service';
-import { UploadFileService } from '../src/upload-file/upload-file.service';
 
 describe('RecipesController (e2e)', () => {
   let app: INestApplication;
@@ -22,32 +14,7 @@ describe('RecipesController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        PrismaModule,
-        ConfigModule.forRoot({
-          envFilePath: '.env.test.local',
-          isGlobal: true,
-        }),
-        PassportModule,
-        JwtModule.registerAsync({
-          useFactory: async (configService: ConfigService) => ({
-            secret: configService.get('JWT_SECRET'),
-            signOptions: {
-              expiresIn: '24h',
-            },
-          }),
-          inject: [ConfigService],
-        }),
-      ],
-      controllers: [RecipesController],
-      providers: [
-        RecipesService,
-        RecipesRepository,
-        RecipesGuard,
-        JwtStrategy,
-        JwtService,
-        UploadFileService,
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -60,11 +27,11 @@ describe('RecipesController (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await prismaService.rating.deleteMany({});
-    await prismaService.savedRecipe.deleteMany({});
-    await prismaService.recipeOfTheDay.deleteMany({});
-    await prismaService.recipe.deleteMany({});
-    await prismaService.user.deleteMany({});
+    await prismaService.clearDatabase();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   describe('/recipes', () => {
