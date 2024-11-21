@@ -1,0 +1,92 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.2
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:20.18
+
+jobs:
+  fetch-latest-changes:
+    executor: node-executor
+    steps:
+      - checkout
+
+  install-dependencies:
+    executor: node-executor
+    steps:
+      - checkout
+      - node/install-packages:
+          override-ci-command: npm install
+
+  lint:
+    executor: node-executor
+    steps:
+      - checkout
+      - node/install-packages:
+          override-ci-command: npm install
+      - run:
+          name: Run lint checks
+          command: npm run lint
+
+  unit-tests:
+    executor: node-executor
+    steps:
+      - checkout
+      - node/install-packages:
+          override-ci-command: npm install
+      - run:
+          name: Run unit tests
+          command: npm run test
+
+  e2e-tests:
+    docker:
+      - image: cimg/node:20.18
+      - image: cimg/postgres:17.0
+        environment:
+          POSTGRES_USER: testuser
+          POSTGRES_DB: db
+        name: postgres
+    steps:
+      - checkout
+      - node/install-packages:
+          override-ci-command: npm install
+      - run:
+          name: Create .env.test file and fill it
+          command: |
+            echo "DATABASE_URL=postgresql://testuser:testpassword@postgres:5432/db?schema=public" > .env.test
+            echo "BCRYPT_ROUNDS=5" >> .env.test
+            echo "JWT_SECRET=VERYSECRETKEY" >> .env.test
+            echo "AWS_BUCKET_REGION=eu-north-1" >> .env.test
+            echo "AWS_ACCESS_KEY=AWS_ACCESS_KEY" >> .env.test
+            echo "AWS_SECRET_KEY=AWS_SECRET_KEY" >> .env.test
+            echo "AWS_BUCKET_NAME=AWS_BUCKET_NAME" >> .env.test
+      - run:
+          name: Migrate database
+          command: npm run test:db:migrate
+      - run:
+          name: Run e2e tests
+          command: npm run test:e2e
+
+  build:
+    executor: node-executor
+    steps:
+      - checkout
+      - node/install-packages:
+          override-ci-command: npm install
+      - run:
+          name: Build project
+          command: npm run build
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - fetch-latest-changes
+      - install-dependencies
+      - lint
+      - unit-tests
+      - e2e-tests
+      - build
