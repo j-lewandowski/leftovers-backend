@@ -6,40 +6,80 @@ orbs:
 executors:
   node-executor:
     docker:
-      - image: cimg/node:20.18
+      - image: cimg/node:22.11.0
+
+aliases:
+  - &prepare_test_envs
+    run:
+      name: Prepare test environmental variables
+      command: |
+        # 1. Replace lines starting with comments with empty line
+        # 2. Remove all empty lines
+        # 3. Add `export ` to beginning of each line
+        sed \
+          -e 's/\s*#.*$//' \
+          -e '/^\s*$/d' \
+          -e 's/^/export /g' \
+          .env.test >> $BASH_ENV
+  - &restore_cache
+    restore_cache:
+      keys:
+        - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+        - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}
+        - v{{ .Environment.CACHE_VERSION }}-dependencies
+  - &save_cache
+    save_cache:
+      paths:
+        - node_modules
+      key: v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+
+
+restore_cache:
+  keys:
+    - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "composer.lock" }}
+    - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}
+    - v{{ .Environment.CACHE_VERSION }}-dependencies
 
 jobs:
   fetch-latest-changes:
     executor: node-executor
     steps:
       - checkout
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
 
   install-dependencies:
     executor: node-executor
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm install
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - node/install-packages
+      - *save_cache
 
   lint:
     executor: node-executor
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm install
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
       - run:
           name: Run lint checks
           command: npm run lint
+      - *save_cache
 
   unit-tests:
     executor: node-executor
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm install
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
       - run:
           name: Run unit tests
           command: npm run test
+      - *save_cache
 
   e2e-tests:
     docker:
@@ -47,46 +87,53 @@ jobs:
       - image: cimg/postgres:17.0
         environment:
           POSTGRES_USER: testuser
-          POSTGRES_DB: db
-        name: postgres
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+          POSTGRES_PORT: 6000
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm install
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - *prepare_test_envs
       - run:
-          name: Create .env.test file and fill it
-          command: |
-            echo "DATABASE_URL=postgresql://testuser:testpassword@postgres:5432/db?schema=public" > .env.test
-            echo "BCRYPT_ROUNDS=5" >> .env.test
-            echo "JWT_SECRET=VERYSECRETKEY" >> .env.test
-            echo "AWS_BUCKET_REGION=eu-north-1" >> .env.test
-            echo "AWS_ACCESS_KEY=AWS_ACCESS_KEY" >> .env.test
-            echo "AWS_SECRET_KEY=AWS_SECRET_KEY" >> .env.test
-            echo "AWS_BUCKET_NAME=AWS_BUCKET_NAME" >> .env.test
+          name: Prepare .env file
+          command: sh ./scripts/env_file_from_env_vars.sh
       - run:
           name: Migrate database
           command: npm run test:db:migrate
       - run:
           name: Run e2e tests
           command: npm run test:e2e
+      - *save_cache
 
   build:
     executor: node-executor
     steps:
-      - checkout
-      - node/install-packages:
-          override-ci-command: npm install
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
       - run:
           name: Build project
           command: npm run build
+      - *save_cache
 
 workflows:
   version: 2
   build_and_test:
     jobs:
       - fetch-latest-changes
-      - install-dependencies
-      - lint
-      - unit-tests
-      - e2e-tests
-      - build
+      - install-dependencies:
+          requires:
+            - fetch-latest-changes
+      - lint:
+          requires:
+            - install-dependencies
+      - unit-tests:
+          requires:
+            - install-dependencies
+      - e2e-tests:
+          requires:
+            - install-dependencies
+      - build:
+          requires:
+            - install-dependencies
