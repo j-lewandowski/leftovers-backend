@@ -89,7 +89,6 @@ jobs:
           POSTGRES_USER: testuser
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
-          POSTGRES_PORT: 6000
     steps:
       - attach_workspace:
           at: ~/project
