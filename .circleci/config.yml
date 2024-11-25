@@ -33,13 +33,6 @@ aliases:
         - node_modules
       key: v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
-
-restore_cache:
-  keys:
-    - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "composer.lock" }}
-    - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}
-    - v{{ .Environment.CACHE_VERSION }}-dependencies
-
 jobs:
   fetch-latest-changes:
     executor: node-executor
@@ -68,7 +61,6 @@ jobs:
       - run:
           name: Run lint checks
           command: npm run lint
-      - *save_cache
 
   unit-tests:
     executor: node-executor
@@ -79,7 +71,6 @@ jobs:
       - run:
           name: Run unit tests
           command: npm run test
-      - *save_cache
 
   e2e-tests:
     docker:
@@ -103,7 +94,6 @@ jobs:
       - run:
           name: Run e2e tests
           command: npm run test:e2e
-      - *save_cache
 
   build:
     executor: node-executor
@@ -114,7 +104,6 @@ jobs:
       - run:
           name: Build project
           command: npm run build
-      - *save_cache
 
 workflows:
   version: 2
