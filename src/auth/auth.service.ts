@@ -74,7 +74,10 @@ export class AuthService {
       validationToken,
     });
 
-    this.emailService.sendAccountConfirmationMail(user.email, validationToken);
+    await this.emailService.sendAccountConfirmationMail(
+      user.email,
+      validationToken,
+    );
   }
 
   async confirmUserRegistration(requestData: ConfirmSignUpDto): Promise<void> {

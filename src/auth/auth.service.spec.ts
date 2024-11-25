@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { MailerService } from '@nestjs-modules/mailer';
 import {
   ConflictException,
   NotFoundException,
@@ -20,6 +19,7 @@ describe('AuthService', () => {
   let usersRepository: UsersRepository;
   let authRepository: AuthRepository;
   let jwt: JwtService;
+  let emailService: EmailService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,11 +30,11 @@ describe('AuthService', () => {
         UsersRepository,
         AuthRepository,
         ConfigService,
-        EmailService,
         {
-          provide: MailerService,
+          provide: EmailService,
           useValue: {
-            sendMail: jest.fn(),
+            sendAccountConfirmationMail: jest.fn(),
+            sendPasswordResetMail: jest.fn(),
           },
         },
       ],
@@ -44,6 +44,7 @@ describe('AuthService', () => {
     usersRepository = module.get<UsersRepository>(UsersRepository);
     jwt = module.get<JwtService>(JwtService);
     authRepository = module.get<AuthRepository>(AuthRepository);
+    emailService = module.get<EmailService>(EmailService);
   });
 
   describe('registerUser', () => {
@@ -160,9 +161,15 @@ describe('AuthService', () => {
   describe('createSignUpRequest', () => {
     it('should call addSignUpRequest function', async () => {
       // given
+      jest
+        .spyOn(authRepository, 'countRequestsWithTheSameEmail')
+        .mockResolvedValue(0);
       jest.spyOn(authRepository, 'createSignUpRequest').mockResolvedValue();
       jest.spyOn(jwt, 'sign').mockReturnValue('jwt-encoded-string');
       jest.spyOn(bcrypt, 'hash').mockImplementation(() => 'hashed-password');
+      jest
+        .spyOn(emailService, 'sendAccountConfirmationMail')
+        .mockResolvedValue();
 
       // when
       await service.createSignUpRequest({
