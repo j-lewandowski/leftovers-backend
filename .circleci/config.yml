@@ -1,0 +1,127 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.2
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:22.11.0
+
+aliases:
+  - &prepare_test_envs
+    run:
+      name: Prepare test environmental variables
+      command: |
+        # 1. Replace lines starting with comments with empty line
+        # 2. Remove all empty lines
+        # 3. Add `export ` to beginning of each line
+        sed \
+          -e 's/\s*#.*$//' \
+          -e '/^\s*$/d' \
+          -e 's/^/export /g' \
+          .env.test >> $BASH_ENV
+  - &restore_cache
+    restore_cache:
+      keys:
+        - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+        - v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}
+        - v{{ .Environment.CACHE_VERSION }}-dependencies
+  - &save_cache
+    save_cache:
+      paths:
+        - node_modules
+      key: v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
+
+jobs:
+  fetch-latest-changes:
+    executor: node-executor
+    steps:
+      - checkout
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
+
+  install-dependencies:
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - node/install-packages
+      - *save_cache
+
+  lint:
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - run:
+          name: Run lint checks
+          command: npm run lint
+
+  unit-tests:
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - run:
+          name: Run unit tests
+          command: npm run test
+
+  e2e-tests:
+    docker:
+      - image: cimg/node:20.18
+      - image: cimg/postgres:17.0
+        environment:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - *prepare_test_envs
+      - run:
+          name: Prepare .env file
+          command: sh ./scripts/env_file_from_env_vars.sh
+      - run:
+          name: Migrate database
+          command: npm run test:db:migrate
+      - run:
+          name: Run e2e tests
+          command: npm run test:e2e
+
+  build:
+    executor: node-executor
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - run:
+          name: Build project
+          command: npm run build
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - fetch-latest-changes
+      - install-dependencies:
+          requires:
+            - fetch-latest-changes
+      - lint:
+          requires:
+            - install-dependencies
+      - unit-tests:
+          requires:
+            - install-dependencies
+      - e2e-tests:
+          requires:
+            - install-dependencies
+      - build:
+          requires:
+            - install-dependencies
