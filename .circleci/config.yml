@@ -156,6 +156,16 @@ jobs:
           command: |
             docker buildx build --platform linux/arm64 -t leftovers-backend --load .
             docker images
+
+      - run:
+          name: Stop any running containers
+          command: |
+            ssh $SSH_USER@$SSH_HOST "
+              if [ -f $APP_REMOTE_PATH/docker-compose.prod.yml ]; then
+                docker compose -f $APP_REMOTE_PATH/docker-compose.prod.yml down;
+              fi
+            " 
+
       - run:
           name: Clean up old application data
           command: |
@@ -170,13 +180,6 @@ jobs:
           command: |
             scp docker-compose.prod.yml $SSH_USER@$SSH_HOST:$APP_REMOTE_PATH
             scp .env $SSH_USER@$SSH_HOST:$APP_REMOTE_PATH
-
-      - run:
-          name: Stop any running containers
-          command: |
-            ssh $SSH_USER@$SSH_HOST "
-              docker compose -f $APP_REMOTE_PATH/docker-compose.prod.yml down || true;
-            "
 
       - run:
           name: Send docker image over SCP
