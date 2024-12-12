@@ -33,8 +33,31 @@ aliases:
         - node_modules
       key: v{{ .Environment.CACHE_VERSION }}-dependencies-{{ .Environment.CIRCLE_BRANCH }}-{{ checksum "package.json" }}
 
+commands: 
+     setup-buildx:
+      steps:
+        - run:
+            name: Setup buildx and qemu
+            command: |
+              sudo apt-get update
+              sudo apt-get install -y qemu-user-static binfmt-support
+        - run:
+            name: Check versions
+            command: |
+              qemu-aarch64-static --version
+              update-binfmts --version 
+        - run:
+            name: Create builder
+            command: |
+              docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+              docker run --privileged --rm tonistiigi/binfmt --install arm64
+              docker buildx create --name multiarch-builder
+              docker buildx use multiarch-builder
+              docker buildx inspect --bootstrap
+
 jobs:
   fetch-latest-changes:
+    resource_class: small
     executor: node-executor
     steps:
       - checkout
@@ -42,8 +65,10 @@ jobs:
           root: ~/project
           paths:
             - .
+            - dist
 
   install-dependencies:
+    resource_class: small
     executor: node-executor
     steps:
       - attach_workspace:
@@ -53,6 +78,7 @@ jobs:
       - *save_cache
 
   lint:
+    resource_class: small
     executor: node-executor
     steps:
       - attach_workspace:
@@ -63,6 +89,7 @@ jobs:
           command: npm run lint
 
   unit-tests:
+    resource_class: medium
     executor: node-executor
     steps:
       - attach_workspace:
@@ -73,6 +100,7 @@ jobs:
           command: npm run test
 
   e2e-tests:
+    resource_class: small
     docker:
       - image: cimg/node:20.18
       - image: cimg/postgres:17.0
@@ -96,6 +124,7 @@ jobs:
           command: npm run test:e2e
 
   build:
+    resource_class: small
     executor: node-executor
     steps:
       - attach_workspace:
@@ -104,6 +133,69 @@ jobs:
       - run:
           name: Build project
           command: npm run build
+
+  deploy:
+    resource_class: medium
+    docker:
+      - image: cimg/base:2024.11
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - *restore_cache
+      - setup_remote_docker
+      - run:
+          name: Add SSH key to known hosts
+          command: |
+            ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: Prepare .env file
+          command: sh ./scripts/env_file_from_env_vars.sh
+      - setup-buildx
+      - run:
+          name: Build docker image
+          command: |
+            docker buildx build --platform linux/arm64 -t leftovers-backend --load .
+            docker images
+
+      - run:
+          name: Stop any running containers
+          command: |
+            ssh $SSH_USER@$SSH_HOST "
+              if [ -f $APP_REMOTE_PATH/docker-compose.prod.yml ]; then
+                docker compose -f $APP_REMOTE_PATH/docker-compose.prod.yml down;
+              fi
+            " 
+
+      - run:
+          name: Clean up old application data
+          command: |
+            ssh $SSH_USER@$SSH_HOST "
+              rm -rf $APP_REMOTE_PATH;
+              docker image prune -a -f || true;
+              mkdir -p $APP_REMOTE_PATH;
+            "
+
+      - run:
+          name: Upload new deployment files
+          command: |
+            scp docker-compose.prod.yml $SSH_USER@$SSH_HOST:$APP_REMOTE_PATH
+            scp .env $SSH_USER@$SSH_HOST:$APP_REMOTE_PATH
+
+      - run:
+          name: Send docker image over SCP
+          command: |
+            docker save -o leftovers-backend.tar leftovers-backend:latest
+            gzip leftovers-backend.tar
+            scp leftovers-backend.tar.gz $SSH_USER@$SSH_HOST:$APP_REMOTE_PATH
+            ssh $SSH_USER@$SSH_HOST "gunzip $APP_REMOTE_PATH/leftovers-backend.tar.gz"
+
+      - run:
+          name: Load docker image and start containers
+          command: |
+            ssh $SSH_USER@$SSH_HOST "
+              docker load -i $APP_REMOTE_PATH/leftovers-backend.tar;
+              docker compose -f $APP_REMOTE_PATH/docker-compose.prod.yml up -d;
+            "
 
 workflows:
   version: 2
@@ -125,3 +217,10 @@ workflows:
       - build:
           requires:
             - install-dependencies
+      - deploy:
+          context: leftovers-deployment
+          requires:
+            - build
+            - e2e-tests
+            - unit-tests
+            - lint
