@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
+
   const config = new DocumentBuilder()
     .setTitle('Leftovers API')
     .setDescription('Leftovers API documentation')
@@ -14,7 +16,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {});
-  SwaggerModule.setup('api', app, document, {
+
+  SwaggerModule.setup('/', app, document, {
     swaggerOptions: {
       authAction: {
         'basic-auth': {
