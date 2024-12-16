@@ -17,7 +17,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config, {});
 
-  SwaggerModule.setup('/', app, document, {
+  SwaggerModule.setup('/api', app, document, {
     swaggerOptions: {
       authAction: {
         'basic-auth': {
