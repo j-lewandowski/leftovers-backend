@@ -1,73 +1,150 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<div align='center'>
+  <img alt="LOGO" src="https://raw.githubusercontent.com/j-lewandowski/leftovers-frontend/7a48ac7a2861250818cf09144ea7342f327ee57d/src/assets/logo.svg" width=120/>
+  <h1> Leftovers Backend</h1>
+</div>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This is the backend service for the Leftovers application, developed during my internship at [Moodup](https://moodup.team).
 
-## Description
+This repository contains the backend API service for the Leftovers platform. Built with NestJS and TypeScript, it provides a scalable and maintainable server-side solution with comprehensive API documentation, testing, and deployment pipelines.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Tech Stack
 
-## Installation
+- **Framework**: NestJS
+- **Language**: TypeScript
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT
+- **API Documentation**: Swagger
+- **Email Templates**: MJML
+- **File Storage**: AWS S3
+- **Testing**: Jest
+- **CI/CD**: CircleCI
 
-```bash
-$ npm install
-```
+## Getting Started
 
-## Running the app
+### Prerequisites
 
-```bash
-# development
-$ npm run start
+- Node.js (v22.11.0 recommended)
+- Docker
+- PostgreSQL
+- AWS Account (for S3 file storage)
+- SMTP Server (for email functionality)
 
-# watch mode
-$ npm run start:dev
+### Installation
 
-# production mode
-$ npm run start:prod
-```
-
-## Test
+1. Clone the repository:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/your-org/leftovers-backend.git
+cd leftovers-backend
 ```
 
-## Support
+2. Install dependencies:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm install
+```
 
-## Stay in touch
+3. Configure environment variables:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+cp .example.env .env
+```
 
-## License
+Edit the `.env` file with your specific configuration values.
 
-Nest is [MIT licensed](LICENSE).
+4. Start the development server:
+
+```bash
+npm run start:dev
+```
+
+## Docker Setup
+
+The project includes Docker configuration for containerized development and deployment:
+
+### Using Docker for Development
+
+1. Build the Docker image:
+
+```bash
+docker build -t leftovers-backend .
+```
+
+2. Run the container:
+
+```bash
+docker run -p 3000:3000 --env-file .env leftovers-backend
+```
+
+### Docker Compose
+
+For a complete development environment with database:
+
+```bash
+docker-compose up -d
+```
+
+This will start PostgreSQL database in containers.
+
+## Environment Configuration
+
+The application uses different environment files:
+
+- `.env`: Main configuration for development
+- `.env.test`: Configuration for testing environment
+
+Required environment variables include:
+
+- Database connection details
+- JWT configuration
+- Email service configuration
+- AWS S3 credentials
+- Frontend URL for cross-origin requests
+
+## Available Scripts
+
+- `npm run build`: Build the application
+- `npm run start`: Run the application
+- `npm run start:dev`: Run in development mode with hot reload
+- `npm run start:debug`: Run in debug mode
+- `npm run start:prod`: Run in production mode
+- `npm run lint`: Run ESLint
+- `npm test`: Run unit tests
+- `npm run test:watch`: Run tests in watch mode
+- `npm run test:cov`: Generate test coverage report
+
+## API Documentation
+
+The API documentation is automatically generated using Swagger and available at `/api` endpoint when the server is running. It includes detailed information about all endpoints, request/response schemas, and authentication methods.
+
+## CI/CD Pipeline
+
+The project uses CircleCI for continuous integration and deployment:
+
+- **Lint**: Checks code quality
+- **Unit Tests**: Validates functionality with unit tests
+- **E2E Tests**: Ensures system works as expected with integration tests
+- **Build**: Compiles the application for deployment
+
+## Directory Structure
+
+```
+src/
+├── app.module.ts             # Main application module
+├── main.ts                   # Application entry point
+├── email/                    # Email service and templates
+│   └── templates/            # MJML email templates
+└── [other modules]/          # Feature modules
+```
+
+## Features
+
+- RESTful API endpoints
+- JWT-based authentication
+- Email notifications
+- File uploads to AWS S3
+- API documentation with Swagger
+- CORS support
