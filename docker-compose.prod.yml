@@ -1,10 +1,10 @@
 services:
-  leftovers-backend:
-    container_name: leftovers-backend
+  backend:
+    container_name: backend
     env_file:
       - '.env'
-    build:
-      context: .
+    image: leftovers-backend:latest
+    platform: linux/arm64
     ports:
       - '${BACKEND_PORT}:${BACKEND_PORT}'
     networks:
